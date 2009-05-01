@@ -26,8 +26,7 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jLabel5" alignment="0" pref="490" max="32767" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
+                  <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
                           <Component id="jLabel2" alignment="0" pref="184" max="32767" attributes="1"/>
                           <Component id="jLabel3" alignment="0" max="32767" attributes="1"/>
@@ -35,20 +34,20 @@
                       </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jPasswordField1" pref="288" max="32767" attributes="0"/>
-                          <Component id="jTextField2" alignment="0" pref="288" max="32767" attributes="0"/>
-                          <Component id="jTextField1" alignment="0" pref="288" max="32767" attributes="0"/>
-                          <Component id="jLabel1" alignment="0" pref="288" max="32767" attributes="0"/>
+                          <Component id="jPasswordField1" pref="286" max="32767" attributes="0"/>
+                          <Component id="jTextField2" alignment="0" pref="286" max="32767" attributes="0"/>
+                          <Component id="jTextField1" alignment="0" pref="286" max="32767" attributes="0"/>
+                          <Component id="jLabel1" alignment="0" pref="286" max="32767" attributes="0"/>
                       </Group>
                   </Group>
+                  <Component id="jLabel7" alignment="0" pref="488" max="32767" attributes="0"/>
+                  <Component id="jLabel8" alignment="0" pref="488" max="32767" attributes="0"/>
+                  <Component id="jLabel6" alignment="1" pref="488" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
                       <Component id="jButton2" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="jButton1" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="jLabel6" alignment="0" pref="490" max="32767" attributes="0"/>
-                  <Component id="jLabel7" alignment="0" pref="490" max="32767" attributes="0"/>
-                  <Component id="jLabel8" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -75,19 +74,17 @@
                   <Component id="jPasswordField1" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Component id="jLabel5" min="-2" pref="21" max="-2" attributes="0"/>
-              <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="jLabel6" min="-2" pref="21" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="33" max="-2" attributes="0"/>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
               <Component id="jLabel8" min="-2" max="-2" attributes="0"/>
-              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jButton1" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jButton2" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="72" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -102,7 +99,7 @@
           <Color blue="33" green="33" red="ff" type="rgb"/>
         </Property>
         <Property name="horizontalAlignment" type="int" value="4"/>
-        <Property name="text" type="java.lang.String" value="Beta Release 0.1"/>
+        <Property name="text" type="java.lang.String" value="Beta Release 0.2"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel2">
@@ -157,13 +154,6 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton2ActionPerformed"/>
       </Events>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel5">
-      <Properties>
-        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="0" green="0" red="ff" type="rgb"/>
-        </Property>
-      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel6">
       <Properties>

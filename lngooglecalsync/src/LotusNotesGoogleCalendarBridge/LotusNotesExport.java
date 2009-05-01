@@ -2,10 +2,17 @@ package LotusNotesGoogleCalendarBridge;
 
 import com.google.gdata.util.ServiceException;
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
 import org.jdom.*;
 import org.jdom.input.SAXBuilder;
 
@@ -13,6 +20,26 @@ public class LotusNotesExport {
 
     public void start(String mailFileURL, String account, String password) {
         try {
+            
+            TrustManager[] ignoreCerts = new TrustManager[]{ new CustomSSLHandler() };
+
+            try {
+                SSLContext context;
+                context = SSLContext.getInstance("SSL");
+                context.init(null, ignoreCerts, new java.security.SecureRandom());
+                HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
+            } catch (KeyManagementException ex) {
+                Logger.getLogger(LotusNotesExport.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (NoSuchAlgorithmException ex) {
+                Logger.getLogger(LotusNotesExport.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+                public boolean verify(String arg0, SSLSession arg1) {
+                    return true;
+                }
+            });
+
             String url = (mailFileURL + "/" + CalUri);
             SAXBuilder builder = new SAXBuilder();
             Document doc = builder.build(url);
@@ -60,7 +87,7 @@ public class LotusNotesExport {
             }
 
             GoogleImport a = new GoogleImport(account, password);
-          
+
             try {
                 a.createEvent(cals);
 

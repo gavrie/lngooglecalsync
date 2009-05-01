@@ -18,11 +18,9 @@ public class GoogleImport {
             service = new CalendarService("Corporate-LotusNotes-Calendar");
             service.setUserCredentials(accountname, password);
         } catch (IOException e) {
-            System.err.println("Problem communicating with Google Calendar Service");
-            e.printStackTrace();
+            System.err.println("API Error: " + e);
         } catch (ServiceException e) {
-            System.err.println("Google Service did not understand the request");
-            e.printStackTrace();
+            System.err.println("API Error: " + e);
         }
     }
 
@@ -61,7 +59,7 @@ public class GoogleImport {
 
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("API Error: " + e);
         }
     }
 

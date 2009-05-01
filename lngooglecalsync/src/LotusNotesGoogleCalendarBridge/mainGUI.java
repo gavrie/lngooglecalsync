@@ -1,4 +1,3 @@
-
 package LotusNotesGoogleCalendarBridge;
 
 public class mainGUI extends javax.swing.JFrame {
@@ -20,7 +19,6 @@ public class mainGUI extends javax.swing.JFrame {
         jPasswordField1 = new javax.swing.JPasswordField();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
-        jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
@@ -28,10 +26,10 @@ public class mainGUI extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
 
-        jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 14));
         jLabel1.setForeground(new java.awt.Color(255, 51, 51));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        jLabel1.setText("Beta Release 0.1");
+        jLabel1.setText("Beta Release 0.2");
 
         jLabel2.setText("Lotus Notes Mail File URL:");
 
@@ -74,8 +72,6 @@ public class mainGUI extends javax.swing.JFrame {
             }
         });
 
-        jLabel5.setForeground(new java.awt.Color(255, 0, 0));
-
         jLabel6.setForeground(new java.awt.Color(255, 0, 0));
 
         jLabel7.setText("Please make sure to export your gmail calendar as a backup!!");
@@ -89,7 +85,6 @@ public class mainGUI extends javax.swing.JFrame {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 490, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                             .add(jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 184, Short.MAX_VALUE)
@@ -97,17 +92,17 @@ public class mainGUI extends javax.swing.JFrame {
                             .add(jLabel4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .add(18, 18, 18)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jPasswordField1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
-                            .add(jTextField2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
-                            .add(jTextField1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
-                            .add(jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)))
+                            .add(jPasswordField1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)
+                            .add(jTextField2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)
+                            .add(jTextField1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)
+                            .add(jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)))
+                    .add(jLabel7, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 488, Short.MAX_VALUE)
+                    .add(jLabel8, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 488, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 488, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(jButton2)
                         .add(18, 18, 18)
-                        .add(jButton1))
-                    .add(jLabel6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 490, Short.MAX_VALUE)
-                    .add(jLabel7, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 490, Short.MAX_VALUE)
-                    .add(jLabel8, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .add(jButton1)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -128,18 +123,16 @@ public class mainGUI extends javax.swing.JFrame {
                     .add(jLabel4)
                     .add(jPasswordField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .add(18, 18, 18)
-                .add(jLabel5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 21, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(jLabel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 21, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(33, 33, 33)
+                .add(18, 18, 18)
                 .add(jLabel7)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(jLabel8)
-                .add(18, 18, 18)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jButton1)
                     .add(jButton2))
-                .addContainerGap())
+                .add(72, 72, 72))
         );
 
         pack();
@@ -150,16 +143,10 @@ public class mainGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
-         if (jTextField1.getText().contains("https")) {
-            isHttps = true;
+        if (jTextField1.getText().contains("https")) {
+            isUrlValid = false;
         } else {
-            isHttps = false;
-        }
-
-        if (isHttps) {
-            jLabel5.setText("\"https\" or SSL/TLS is not supported yet. Please use standard \"http\".");
-        } else {
-            jLabel5.setText("");
+            isUrlValid = false;
         }
         checkCompletion();
     }//GEN-LAST:event_jTextField1KeyReleased
@@ -176,7 +163,7 @@ public class mainGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextField2KeyReleased
 
     private void jPasswordField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jPasswordField1KeyReleased
-         checkCompletion();
+        checkCompletion();
     }//GEN-LAST:event_jPasswordField1KeyReleased
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -194,8 +181,8 @@ public class mainGUI extends javax.swing.JFrame {
         if (jTextField1.getText().length() > 0 &&
                 jTextField2.getText().length() > 0 &&
                 jPasswordField1.getPassword().length > 0 &&
-                isHttps == false &&
-                isValidAccount == true) {
+                isUrlValid &&
+                isValidAccount) {
 
             jButton1.setEnabled(true);
         } else {
@@ -211,7 +198,7 @@ public class mainGUI extends javax.swing.JFrame {
             }
         });
     }
-    private boolean isHttps = false;
+    private boolean isUrlValid = false;
     private boolean isValidAccount = false;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -221,7 +208,6 @@ public class mainGUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
