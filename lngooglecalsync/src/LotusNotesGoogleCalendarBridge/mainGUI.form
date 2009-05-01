@@ -34,15 +34,16 @@
                       </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jPasswordField1" pref="286" max="32767" attributes="0"/>
-                          <Component id="jTextField2" alignment="0" pref="286" max="32767" attributes="0"/>
-                          <Component id="jTextField1" alignment="0" pref="286" max="32767" attributes="0"/>
-                          <Component id="jLabel1" alignment="0" pref="286" max="32767" attributes="0"/>
+                          <Component id="jPasswordField1" pref="282" max="32767" attributes="0"/>
+                          <Component id="jTextField1" alignment="0" pref="282" max="32767" attributes="0"/>
+                          <Component id="jLabel1" alignment="0" pref="282" max="32767" attributes="0"/>
+                          <Component id="jTextField2" alignment="0" pref="282" max="32767" attributes="0"/>
+                          <Component id="jButton3" alignment="0" min="-2" pref="173" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <Component id="jLabel7" alignment="0" pref="488" max="32767" attributes="0"/>
-                  <Component id="jLabel8" alignment="0" pref="488" max="32767" attributes="0"/>
-                  <Component id="jLabel6" alignment="1" pref="488" max="32767" attributes="0"/>
+                  <Component id="jLabel7" alignment="0" pref="484" max="32767" attributes="0"/>
+                  <Component id="jLabel8" alignment="0" pref="484" max="32767" attributes="0"/>
+                  <Component id="jLabel6" alignment="1" pref="484" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
                       <Component id="jButton2" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
@@ -73,18 +74,20 @@
                   <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jPasswordField1" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jButton3" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="jLabel6" min="-2" pref="21" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
               <Component id="jLabel8" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="33" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jButton1" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jButton2" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" pref="72" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -171,6 +174,14 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Synchronize will add Lotus Notes calendar entries to the main Gmail calendar!"/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="jButton3">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Configure Proxy"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton3ActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>
