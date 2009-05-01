@@ -19,7 +19,7 @@ public class LotusNotesExport {
             Element root = doc.getRootElement();
             List viewentries = root.getChildren("viewentry");
 
-            List cals = new ArrayList();
+            List<NotesCalendarEntry> cals = new ArrayList<NotesCalendarEntry>();
 
             for (int i = 0; i < viewentries.size(); i++) {
                 boolean supported = true;
