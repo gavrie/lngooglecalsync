@@ -4,6 +4,7 @@ public class mainGUI extends javax.swing.JFrame {
 
     public mainGUI() {
         initComponents();
+        proxyBean = new Proxy();
     }
 
     @SuppressWarnings("unchecked")
@@ -189,7 +190,7 @@ public class mainGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        SetProxyDialog dialog = new SetProxyDialog(new javax.swing.JFrame(), true);
+        SetProxyDialog dialog = new SetProxyDialog(new javax.swing.JFrame(), true,proxyBean);
         dialog.setVisible(true);
     }//GEN-LAST:event_jButton3ActionPerformed
 
@@ -221,6 +222,7 @@ public class mainGUI extends javax.swing.JFrame {
     }
     private boolean isUrlValid = false;
     private boolean isValidAccount = false;
+    Proxy proxyBean;
     private String proxyHost,  proxyPort;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

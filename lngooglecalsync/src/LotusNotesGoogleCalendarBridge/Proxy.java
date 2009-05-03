@@ -34,13 +34,12 @@ public class Proxy {
 
     public void activateNow() {
         System.getProperties().put("proxySet", "true");
-        System.getProperties().put("proxyHost", proxyAddress);
+        System.getProperties().put("proxyHost", proxyHost);
         System.getProperties().put("proxyPort", proxyPort);
-    
-    public void deactivateNow() {
     }
 
-
+    public void deactivateNow() {
+    }
 
     String proxyHost, proxyPort;
     boolean enabled;

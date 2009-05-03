@@ -4,9 +4,9 @@ public class SetProxyDialog extends javax.swing.JDialog {
 
     /** Creates new form SetProxyDialog */
     public SetProxyDialog(java.awt.Frame parent, boolean modal, Proxy proxyBean) {
-        this.proxyBean = proxyBean;
         super(parent, modal);
-        initComponents();        
+        initComponents();
+        this.proxyBean = proxyBean;
     }
 
     /** This method is called from within the constructor to
@@ -125,7 +125,7 @@ public class SetProxyDialog extends javax.swing.JDialog {
             proxyBean.setEnabled(true);
 
             System.getProperties().put("proxySet", "true");
-            System.getProperties().put("proxyHost", proxyAddress);
+            System.getProperties().put("proxyHost", proxyHost);
             System.getProperties().put("proxyPort", proxyPort);
         } else {
             System.getProperties().put("proxySet", "false");
