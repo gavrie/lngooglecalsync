@@ -30,7 +30,11 @@ public class NotesCalendarEntry {
     }
 
     public String getStartDateTime() {
-        return convertTimeFormat(startDateTime);
+        String convertedTime = null;
+        if (startDateTime != null) {
+            convertedTime = convertTimeFormat(startDateTime);
+        }
+        return convertedTime;
     }
 
     public String getEndDateTime() {
@@ -70,6 +74,5 @@ public class NotesCalendarEntry {
 
         return googleDateTimeFormat;
     }
-    
     String startDate, endDate, startDateTime, endDateTime, subject, location, body, id;
 }

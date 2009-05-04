@@ -36,7 +36,7 @@ public class GoogleImport {
         calendar.setHidden(HiddenProperty.FALSE);
         calendar.setColor(new ColorProperty(BLUE));
         calendar.addLocation(new Where("", "", "Yokohama"));
-   
+
         CalendarEntry returnedCalendar = service.insert(calendarFeedUrl, calendar);
 
         CalendarEventEntry event = new CalendarEventEntry();
@@ -73,8 +73,14 @@ public class GoogleImport {
             Where location = new Where();
             location.setValueString(cal.getLocation());
             event.addLocation(location);
-            DateTime startTime = DateTime.parseDateTime(cal.getStartDateTime());
-            DateTime endTime = DateTime.parseDateTime(cal.getEndDateTime());
+            DateTime startTime, endTime;
+            try {
+                startTime = DateTime.parseDateTime(cal.getStartDateTime());
+                endTime = DateTime.parseDateTime(cal.getEndDateTime());
+            } catch (Exception e) {
+                System.err.print("Skipping a calendar entry as it is not supported yet!");
+                continue;
+            }
             When eventTimes = new When();
             eventTimes.setStartTime(startTime);
             eventTimes.setEndTime(endTime);

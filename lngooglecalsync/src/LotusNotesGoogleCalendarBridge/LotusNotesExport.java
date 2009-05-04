@@ -1,6 +1,5 @@
 package LotusNotesGoogleCalendarBridge;
 
-import com.google.gdata.util.ServiceException;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -18,10 +17,12 @@ import org.jdom.input.SAXBuilder;
 
 public class LotusNotesExport {
 
-    public void start(String mailFileURL, String account, String password) {
+    public List<NotesCalendarEntry> start(String mailFileURL) {
+        List<NotesCalendarEntry> cals = new ArrayList<NotesCalendarEntry>();
+        
         try {
-            
-            TrustManager[] ignoreCerts = new TrustManager[]{ new CustomSSLHandler() };
+
+            TrustManager[] ignoreCerts = new TrustManager[]{new CustomSSLHandler()};
 
             try {
                 SSLContext context;
@@ -35,6 +36,7 @@ public class LotusNotesExport {
             }
 
             HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+
                 public boolean verify(String arg0, SSLSession arg1) {
                     return true;
                 }
@@ -44,9 +46,7 @@ public class LotusNotesExport {
             SAXBuilder builder = new SAXBuilder();
             Document doc = builder.build(url);
             Element root = doc.getRootElement();
-            List viewentries = root.getChildren("viewentry");
-
-            List<NotesCalendarEntry> cals = new ArrayList<NotesCalendarEntry>();
+            List viewentries = root.getChildren("viewentry");           
 
             for (int i = 0; i < viewentries.size(); i++) {
                 boolean supported = true;
@@ -84,23 +84,16 @@ public class LotusNotesExport {
                 if (supported) {
                     cals.add(cal);
                 }
+
             }
-
-            GoogleImport a = new GoogleImport(account, password);
-
-            try {
-                a.createEvent(cals);
-
-            } catch (ServiceException ex) {
-                Logger.getLogger(LotusNotesExport.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
 
         } catch (IOException ex) {
             Logger.getLogger(LotusNotesExport.class.getName()).log(Level.SEVERE, null, ex);
         } catch (JDOMException ex) {
         }
+        return cals;
     }
+    
     static String CalUri = "($calendar)?ReadViewEntries";
     static String startDateTimeField = "$144";
     static String endDateTimeField = "$146";

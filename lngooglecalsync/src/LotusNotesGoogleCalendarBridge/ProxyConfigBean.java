@@ -1,8 +1,8 @@
 package LotusNotesGoogleCalendarBridge;
 
-public class Proxy {
+public class ProxyConfigBean {
 
-    public Proxy() {
+    public ProxyConfigBean() {
         proxyHost = "";
         proxyPort = "";
         enabled = false;

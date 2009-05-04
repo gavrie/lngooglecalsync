@@ -1,10 +1,21 @@
 package LotusNotesGoogleCalendarBridge;
 
+import com.google.gdata.util.ServiceException;
+import java.io.IOException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class mainGUI extends javax.swing.JFrame {
 
     public mainGUI() {
         initComponents();
-        proxyBean = new Proxy();
+        postInitComponents();
+    }
+
+    private void postInitComponents() {
+        proxyBean = new ProxyConfigBean();
+        dialog = new SetProxyDialog(new javax.swing.JFrame(), true, proxyBean);
     }
 
     @SuppressWarnings("unchecked")
@@ -179,18 +190,30 @@ public class mainGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jPasswordField1KeyReleased
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        LotusNotesExport lne = new LotusNotesExport();
-        lne.start(jTextField1.getText(), jTextField2.getText(), new String(jPasswordField1.getPassword()));
-        jTextField1.setEnabled(false);
-        jTextField2.setEnabled(false);
-        jPasswordField1.setEnabled(false);
-        jButton1.setEnabled(false);
-        jButton2.setText("Exit");
-        jButton1.setText("Done!");
+        try {
+            proxyBean.deactivateNow();
+            LotusNotesExport lne = new LotusNotesExport();
+            List<NotesCalendarEntry> cals = lne.start(jTextField1.getText());
+
+            proxyBean.activateNow();
+            GoogleImport a = new GoogleImport(jTextField2.getText(), new String(jPasswordField1.getPassword()));
+            a.createEvent(cals);
+
+            jTextField1.setEnabled(false);
+            jTextField2.setEnabled(false);
+            jPasswordField1.setEnabled(false);
+            jButton1.setEnabled(false);
+            jButton2.setText("Exit");
+            jButton1.setText("Done!");
+        } catch (ServiceException ex) {
+            Logger.getLogger(mainGUI.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(mainGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        SetProxyDialog dialog = new SetProxyDialog(new javax.swing.JFrame(), true,proxyBean);
+
         dialog.setVisible(true);
     }//GEN-LAST:event_jButton3ActionPerformed
 
@@ -222,8 +245,9 @@ public class mainGUI extends javax.swing.JFrame {
     }
     private boolean isUrlValid = false;
     private boolean isValidAccount = false;
-    Proxy proxyBean;
+    ProxyConfigBean proxyBean;
     private String proxyHost,  proxyPort;
+    SetProxyDialog dialog;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;

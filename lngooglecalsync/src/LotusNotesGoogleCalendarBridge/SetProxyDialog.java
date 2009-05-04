@@ -3,7 +3,7 @@ package LotusNotesGoogleCalendarBridge;
 public class SetProxyDialog extends javax.swing.JDialog {
 
     /** Creates new form SetProxyDialog */
-    public SetProxyDialog(java.awt.Frame parent, boolean modal, Proxy proxyBean) {
+    public SetProxyDialog(java.awt.Frame parent, boolean modal, ProxyConfigBean proxyBean) {
         super(parent, modal);
         initComponents();
         this.proxyBean = proxyBean;
@@ -133,7 +133,7 @@ public class SetProxyDialog extends javax.swing.JDialog {
         this.setVisible(false);
         
     }//GEN-LAST:event_jButton1ActionPerformed
-   Proxy proxyBean;
+   ProxyConfigBean proxyBean;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
