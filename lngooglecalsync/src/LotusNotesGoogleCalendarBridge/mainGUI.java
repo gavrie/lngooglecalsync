@@ -29,6 +29,8 @@ public class mainGUI extends javax.swing.JFrame {
     }
 
     private void postInitComponents() {
+        //change this so that proxy config object is created within proxydialog
+        // and retrieved through a getter method.
         proxy = new ProxyConfigBean();
         proxyDialog = new ProxyConfigurationDialog(new javax.swing.JFrame(), true, proxy);
     }
@@ -213,6 +215,8 @@ public class mainGUI extends javax.swing.JFrame {
 
             proxy.activateNow();
             GoogleImport googleService = new GoogleImport(jTextField2.getText(), new String(jPasswordField1.getPassword()));
+            googleService.deleteCalendar();
+            googleService.createCalendar();
             googleService.createEvent(cals);
 
             jTextField1.setEnabled(false);
@@ -229,8 +233,7 @@ public class mainGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        proxyDialog.setVisible(true);
-        System.out.println("copying object");
+        proxyDialog.setVisible(true);        
         this.proxy = proxyDialog.getProxyConfigBean();
     }//GEN-LAST:event_jButton3ActionPerformed
 
