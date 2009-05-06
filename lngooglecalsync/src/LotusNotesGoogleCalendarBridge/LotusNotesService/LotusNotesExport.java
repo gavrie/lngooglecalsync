@@ -1,8 +1,6 @@
 package LotusNotesGoogleCalendarBridge.LotusNotesService;
 
 import LotusNotesGoogleCalendarBridge.SSLModule.CustomSSLHandler;
-import LotusNotesGoogleCalendarBridge.*;
-import LotusNotesGoogleCalendarBridge.LotusNotesService.NotesCalendarEntry;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
