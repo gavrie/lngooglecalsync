@@ -143,6 +143,11 @@ public class ProxyConfigurationDialog extends javax.swing.JDialog {
         }
         return isCompleted;
     }
+
+    public ProxyConfigBean getProxyConfigBean() {
+        return proxyBean;
+    }
+    
     ProxyConfigBean proxyBean;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

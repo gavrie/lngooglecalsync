@@ -230,6 +230,8 @@ public class mainGUI extends javax.swing.JFrame {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         proxyDialog.setVisible(true);
+        System.out.println("copying object");
+        this.proxy = proxyDialog.getProxyConfigBean();
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void checkCompletion() {
