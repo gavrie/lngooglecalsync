@@ -38,7 +38,7 @@ public class GoogleImport {
     prx.setProxyPort("3128");
     prx.activateNow();
 
-    GoogleImport gi = new GoogleImport("shinsterneck@gmail.com", "pcibus2312");
+    GoogleImport gi = new GoogleImport("", "");
     gi.deleteCalendar();
     CalendarEntry calentry = gi.createCalendar();
 
