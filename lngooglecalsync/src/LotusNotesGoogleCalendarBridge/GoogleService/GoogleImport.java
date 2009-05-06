@@ -80,7 +80,7 @@ public class GoogleImport {
                 startTime = DateTime.parseDateTime(cal.getStartDateTime());
                 endTime = DateTime.parseDateTime(cal.getEndDateTime());
             } catch (Exception e) {
-                System.err.print("Skipping a calendar entry as it is not supported yet!");
+                System.err.println("Skipping a calendar entry as it is not supported yet!");
                 continue;
             }
             When eventTimes = new When();
