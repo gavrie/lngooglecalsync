@@ -1,4 +1,4 @@
-package LotusNotesGoogleCalendarBridge;
+package LotusNotesGoogleCalendarBridge.SSLModule;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;

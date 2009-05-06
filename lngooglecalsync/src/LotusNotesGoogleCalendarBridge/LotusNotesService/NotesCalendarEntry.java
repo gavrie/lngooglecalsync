@@ -1,4 +1,4 @@
-package LotusNotesGoogleCalendarBridge;
+package LotusNotesGoogleCalendarBridge.LotusNotesService;
 
 public class NotesCalendarEntry {
 

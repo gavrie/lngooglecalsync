@@ -1,5 +1,10 @@
 package LotusNotesGoogleCalendarBridge;
 
+import LotusNotesGoogleCalendarBridge.ProxyModule.ProxyConfigurationDialog;
+import LotusNotesGoogleCalendarBridge.ProxyModule.ProxyConfigBean;
+import LotusNotesGoogleCalendarBridge.LotusNotesService.LotusNotesExport;
+import LotusNotesGoogleCalendarBridge.LotusNotesService.NotesCalendarEntry;
+import LotusNotesGoogleCalendarBridge.GoogleService.GoogleImport;
 import com.google.gdata.util.ServiceException;
 import java.io.IOException;
 import java.util.List;
@@ -24,8 +29,8 @@ public class mainGUI extends javax.swing.JFrame {
     }
 
     private void postInitComponents() {
-        proxyBean = new ProxyConfigBean();
-        dialog = new SetProxyDialog(new javax.swing.JFrame(), true, proxyBean);
+        proxy = new ProxyConfigBean();
+        proxyDialog = new ProxyConfigurationDialog(new javax.swing.JFrame(), true, proxy);
     }
 
     @SuppressWarnings("unchecked")
@@ -47,9 +52,10 @@ public class mainGUI extends javax.swing.JFrame {
         jButton3 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(254, 254, 254));
         setResizable(false);
 
-        jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 14));
         jLabel1.setForeground(new java.awt.Color(255, 51, 51));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel1.setText("Beta Release 0.2");
@@ -201,13 +207,13 @@ public class mainGUI extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
-            proxyBean.deactivateNow();
-            LotusNotesExport lne = new LotusNotesExport();
-            List<NotesCalendarEntry> cals = lne.start(jTextField1.getText());
+            proxy.deactivateNow();
+            LotusNotesExport lotusNotesService = new LotusNotesExport();
+            List<NotesCalendarEntry> cals = lotusNotesService.start(jTextField1.getText());
 
-            proxyBean.activateNow();
-            GoogleImport a = new GoogleImport(jTextField2.getText(), new String(jPasswordField1.getPassword()));
-            a.createEvent(cals);
+            proxy.activateNow();
+            GoogleImport googleService = new GoogleImport(jTextField2.getText(), new String(jPasswordField1.getPassword()));
+            googleService.createEvent(cals);
 
             jTextField1.setEnabled(false);
             jTextField2.setEnabled(false);
@@ -223,8 +229,7 @@ public class mainGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-
-        dialog.setVisible(true);
+        proxyDialog.setVisible(true);
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void checkCompletion() {
@@ -240,11 +245,6 @@ public class mainGUI extends javax.swing.JFrame {
         }
     }
 
-    public void setProxyConfiguration(String proxyHost, String proxyPort) {
-        this.proxyHost = proxyHost;
-        this.proxyPort = proxyPort;
-    }
-
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
 
@@ -255,9 +255,8 @@ public class mainGUI extends javax.swing.JFrame {
     }
     private boolean isUrlValid = false;
     private boolean isValidAccount = false;
-    ProxyConfigBean proxyBean;
-    private String proxyHost,  proxyPort;
-    SetProxyDialog dialog;
+    ProxyConfigBean proxy;    
+    ProxyConfigurationDialog proxyDialog;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;

@@ -1,4 +1,4 @@
-package LotusNotesGoogleCalendarBridge;
+package LotusNotesGoogleCalendarBridge.ProxyModule;
 
 public class ProxyConfigBean {
 
@@ -39,8 +39,10 @@ public class ProxyConfigBean {
     }
 
     public void deactivateNow() {
+        System.getProperties().put("proxySet", "false");
+        System.getProperties().put("proxyHost", "");
+        System.getProperties().put("proxyPort", "");
     }
-
     String proxyHost, proxyPort;
     boolean enabled;
 }

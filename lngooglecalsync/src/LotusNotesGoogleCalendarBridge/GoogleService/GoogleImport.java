@@ -1,5 +1,7 @@
-package LotusNotesGoogleCalendarBridge;
+package LotusNotesGoogleCalendarBridge.GoogleService;
 
+import LotusNotesGoogleCalendarBridge.LotusNotesService.NotesCalendarEntry;
+import LotusNotesGoogleCalendarBridge.*;
 import com.google.gdata.client.calendar.*;
 import com.google.gdata.data.*;
 import com.google.gdata.data.calendar.*;
