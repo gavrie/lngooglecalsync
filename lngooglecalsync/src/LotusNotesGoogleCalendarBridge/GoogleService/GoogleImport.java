@@ -1,6 +1,7 @@
 package LotusNotesGoogleCalendarBridge.GoogleService;
 
 import LotusNotesGoogleCalendarBridge.LotusNotesService.NotesCalendarEntry;
+import LotusNotesGoogleCalendarBridge.ProxyModule.ProxyConfigBean;
 import com.google.gdata.client.calendar.*;
 import com.google.gdata.data.*;
 import com.google.gdata.data.calendar.*;
@@ -9,6 +10,8 @@ import com.google.gdata.util.*;
 import java.io.*;
 import java.net.*;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class GoogleImport {
 
@@ -29,26 +32,27 @@ public class GoogleImport {
     public GoogleImport() {
     }
 
-    /*
     public static void main(String[] a) {
-    try {
-    ProxyConfigBean prx = new ProxyConfigBean();
-    prx.setEnabled(true);
-    prx.setProxyHost("10.162.32.100");
-    prx.setProxyPort("3128");
-    prx.activateNow();
+        try {
+            /*
+            ProxyConfigBean prx = new ProxyConfigBean();            
+            prx.setEnabled(true);
+            prx.setProxyHost("10.162.32.100");
+            prx.setProxyPort("3128");
+            prx.activateNow();
+             */
+            
+            GoogleImport gi = new GoogleImport("shinsterneck@gmail.com", "pcibuss2312");
+            gi.deleteCalendar();
+            CalendarEntry calentry = gi.createCalendar();
 
-    GoogleImport gi = new GoogleImport("", "");
-    gi.deleteCalendar();
-    CalendarEntry calentry = gi.createCalendar();
+        } catch (IOException ex) {
+            Logger.getLogger(GoogleImport.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ServiceException ex) {
+            Logger.getLogger(GoogleImport.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
-    } catch (IOException ex) {
-    Logger.getLogger(GoogleImport.class.getName()).log(Level.SEVERE, null, ex);
-    } catch (ServiceException ex) {
-    Logger.getLogger(GoogleImport.class.getName()).log(Level.SEVERE, null, ex);
-    }
-    }
-     */
     public CalendarEntry createCalendar() throws IOException, ServiceException {
 
         CalendarEntry calendar = new CalendarEntry();
@@ -77,7 +81,7 @@ public class GoogleImport {
             for (int i = 0; i < calendars.getEntries().size(); i++) {
                 CalendarEntry entry = calendars.getEntries().get(i);
                 if (entry.getTitle().getPlainText().equals("Lotus Notes")) {
-                    String entryId = entry.getId();                    
+                    String entryId = entry.getId();
                     entry.delete();
                 }
 

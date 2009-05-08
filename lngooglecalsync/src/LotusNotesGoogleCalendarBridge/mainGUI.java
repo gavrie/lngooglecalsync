@@ -29,8 +29,6 @@ public class mainGUI extends javax.swing.JFrame {
     }
 
     private void postInitComponents() {
-        //change this so that proxy config object is created within proxydialog
-        // and retrieved through a getter method.
         proxy = new ProxyConfigBean();
         proxyDialog = new ProxyConfigurationDialog(new javax.swing.JFrame(), true, proxy);
     }
@@ -43,12 +41,12 @@ public class mainGUI extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
-        jPasswordField1 = new javax.swing.JPasswordField();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jLabel6 = new javax.swing.JLabel();
+        jTextField_GoogleURL = new javax.swing.JTextField();
+        jTextField_GoogleUsername = new javax.swing.JTextField();
+        jPasswordField_GooglePassword = new javax.swing.JPasswordField();
+        jButton_Synchronize = new javax.swing.JButton();
+        jButton_Cancel = new javax.swing.JButton();
+        jLabel_UsernameError = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         jButton3 = new javax.swing.JButton();
@@ -68,42 +66,42 @@ public class mainGUI extends javax.swing.JFrame {
 
         jLabel4.setText("Google Password (uses SSL):");
 
-        jTextField1.setText("http://lotus.host/mail/mailfile.nsf");
-        jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
+        jTextField_GoogleURL.setText("http://lotus.host/mail/mailfile.nsf");
+        jTextField_GoogleURL.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                jTextField1KeyReleased(evt);
+                jTextField_GoogleURLKeyReleased(evt);
             }
         });
 
-        jTextField2.setText("user@google.com");
-        jTextField2.addKeyListener(new java.awt.event.KeyAdapter() {
+        jTextField_GoogleUsername.setText("user@google.com");
+        jTextField_GoogleUsername.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                jTextField2KeyReleased(evt);
+                jTextField_GoogleUsernameKeyReleased(evt);
             }
         });
 
-        jPasswordField1.addKeyListener(new java.awt.event.KeyAdapter() {
+        jPasswordField_GooglePassword.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                jPasswordField1KeyReleased(evt);
+                jPasswordField_GooglePasswordKeyReleased(evt);
             }
         });
 
-        jButton1.setText("Synchronize");
-        jButton1.setEnabled(false);
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        jButton_Synchronize.setText("Synchronize");
+        jButton_Synchronize.setEnabled(false);
+        jButton_Synchronize.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                jButton_SynchronizeActionPerformed(evt);
             }
         });
 
-        jButton2.setText("Cancel");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        jButton_Cancel.setText("Cancel");
+        jButton_Cancel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                jButton_CancelActionPerformed(evt);
             }
         });
 
-        jLabel6.setForeground(new java.awt.Color(255, 0, 0));
+        jLabel_UsernameError.setForeground(new java.awt.Color(255, 0, 0));
 
         jLabel7.setText("Please make sure to export your gmail calendar as a backup!!");
 
@@ -130,18 +128,18 @@ public class mainGUI extends javax.swing.JFrame {
                             .add(jLabel4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .add(18, 18, 18)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jPasswordField1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 282, Short.MAX_VALUE)
-                            .add(jTextField1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 282, Short.MAX_VALUE)
+                            .add(jPasswordField_GooglePassword, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 282, Short.MAX_VALUE)
+                            .add(jTextField_GoogleURL, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 282, Short.MAX_VALUE)
                             .add(jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 282, Short.MAX_VALUE)
-                            .add(jTextField2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 282, Short.MAX_VALUE)
+                            .add(jTextField_GoogleUsername, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 282, Short.MAX_VALUE)
                             .add(jButton3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 173, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                     .add(jLabel7, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 484, Short.MAX_VALUE)
                     .add(jLabel8, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 484, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 484, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel_UsernameError, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 484, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(jButton2)
+                        .add(jButton_Cancel)
                         .add(18, 18, 18)
-                        .add(jButton1)))
+                        .add(jButton_Synchronize)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -152,85 +150,85 @@ public class mainGUI extends javax.swing.JFrame {
                 .add(30, 30, 30)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel2)
-                    .add(jTextField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(jTextField_GoogleURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel3)
-                    .add(jTextField2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(jTextField_GoogleUsername, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel4)
-                    .add(jPasswordField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(jPasswordField_GooglePassword, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jButton3)
                 .add(18, 18, 18)
-                .add(jLabel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 21, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(jLabel_UsernameError, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 21, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .add(18, 18, 18)
                 .add(jLabel7)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(jLabel8)
                 .add(33, 33, 33)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jButton1)
-                    .add(jButton2))
+                    .add(jButton_Synchronize)
+                    .add(jButton_Cancel))
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void jButton_CancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_CancelActionPerformed
         System.exit(0);
-    }//GEN-LAST:event_jButton2ActionPerformed
+}//GEN-LAST:event_jButton_CancelActionPerformed
 
-    private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
-        if (jTextField1.getText().startsWith("http")) {
+    private void jTextField_GoogleURLKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField_GoogleURLKeyReleased
+        if (jTextField_GoogleURL.getText().startsWith("http")) {
             isUrlValid = true;
         } else {
             isUrlValid = false;
         }
         checkCompletion();
-    }//GEN-LAST:event_jTextField1KeyReleased
+}//GEN-LAST:event_jTextField_GoogleURLKeyReleased
 
-    private void jTextField2KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField2KeyReleased
-        if (jTextField2.getText().contains("@")) {
+    private void jTextField_GoogleUsernameKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField_GoogleUsernameKeyReleased
+        if (jTextField_GoogleUsername.getText().contains("@")) {
             isValidAccount = true;
-            jLabel6.setText("");
+            jLabel_UsernameError.setText("");
         } else {
             isValidAccount = false;
-            jLabel6.setText("Account name does not contain \"@\" symbol");
+            jLabel_UsernameError.setText("Account name does not contain \"@\" symbol");
         }
         checkCompletion();
-    }//GEN-LAST:event_jTextField2KeyReleased
+}//GEN-LAST:event_jTextField_GoogleUsernameKeyReleased
 
-    private void jPasswordField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jPasswordField1KeyReleased
+    private void jPasswordField_GooglePasswordKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jPasswordField_GooglePasswordKeyReleased
         checkCompletion();
-    }//GEN-LAST:event_jPasswordField1KeyReleased
+}//GEN-LAST:event_jPasswordField_GooglePasswordKeyReleased
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void jButton_SynchronizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_SynchronizeActionPerformed
         try {
             proxy.deactivateNow();
             LotusNotesExport lotusNotesService = new LotusNotesExport();
-            List<NotesCalendarEntry> cals = lotusNotesService.start(jTextField1.getText());
+            List<NotesCalendarEntry> cals = lotusNotesService.start(jTextField_GoogleURL.getText());
 
             proxy.activateNow();
-            GoogleImport googleService = new GoogleImport(jTextField2.getText(), new String(jPasswordField1.getPassword()));
+            GoogleImport googleService = new GoogleImport(jTextField_GoogleUsername.getText(), new String(jPasswordField_GooglePassword.getPassword()));
             googleService.deleteCalendar();
             googleService.createCalendar();
             googleService.createEvent(cals);
 
-            jTextField1.setEnabled(false);
-            jTextField2.setEnabled(false);
-            jPasswordField1.setEnabled(false);
-            jButton1.setEnabled(false);
-            jButton2.setText("Exit");
-            jButton1.setText("Done!");
+            jTextField_GoogleURL.setEnabled(false);
+            jTextField_GoogleUsername.setEnabled(false);
+            jPasswordField_GooglePassword.setEnabled(false);
+            jButton_Synchronize.setEnabled(false);
+            jButton_Cancel.setText("Exit");
+            jButton_Synchronize.setText("Done!");
         } catch (ServiceException ex) {
             Logger.getLogger(mainGUI.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(mainGUI.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_jButton1ActionPerformed
+}//GEN-LAST:event_jButton_SynchronizeActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         proxyDialog.setVisible(true);        
@@ -238,15 +236,15 @@ public class mainGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void checkCompletion() {
-        if (jTextField1.getText().length() > 0 &&
-                jTextField2.getText().length() > 0 &&
-                jPasswordField1.getPassword().length > 0 &&
+        if (jTextField_GoogleURL.getText().length() > 0 &&
+                jTextField_GoogleUsername.getText().length() > 0 &&
+                jPasswordField_GooglePassword.getPassword().length > 0 &&
                 isUrlValid &&
                 isValidAccount) {
 
-            jButton1.setEnabled(true);
+            jButton_Synchronize.setEnabled(true);
         } else {
-            jButton1.setEnabled(false);
+            jButton_Synchronize.setEnabled(false);
         }
     }
 
@@ -264,18 +262,18 @@ public class mainGUI extends javax.swing.JFrame {
     ProxyConfigurationDialog proxyDialog;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton_Cancel;
+    private javax.swing.JButton jButton_Synchronize;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JPasswordField jPasswordField1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
+    private javax.swing.JLabel jLabel_UsernameError;
+    private javax.swing.JPasswordField jPasswordField_GooglePassword;
+    private javax.swing.JTextField jTextField_GoogleURL;
+    private javax.swing.JTextField jTextField_GoogleUsername;
     // End of variables declaration//GEN-END:variables
 }
