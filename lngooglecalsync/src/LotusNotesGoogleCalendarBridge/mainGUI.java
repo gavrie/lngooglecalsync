@@ -18,6 +18,7 @@ public class mainGUI extends javax.swing.JFrame {
         preInitComponents();
         initComponents();
         postInitComponents();
+
     }
 
     private void preInitComponents() {
@@ -233,7 +234,7 @@ public class mainGUI extends javax.swing.JFrame {
 }//GEN-LAST:event_jButton_SynchronizeActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        proxyDialog.setVisible(true);        
+        proxyDialog.setVisible(true);
         this.proxy = proxyDialog.getProxyConfigBean();
     }//GEN-LAST:event_jButton3ActionPerformed
 
@@ -254,16 +255,23 @@ public class mainGUI extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             public void run() {
+                String jre_version = System.getProperty("java.version");
+                if (!jre_version.startsWith("1.6")) {
+                    System.out.println("\nThis application will only run with Java 1.6 or higher!!");
+                    System.out.println("Your version is: " + jre_version);
+                    System.out.println("Please install the required Version\n\n");
+                    System.exit(1);
+                }
+
                 new mainGUI().setVisible(true);
             }
         });
     }
     private boolean isUrlValid = false;
     private boolean isValidAccount = false;
-    ProxyConfigBean proxy;    
+    ProxyConfigBean proxy;
     ProxyConfigurationDialog proxyDialog;
     SyncCompletedDialog syncCompletedDialog;
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton_Cancel;
