@@ -31,6 +31,7 @@ public class mainGUI extends javax.swing.JFrame {
     private void postInitComponents() {
         proxy = new ProxyConfigBean();
         proxyDialog = new ProxyConfigurationDialog(new javax.swing.JFrame(), true, proxy);
+        syncCompletedDialog = new SyncCompletedDialog(new javax.swing.JFrame(), true);
     }
 
     @SuppressWarnings("unchecked")
@@ -220,9 +221,10 @@ public class mainGUI extends javax.swing.JFrame {
             jTextField_GoogleURL.setEnabled(false);
             jTextField_GoogleUsername.setEnabled(false);
             jPasswordField_GooglePassword.setEnabled(false);
-            jButton_Synchronize.setEnabled(false);
+            //jButton_Synchronize.setEnabled(false);
             jButton_Cancel.setText("Exit");
-            jButton_Synchronize.setText("Done!");
+            jButton_Synchronize.setText("Synch Again!");
+            syncCompletedDialog.setVisible(true);
         } catch (ServiceException ex) {
             Logger.getLogger(mainGUI.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -260,6 +262,7 @@ public class mainGUI extends javax.swing.JFrame {
     private boolean isValidAccount = false;
     ProxyConfigBean proxy;    
     ProxyConfigurationDialog proxyDialog;
+    SyncCompletedDialog syncCompletedDialog;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton3;

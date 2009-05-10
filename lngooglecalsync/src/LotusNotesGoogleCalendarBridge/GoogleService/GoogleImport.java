@@ -15,11 +15,10 @@ import java.util.logging.Logger;
 public class GoogleImport {
 
     public GoogleImport(String accountname, String password) {
-        try {
-            calendarsFeedUrl = new URL("https://www.google.com/calendar/feeds/" + accountname + "/private/full");
-            calendarFeedUrl = new URL("https://www.google.com/calendar/feeds/" + accountname + "/owncalendars/full");
+        try {          
+            mainCalendarFeedUrl = new URL("https://www.google.com/calendar/feeds/" + accountname + "/owncalendars/full");
             service = new CalendarService("Corporate-LotusNotes-Calendar");
-            //service.useSsl();
+            service.useSsl();
             service.setUserCredentials(accountname, password);
         } catch (IOException e) {
             System.err.println("API Error: " + e);
@@ -31,6 +30,7 @@ public class GoogleImport {
     public GoogleImport() {
     }
 
+    /*   //for debuging purposes only!
     public static void main(String[] a) {
         String cmd_user = null;
         String cmd_pwd = null;
@@ -42,7 +42,6 @@ public class GoogleImport {
             cmd_pwd = a[1];
 
             System.out.println("1: " + cmd_user);
-            System.out.println("2: " + cmd_pwd);
         } else {
             System.exit(1);
         }
@@ -59,33 +58,31 @@ public class GoogleImport {
             Logger.getLogger(GoogleImport.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+*/
+    
     public CalendarEntry createCalendar() throws IOException, ServiceException {
 
         CalendarEntry calendar = new CalendarEntry();
         calendar.setTitle(new PlainTextConstruct("Lotus Notes"));
-        calendar.setContent(new PlainTextConstruct("Lotus Notes"));
         calendar.setSummary(new PlainTextConstruct("Lotus Notes Calendar"));
+        calendar.setTimeZone(new TimeZoneProperty("America/Los_Angeles"));
         calendar.setHidden(HiddenProperty.FALSE);
+        calendar.setSelected(SelectedProperty.TRUE);
         calendar.setColor(new ColorProperty(BLUE));
 
-        CalendarEntry returnedCalendar = service.insert(calendarFeedUrl, calendar);
+        CalendarEntry returnedCalendar = service.insert(mainCalendarFeedUrl, calendar);
+        returnedCalendar.update();
+        
+        // get the feed url reference so that we can add events to the new calendar.
+        newCalendarFeedUrl = new URL(returnedCalendar.getLink("alternate", "application/atom+xml").getHref());
 
-        // this sometimes does not work with the title, so we will do it again below
-        // its a bit strange as there is not real 'commit' used below but it works...
-        calendar.setTitle(new PlainTextConstruct("Lotus Notes"));
-        Link l1  = returnedCalendar.getLink("alternate", "application/atom+xml");        
-
-    
-        System.exit(0);
         return returnedCalendar;
-
     }
 
     public void deleteCalendar() {
 
         try {
-            CalendarFeed calendars = service.getFeed(calendarFeedUrl, CalendarFeed.class);
+            CalendarFeed calendars = service.getFeed(mainCalendarFeedUrl, CalendarFeed.class);
 
             for (int i = 0; i < calendars.getEntries().size(); i++) {
                 CalendarEntry entry = calendars.getEntries().get(i);
@@ -122,16 +119,15 @@ public class GoogleImport {
             eventTimes.setStartTime(startTime);
             eventTimes.setEndTime(endTime);
             event.addTime(eventTimes);
-            URL test = new URL("http://www.google.com/calendar/feeds/shinsterneck%40gmail.com/owncalendars/full/e6qnlto4hfkpj13brtk4p8ci90%40group.calendar.google.com");
             try {
-                service.insert(test, event);
+                service.insert(newCalendarFeedUrl, event);
             } catch (Exception e) {
                 System.out.println(e);
             }
         }
     }
-    URL calendarsFeedUrl = null;
-    URL calendarFeedUrl = null;
+    URL newCalendarFeedUrl = null;
+    URL mainCalendarFeedUrl = null;
     URL lotusNotesFeedUrl = null;
     CalendarService service;
     String BLUE = "#2952A3";
