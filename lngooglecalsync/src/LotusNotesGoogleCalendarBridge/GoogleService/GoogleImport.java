@@ -1,7 +1,6 @@
 package LotusNotesGoogleCalendarBridge.GoogleService;
 
 import LotusNotesGoogleCalendarBridge.LotusNotesService.NotesCalendarEntry;
-import LotusNotesGoogleCalendarBridge.ProxyModule.ProxyConfigBean;
 import com.google.gdata.client.calendar.*;
 import com.google.gdata.data.*;
 import com.google.gdata.data.calendar.*;
@@ -33,16 +32,24 @@ public class GoogleImport {
     }
 
     public static void main(String[] a) {
+        String cmd_user = null;
+        String cmd_pwd = null;
+
+        System.out.println(a.length);
+
+        if (a.length == 2) {
+            cmd_user = a[0];
+            cmd_pwd = a[1];
+
+            System.out.println("1: " + cmd_user);
+            System.out.println("2: " + cmd_pwd);
+        } else {
+            System.exit(1);
+        }
+
         try {
-            /*
-            ProxyConfigBean prx = new ProxyConfigBean();            
-            prx.setEnabled(true);
-            prx.setProxyHost("10.162.32.100");
-            prx.setProxyPort("3128");
-            prx.activateNow();
-             */
-            
-            GoogleImport gi = new GoogleImport("shinsterneck@gmail.com", "pcibuss2312");
+
+            GoogleImport gi = new GoogleImport(cmd_user, cmd_pwd);
             gi.deleteCalendar();
             CalendarEntry calentry = gi.createCalendar();
 
@@ -67,10 +74,12 @@ public class GoogleImport {
         // this sometimes does not work with the title, so we will do it again below
         // its a bit strange as there is not real 'commit' used below but it works...
         calendar.setTitle(new PlainTextConstruct("Lotus Notes"));
-        lotusNotesFeedUrl = new URL(returnedCalendar.getId());
-        System.out.println(lotusNotesFeedUrl);
+        Link l1  = returnedCalendar.getLink("alternate", "application/atom+xml");        
 
+    
+        System.exit(0);
         return returnedCalendar;
+
     }
 
     public void deleteCalendar() {
