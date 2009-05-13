@@ -5,6 +5,7 @@ import LotusNotesGoogleCalendarBridge.ProxyModule.ProxyConfigBean;
 import LotusNotesGoogleCalendarBridge.LotusNotesService.LotusNotesExport;
 import LotusNotesGoogleCalendarBridge.LotusNotesService.NotesCalendarEntry;
 import LotusNotesGoogleCalendarBridge.GoogleService.GoogleImport;
+import com.google.gdata.data.calendar.ColorProperty;
 import com.google.gdata.util.ServiceException;
 import java.io.IOException;
 import java.util.List;
@@ -33,6 +34,7 @@ public class mainGUI extends javax.swing.JFrame {
         proxy = new ProxyConfigBean();
         proxyDialog = new ProxyConfigurationDialog(new javax.swing.JFrame(), true, proxy);
         syncCompletedDialog = new SyncCompletedDialog(new javax.swing.JFrame(), true);
+        ColorChooserDialog = new CalendarColorChooserDialog(new javax.swing.JFrame(), true);
     }
 
     @SuppressWarnings("unchecked")
@@ -51,12 +53,13 @@ public class mainGUI extends javax.swing.JFrame {
         jLabel_UsernameError = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jButton3 = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(254, 254, 254));
         setResizable(false);
 
-        jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 14));
+        jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 51, 51));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel1.setText("Beta Release 0.2");
@@ -113,6 +116,13 @@ public class mainGUI extends javax.swing.JFrame {
             }
         });
 
+        jButton1.setText("Calendar Color");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -120,6 +130,11 @@ public class mainGUI extends javax.swing.JFrame {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(jButton_Cancel)
+                        .add(18, 18, 18)
+                        .add(jButton_Synchronize))
+                    .add(jLabel7, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 482, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                             .add(jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 184, Short.MAX_VALUE)
@@ -127,17 +142,16 @@ public class mainGUI extends javax.swing.JFrame {
                             .add(jLabel4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .add(18, 18, 18)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jPasswordField_GooglePassword, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 282, Short.MAX_VALUE)
-                            .add(jTextField_GoogleURL, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 282, Short.MAX_VALUE)
-                            .add(jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 282, Short.MAX_VALUE)
-                            .add(jTextField_GoogleUsername, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 282, Short.MAX_VALUE)
-                            .add(jButton3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 173, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(jLabel7, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 484, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel_UsernameError, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 484, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(jButton_Cancel)
-                        .add(18, 18, 18)
-                        .add(jButton_Synchronize)))
+                            .add(jPasswordField_GooglePassword, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
+                            .add(jTextField_GoogleURL, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
+                            .add(jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
+                            .add(jTextField_GoogleUsername, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
+                            .add(layout.createSequentialGroup()
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                                    .add(org.jdesktop.layout.GroupLayout.LEADING, jButton1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .add(org.jdesktop.layout.GroupLayout.LEADING, jButton3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jLabel_UsernameError, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -159,11 +173,13 @@ public class mainGUI extends javax.swing.JFrame {
                     .add(jPasswordField_GooglePassword, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jButton3)
-                .add(18, 18, 18)
-                .add(jLabel_UsernameError, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 21, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(18, 18, 18)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jLabel_UsernameError, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 21, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jButton1))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 121, Short.MAX_VALUE)
                 .add(jLabel7)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 57, Short.MAX_VALUE)
+                .add(18, 18, 18)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jButton_Synchronize)
                     .add(jButton_Cancel))
@@ -209,6 +225,7 @@ public class mainGUI extends javax.swing.JFrame {
 
             proxy.activateNow();
             GoogleImport googleService = new GoogleImport(jTextField_GoogleUsername.getText(), new String(jPasswordField_GooglePassword.getPassword()));
+            googleService.setCalendarColor(ColorChooserDialog.getColor());
             googleService.deleteCalendar();
             googleService.createCalendar();
             googleService.createEvent(cals);
@@ -231,6 +248,10 @@ public class mainGUI extends javax.swing.JFrame {
         proxyDialog.setVisible(true);
         this.proxy = proxyDialog.getProxyConfigBean();
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        ColorChooserDialog.setVisible(true); 
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     private void checkCompletion() {
         if (jTextField_GoogleURL.getText().length() > 0 &&
@@ -266,7 +287,9 @@ public class mainGUI extends javax.swing.JFrame {
     ProxyConfigBean proxy;
     ProxyConfigurationDialog proxyDialog;
     SyncCompletedDialog syncCompletedDialog;
+    CalendarColorChooserDialog ColorChooserDialog;
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton_Cancel;
     private javax.swing.JButton jButton_Synchronize;

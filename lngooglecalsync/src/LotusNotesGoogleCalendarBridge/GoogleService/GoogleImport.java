@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 public class GoogleImport {
 
     public GoogleImport(String accountname, String password) {
-        try {          
+        try {
             mainCalendarFeedUrl = new URL("https://www.google.com/calendar/feeds/" + accountname + "/owncalendars/full");
             service = new CalendarService("Corporate-LotusNotes-Calendar");
             service.useSsl();
@@ -32,34 +32,33 @@ public class GoogleImport {
 
     /*   //for debuging purposes only!
     public static void main(String[] a) {
-        String cmd_user = null;
-        String cmd_pwd = null;
+    String cmd_user = null;
+    String cmd_pwd = null;
 
-        System.out.println(a.length);
+    System.out.println(a.length);
 
-        if (a.length == 2) {
-            cmd_user = a[0];
-            cmd_pwd = a[1];
+    if (a.length == 2) {
+    cmd_user = a[0];
+    cmd_pwd = a[1];
 
-            System.out.println("1: " + cmd_user);
-        } else {
-            System.exit(1);
-        }
-
-        try {
-
-            GoogleImport gi = new GoogleImport(cmd_user, cmd_pwd);
-            gi.deleteCalendar();
-            CalendarEntry calentry = gi.createCalendar();
-
-        } catch (IOException ex) {
-            Logger.getLogger(GoogleImport.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ServiceException ex) {
-            Logger.getLogger(GoogleImport.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    System.out.println("1: " + cmd_user);
+    } else {
+    System.exit(1);
     }
-*/
-    
+
+    try {
+
+    GoogleImport gi = new GoogleImport(cmd_user, cmd_pwd);
+    gi.deleteCalendar();
+    CalendarEntry calentry = gi.createCalendar();
+
+    } catch (IOException ex) {
+    Logger.getLogger(GoogleImport.class.getName()).log(Level.SEVERE, null, ex);
+    } catch (ServiceException ex) {
+    Logger.getLogger(GoogleImport.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    }
+     */
     public CalendarEntry createCalendar() throws IOException, ServiceException {
 
         CalendarEntry calendar = new CalendarEntry();
@@ -68,11 +67,11 @@ public class GoogleImport {
         calendar.setTimeZone(new TimeZoneProperty("America/Los_Angeles"));
         calendar.setHidden(HiddenProperty.FALSE);
         calendar.setSelected(SelectedProperty.TRUE);
-        calendar.setColor(new ColorProperty(BLUE));
+        calendar.setColor(new ColorProperty(COLOR));
 
         CalendarEntry returnedCalendar = service.insert(mainCalendarFeedUrl, calendar);
         returnedCalendar.update();
-        
+
         // get the feed url reference so that we can add events to the new calendar.
         newCalendarFeedUrl = new URL(returnedCalendar.getLink("alternate", "application/atom+xml").getHref());
 
@@ -126,9 +125,16 @@ public class GoogleImport {
             }
         }
     }
+
+    public void setCalendarColor(String color) {
+        if (color.startsWith("#") && color.length() == 7) {
+            COLOR = color;
+        }
+    }
+    
     URL newCalendarFeedUrl = null;
     URL mainCalendarFeedUrl = null;
     URL lotusNotesFeedUrl = null;
     CalendarService service;
-    String BLUE = "#2952A3";
+    String COLOR = "#2952A3";  //default cal color
 }
