@@ -18,6 +18,18 @@ import org.jdom.input.SAXBuilder;
 
 public class LotusNotesExport {
 
+    public LotusNotesExport() {
+        
+    }
+
+    public LotusNotesExport(String[] dateRange) {
+        String startDate = dateRange[0];
+        String endDate = dateRange[1];
+
+        CalUri = ("($calendar)?ReadViewEntries&KeyType=time&StartKey="+ startDate +"&UntilKey=" + endDate);
+        System.out.println(CalUri);
+    }
+
     public List<NotesCalendarEntry> start(String mailFileURL) {
         List<NotesCalendarEntry> cals = new ArrayList<NotesCalendarEntry>();
         

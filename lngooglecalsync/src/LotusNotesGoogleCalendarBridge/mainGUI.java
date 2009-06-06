@@ -10,6 +10,9 @@ import com.google.gdata.util.ServiceException;
 import java.awt.Color;
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.text.DateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,7 +40,7 @@ public class mainGUI extends javax.swing.JFrame {
         syncCompletedDialog = new SyncCompletedDialog(new javax.swing.JFrame(), true);
 
         //hide date time pickers
-        setDateTimeSelectorVisible(!jCheckBox2.isSelected());
+        setDateTimeSelectorVisible(!jCheckBox_LimitDateRange.isSelected());
 
     }
 
@@ -65,9 +68,9 @@ public class mainGUI extends javax.swing.JFrame {
         jPanel3 = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
-        jDatePicker1 = new net.sourceforge.jdatepicker.JDatePicker();
-        jDatePicker2 = new net.sourceforge.jdatepicker.JDatePicker();
-        jCheckBox2 = new javax.swing.JCheckBox();
+        jDatePicker_start = new net.sourceforge.jdatepicker.JDatePicker();
+        jDatePicker_end = new net.sourceforge.jdatepicker.JDatePicker();
+        jCheckBox_LimitDateRange = new javax.swing.JCheckBox();
         jLabel9 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
 
@@ -226,11 +229,11 @@ public class mainGUI extends javax.swing.JFrame {
 
         jLabel8.setText("Calendar Ending:");
 
-        jCheckBox2.setSelected(true);
-        jCheckBox2.setText("Synchronize only two weeks, starting today");
-        jCheckBox2.addActionListener(new java.awt.event.ActionListener() {
+        jCheckBox_LimitDateRange.setSelected(true);
+        jCheckBox_LimitDateRange.setText("Synchronize only two weeks, starting today");
+        jCheckBox_LimitDateRange.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox2ActionPerformed(evt);
+                jCheckBox_LimitDateRangeActionPerformed(evt);
             }
         });
 
@@ -242,33 +245,33 @@ public class mainGUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel3Layout.createSequentialGroup()
-                        .add(jCheckBox2)
+                        .add(jCheckBox_LimitDateRange)
                         .addContainerGap())
                     .add(jPanel3Layout.createSequentialGroup()
                         .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jPanel3Layout.createSequentialGroup()
                                 .add(jLabel7)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 11, Short.MAX_VALUE)
-                                .add(jDatePicker1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .add(jDatePicker_start, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel3Layout.createSequentialGroup()
                                 .add(jLabel8)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 17, Short.MAX_VALUE)
-                                .add(jDatePicker2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                .add(jDatePicker_end, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                         .add(208, 208, 208))))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel3Layout.createSequentialGroup()
                 .add(16, 16, 16)
-                .add(jCheckBox2)
+                .add(jCheckBox_LimitDateRange)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                     .add(jLabel7, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(jDatePicker1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(jDatePicker_start, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                     .add(jLabel8, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(jDatePicker2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(jDatePicker_end, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(102, Short.MAX_VALUE))
         );
 
@@ -353,7 +356,17 @@ public class mainGUI extends javax.swing.JFrame {
     private void jButton_SynchronizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_SynchronizeActionPerformed
         try {
             proxy.deactivateNow();
-            LotusNotesExport lotusNotesService = new LotusNotesExport();
+
+            String[] dateRange;
+            LotusNotesExport lotusNotesService;
+
+            if (!jCheckBox_LimitDateRange.isSelected()) {
+                dateRange = getFormattedCalendarRange();
+                lotusNotesService = new LotusNotesExport(dateRange);
+            } else {
+                lotusNotesService = new LotusNotesExport();
+            }
+
             List<NotesCalendarEntry> cals = lotusNotesService.start(jTextField_GoogleURL.getText());
 
             proxy.activateNow();
@@ -390,13 +403,13 @@ public class mainGUI extends javax.swing.JFrame {
         //jButton1.setEnabled(checkCompletion());
 }//GEN-LAST:event_jTextField_proxyIPKeyReleased
 
-    private void jCheckBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox2ActionPerformed
-      setDateTimeSelectorVisible(!jCheckBox2.isSelected());
-    }//GEN-LAST:event_jCheckBox2ActionPerformed
+    private void jCheckBox_LimitDateRangeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox_LimitDateRangeActionPerformed
+        setDateTimeSelectorVisible(!jCheckBox_LimitDateRange.isSelected());
+    }//GEN-LAST:event_jCheckBox_LimitDateRangeActionPerformed
 
     public void setDateTimeSelectorVisible(boolean visible) {
-        jDatePicker1.setVisible(visible);
-        jDatePicker2.setVisible(visible);
+        jDatePicker_start.setVisible(visible);
+        jDatePicker_end.setVisible(visible);
         jLabel7.setVisible(visible);
         jLabel8.setVisible(visible);
     }
@@ -412,6 +425,47 @@ public class mainGUI extends javax.swing.JFrame {
         } else {
             jButton_Synchronize.setEnabled(false);
         }
+    }
+
+    @SuppressWarnings("static-access")
+    // very ugly way of converting the date/time..
+    // need to look for something better!
+    private String[] getFormattedCalendarRange() {
+        String[] calrange = new String[2];
+
+        Calendar start = jDatePicker_start.getCalendarClone();
+        Calendar end = jDatePicker_end.getCalendarClone();
+
+        Integer intSday = new Integer(start.get(start.DAY_OF_MONTH));
+        Integer intSmonth = new Integer(start.get(start.MONTH)) + 1 ;
+        Integer intSyear = new Integer(start.get(start.YEAR));
+        Integer intEday = new Integer(end.get(end.DAY_OF_MONTH));
+        Integer intEmonth = new Integer(end.get(end.MONTH) + 1);
+        Integer intEyear = new Integer(end.get(end.YEAR));
+
+        String stringSday = intSday.toString();
+        String stringSmonth = intSmonth.toString();
+        String stringEday = intEday.toString();
+        String stringEmonth = intEmonth.toString();
+
+        if (stringSday.length() < 2) {
+            stringSday = "0" + stringSday;
+        }
+        if (stringSmonth.length() < 2) {
+            stringSmonth = "0" + stringSmonth;
+        }
+        if (stringEday.length() < 2) {
+            stringEday = "0" + stringEday;
+        }
+        if (stringEmonth.length() < 2) {
+            stringEmonth = "0" + stringEmonth;
+        }
+
+        calrange[0] = (intSyear + "" + stringSmonth + "" + stringSday);
+        calrange[1] = (intEyear + "" + stringEmonth + "" + stringEday);
+
+        return calrange;
+
     }
 
     public static void main(String args[]) {
@@ -436,14 +490,13 @@ public class mainGUI extends javax.swing.JFrame {
     ProxyConfigurationDialog proxyDialog;
     SyncCompletedDialog syncCompletedDialog;
     private String[] calcolors;
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton_Cancel;
     private javax.swing.JButton jButton_Synchronize;
     private javax.swing.JCheckBox jCheckBox1;
-    private javax.swing.JCheckBox jCheckBox2;
-    private net.sourceforge.jdatepicker.JDatePicker jDatePicker1;
-    private net.sourceforge.jdatepicker.JDatePicker jDatePicker2;
+    private javax.swing.JCheckBox jCheckBox_LimitDateRange;
+    private net.sourceforge.jdatepicker.JDatePicker jDatePicker_end;
+    private net.sourceforge.jdatepicker.JDatePicker jDatePicker_start;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

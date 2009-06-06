@@ -303,7 +303,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="jCheckBox2" min="-2" max="-2" attributes="0"/>
+                              <Component id="jCheckBox_LimitDateRange" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
@@ -311,12 +311,12 @@
                                   <Group type="102" alignment="0" attributes="0">
                                       <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace pref="11" max="32767" attributes="0"/>
-                                      <Component id="jDatePicker1" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jDatePicker_start" min="-2" max="-2" attributes="0"/>
                                   </Group>
                                   <Group type="102" alignment="1" attributes="0">
                                       <Component id="jLabel8" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace pref="17" max="32767" attributes="0"/>
-                                      <Component id="jDatePicker2" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jDatePicker_end" min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
                               <EmptySpace min="-2" pref="208" max="-2" attributes="0"/>
@@ -329,16 +329,16 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
-                      <Component id="jCheckBox2" min="-2" max="-2" attributes="1"/>
+                      <Component id="jCheckBox_LimitDateRange" min="-2" max="-2" attributes="1"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
                           <Component id="jLabel7" max="32767" attributes="1"/>
-                          <Component id="jDatePicker1" alignment="0" min="-2" max="-2" attributes="1"/>
+                          <Component id="jDatePicker_start" alignment="0" min="-2" max="-2" attributes="1"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
                           <Component id="jLabel8" max="32767" attributes="1"/>
-                          <Component id="jDatePicker2" alignment="0" max="32767" attributes="1"/>
+                          <Component id="jDatePicker_end" alignment="0" max="32767" attributes="1"/>
                       </Group>
                       <EmptySpace pref="102" max="32767" attributes="0"/>
                   </Group>
@@ -356,17 +356,17 @@
                 <Property name="text" type="java.lang.String" value="Calendar Ending:"/>
               </Properties>
             </Component>
-            <Component class="net.sourceforge.jdatepicker.JDatePicker" name="jDatePicker1">
+            <Component class="net.sourceforge.jdatepicker.JDatePicker" name="jDatePicker_start">
             </Component>
-            <Component class="net.sourceforge.jdatepicker.JDatePicker" name="jDatePicker2">
+            <Component class="net.sourceforge.jdatepicker.JDatePicker" name="jDatePicker_end">
             </Component>
-            <Component class="javax.swing.JCheckBox" name="jCheckBox2">
+            <Component class="javax.swing.JCheckBox" name="jCheckBox_LimitDateRange">
               <Properties>
                 <Property name="selected" type="boolean" value="true"/>
                 <Property name="text" type="java.lang.String" value="Synchronize only two weeks, starting today"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jCheckBox2ActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jCheckBox_LimitDateRangeActionPerformed"/>
               </Events>
             </Component>
           </SubComponents>
