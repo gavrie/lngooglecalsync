@@ -71,6 +71,7 @@ public class mainGUI extends javax.swing.JFrame {
         jDatePicker_start = new net.sourceforge.jdatepicker.JDatePicker();
         jDatePicker_end = new net.sourceforge.jdatepicker.JDatePicker();
         jCheckBox_LimitDateRange = new javax.swing.JCheckBox();
+        jCheckBox_uploadToMainCalendar = new javax.swing.JCheckBox();
         jLabel9 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
 
@@ -237,6 +238,8 @@ public class mainGUI extends javax.swing.JFrame {
             }
         });
 
+        jCheckBox_uploadToMainCalendar.setText("Upload to main Calendar, instead of the secondary");
+
         org.jdesktop.layout.GroupLayout jPanel3Layout = new org.jdesktop.layout.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -244,25 +247,30 @@ public class mainGUI extends javax.swing.JFrame {
             .add(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jPanel3Layout.createSequentialGroup()
-                        .add(jCheckBox_LimitDateRange)
-                        .addContainerGap())
+                    .add(jCheckBox_uploadToMainCalendar)
                     .add(jPanel3Layout.createSequentialGroup()
                         .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jPanel3Layout.createSequentialGroup()
-                                .add(jLabel7)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 11, Short.MAX_VALUE)
-                                .add(jDatePicker_start, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel3Layout.createSequentialGroup()
-                                .add(jLabel8)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 17, Short.MAX_VALUE)
-                                .add(jDatePicker_end, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                        .add(208, 208, 208))))
+                                .add(jCheckBox_LimitDateRange)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                .add(jPanel3Layout.createSequentialGroup()
+                                    .add(jLabel7)
+                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 11, Short.MAX_VALUE)
+                                    .add(jDatePicker_start, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel3Layout.createSequentialGroup()
+                                    .add(jLabel8)
+                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 17, Short.MAX_VALUE)
+                                    .add(jDatePicker_end, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                        .add(26, 26, 26)))
+                .add(185, 185, 185))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel3Layout.createSequentialGroup()
-                .add(16, 16, 16)
+                .add(21, 21, 21)
+                .add(jCheckBox_uploadToMainCalendar)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jCheckBox_LimitDateRange)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
@@ -271,15 +279,15 @@ public class mainGUI extends javax.swing.JFrame {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                     .add(jLabel8, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(jDatePicker_end, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(102, Short.MAX_VALUE))
+                    .add(jDatePicker_end, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(74, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Advanced", jPanel3);
 
         jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/lngooglecalsync-logo.png"))); // NOI18N
 
-        jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 14));
         jLabel1.setForeground(new java.awt.Color(255, 51, 51));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel1.setText("Beta Release 0.3");
@@ -373,9 +381,13 @@ public class mainGUI extends javax.swing.JFrame {
             GoogleImport googleService = new GoogleImport(jTextField_GoogleUsername.getText(), new String(jPasswordField_GooglePassword.getPassword()));
             // googleService.setCalendarColor(CALENDARCOLOR);
             googleService.deleteCalendar();
-            googleService.createCalendar();
-            googleService.createEvent(cals);
 
+            if (jCheckBox_uploadToMainCalendar.isSelected()) {
+                googleService.createEvent(cals, true);
+            } else {
+                googleService.createCalendar();
+                googleService.createEvent(cals, false);
+            }
             jTextField_GoogleURL.setEnabled(false);
             jTextField_GoogleUsername.setEnabled(false);
             jPasswordField_GooglePassword.setEnabled(false);
@@ -437,7 +449,7 @@ public class mainGUI extends javax.swing.JFrame {
         Calendar end = jDatePicker_end.getCalendarClone();
 
         Integer intSday = new Integer(start.get(start.DAY_OF_MONTH));
-        Integer intSmonth = new Integer(start.get(start.MONTH)) + 1 ;
+        Integer intSmonth = new Integer(start.get(start.MONTH)) + 1;
         Integer intSyear = new Integer(start.get(start.YEAR));
         Integer intEday = new Integer(end.get(end.DAY_OF_MONTH));
         Integer intEmonth = new Integer(end.get(end.MONTH) + 1);
@@ -495,6 +507,7 @@ public class mainGUI extends javax.swing.JFrame {
     private javax.swing.JButton jButton_Synchronize;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JCheckBox jCheckBox_LimitDateRange;
+    private javax.swing.JCheckBox jCheckBox_uploadToMainCalendar;
     private net.sourceforge.jdatepicker.JDatePicker jDatePicker_end;
     private net.sourceforge.jdatepicker.JDatePicker jDatePicker_start;
     private javax.swing.JLabel jLabel1;

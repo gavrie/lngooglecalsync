@@ -17,6 +17,7 @@ public class GoogleImport {
     public GoogleImport(String accountname, String password) {
         try {
             mainCalendarFeedUrl = new URL("https://www.google.com/calendar/feeds/" + accountname + "/owncalendars/full");
+            privateCalendarFeedUrl = new URL("https://www.google.com/calendar/feeds/" + accountname + "/private/full");
             service = new CalendarService("Corporate-LotusNotes-Calendar");
             service.useSsl();
             service.setUserCredentials(accountname, password);
@@ -96,7 +97,7 @@ public class GoogleImport {
         }
     }
 
-    public void createEvent(List cals) throws ServiceException, IOException {
+    public void createEvent(List cals, boolean inMainCalendar) throws ServiceException, IOException {
 
         for (int i = 0; i < cals.size(); i++) {
             NotesCalendarEntry cal = (NotesCalendarEntry) cals.get(i);
@@ -119,7 +120,11 @@ public class GoogleImport {
             eventTimes.setEndTime(endTime);
             event.addTime(eventTimes);
             try {
-                service.insert(newCalendarFeedUrl, event);
+                if (inMainCalendar) {
+                    service.insert(privateCalendarFeedUrl, event);
+                } else {
+                    service.insert(newCalendarFeedUrl, event);
+                }
             } catch (Exception e) {
                 System.out.println(e);
             }
@@ -131,9 +136,9 @@ public class GoogleImport {
             COLOR = color;
         }
     }
-    
     URL newCalendarFeedUrl = null;
     URL mainCalendarFeedUrl = null;
+    URL privateCalendarFeedUrl = null;
     URL lotusNotesFeedUrl = null;
     CalendarService service;
     String COLOR = "#2952A3";  //default cal color
