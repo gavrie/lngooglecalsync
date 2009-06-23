@@ -412,7 +412,7 @@ public class mainGUI extends javax.swing.JFrame {
 }//GEN-LAST:event_jCheckBox1StateChanged
 
     private void jTextField_proxyIPKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField_proxyIPKeyReleased
-        //jButton1.setEnabled(checkCompletion());
+        checkCompletion();
 }//GEN-LAST:event_jTextField_proxyIPKeyReleased
 
     private void jCheckBox_LimitDateRangeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox_LimitDateRangeActionPerformed
@@ -427,21 +427,19 @@ public class mainGUI extends javax.swing.JFrame {
     }
 
     private void checkCompletion() {
+      
         if (jTextField_GoogleURL.getText().length() > 0 &&
                 jTextField_GoogleUsername.getText().length() > 0 &&
                 jPasswordField_GooglePassword.getPassword().length > 0 &&
                 isUrlValid &&
                 isValidAccount) {
-
             jButton_Synchronize.setEnabled(true);
-        } else {
-            jButton_Synchronize.setEnabled(false);
         }
     }
 
     @SuppressWarnings("static-access")
     // very ugly way of converting the date/time..
-    // need to look for something better!
+    // need to look for something better, but it works...
     private String[] getFormattedCalendarRange() {
         String[] calrange = new String[2];
 
@@ -463,12 +461,15 @@ public class mainGUI extends javax.swing.JFrame {
         if (stringSday.length() < 2) {
             stringSday = "0" + stringSday;
         }
+
         if (stringSmonth.length() < 2) {
             stringSmonth = "0" + stringSmonth;
         }
+
         if (stringEday.length() < 2) {
             stringEday = "0" + stringEday;
         }
+
         if (stringEmonth.length() < 2) {
             stringEmonth = "0" + stringEmonth;
         }
