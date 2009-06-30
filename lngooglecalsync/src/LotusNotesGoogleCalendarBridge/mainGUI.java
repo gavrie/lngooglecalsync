@@ -73,6 +73,7 @@ public class mainGUI extends javax.swing.JFrame {
         jDatePicker_end = new net.sourceforge.jdatepicker.JDatePicker();
         jCheckBox_LimitDateRange = new javax.swing.JCheckBox();
         jCheckBox_uploadToMainCalendar = new javax.swing.JCheckBox();
+        jCheckBox_GoogleUseSSL = new javax.swing.JCheckBox();
         jLabel9 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
 
@@ -261,36 +262,36 @@ public class mainGUI extends javax.swing.JFrame {
 
         jCheckBox_uploadToMainCalendar.setText("Upload to main Calendar, instead of the secondary");
 
+        jCheckBox_GoogleUseSSL.setSelected(true);
+        jCheckBox_GoogleUseSSL.setText("Connect to Google using SSL/TLS (recommended!)");
+
         org.jdesktop.layout.GroupLayout jPanel3Layout = new org.jdesktop.layout.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel3Layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jCheckBox_uploadToMainCalendar)
+                .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jCheckBox_uploadToMainCalendar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 338, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jCheckBox_GoogleUseSSL, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 338, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel3Layout.createSequentialGroup()
+                        .add(jLabel7)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 33, Short.MAX_VALUE)
+                        .add(jDatePicker_start, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(jPanel3Layout.createSequentialGroup()
-                        .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jPanel3Layout.createSequentialGroup()
-                                .add(jCheckBox_LimitDateRange)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 92, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                .add(jPanel3Layout.createSequentialGroup()
-                                    .add(jLabel7)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 33, Short.MAX_VALUE)
-                                    .add(jDatePicker_start, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel3Layout.createSequentialGroup()
-                                    .add(jLabel8)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 38, Short.MAX_VALUE)
-                                    .add(jDatePicker_end, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
-                        .add(26, 26, 26)))
-                .add(185, 185, 185))
+                        .add(jLabel8)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 38, Short.MAX_VALUE)
+                        .add(jDatePicker_end, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jCheckBox_LimitDateRange, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 338, Short.MAX_VALUE))
+                .add(533, 533, 533))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel3Layout.createSequentialGroup()
                 .add(21, 21, 21)
                 .add(jCheckBox_uploadToMainCalendar)
+                .add(5, 5, 5)
+                .add(jCheckBox_GoogleUseSSL)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jCheckBox_LimitDateRange)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -301,7 +302,7 @@ public class mainGUI extends javax.swing.JFrame {
                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                     .add(jLabel8, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(jDatePicker_end, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(80, Short.MAX_VALUE))
+                .addContainerGap(53, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Advanced", jPanel3);
@@ -399,7 +400,10 @@ public class mainGUI extends javax.swing.JFrame {
             List<NotesCalendarEntry> cals = lotusNotesService.start(jTextField_GoogleURL.getText());
 
             proxy.activateNow();
-            GoogleImport googleService = new GoogleImport(jTextField_GoogleUsername.getText(), new String(jPasswordField_GooglePassword.getPassword()));
+            // check whether the user has deselected to use SSL when connecting to google (this is not recommended)
+            boolean GoogleConnectUsingSSL = jCheckBox_GoogleUseSSL.isSelected();
+            GoogleImport googleService = new GoogleImport(jTextField_GoogleUsername.getText(), new String(jPasswordField_GooglePassword.getPassword()),GoogleConnectUsingSSL);
+
             // googleService.setCalendarColor(CALENDARCOLOR);
             googleService.deleteCalendar();
 
@@ -558,6 +562,7 @@ public class mainGUI extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton_Cancel;
     private javax.swing.JButton jButton_Synchronize;
+    private javax.swing.JCheckBox jCheckBox_GoogleUseSSL;
     private javax.swing.JCheckBox jCheckBox_LimitDateRange;
     private javax.swing.JCheckBox jCheckBox_enableProxy;
     private javax.swing.JCheckBox jCheckBox_uploadToMainCalendar;

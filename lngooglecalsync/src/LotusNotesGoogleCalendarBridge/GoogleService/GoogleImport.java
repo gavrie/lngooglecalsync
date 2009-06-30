@@ -14,10 +14,15 @@ import java.util.logging.Logger;
 
 public class GoogleImport {
 
-    public GoogleImport(String accountname, String password) {
+    public GoogleImport(String accountname, String password, boolean useSSL) {
         try {
-            mainCalendarFeedUrl = new URL("https://www.google.com/calendar/feeds/" + accountname + "/owncalendars/full");
-            privateCalendarFeedUrl = new URL("https://www.google.com/calendar/feeds/" + accountname + "/private/full");
+            String protocol = "https://";
+            if (!useSSL) {
+                protocol = "http://";
+            }
+
+            mainCalendarFeedUrl = new URL(protocol + "www.google.com/calendar/feeds/" + accountname + "/owncalendars/full");
+            privateCalendarFeedUrl = new URL(protocol + "www.google.com/calendar/feeds/" + accountname + "/private/full");
             service = new CalendarService("Corporate-LotusNotes-Calendar");
             service.useSsl();
             service.setUserCredentials(accountname, password);
