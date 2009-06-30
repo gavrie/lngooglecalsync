@@ -1,6 +1,5 @@
 package LotusNotesGoogleCalendarBridge;
 
-import LotusNotesGoogleCalendarBridge.ProxyModule.ProxyConfigurationDialog;
 import LotusNotesGoogleCalendarBridge.ProxyModule.ProxyConfigBean;
 import LotusNotesGoogleCalendarBridge.LotusNotesService.LotusNotesExport;
 import LotusNotesGoogleCalendarBridge.LotusNotesService.NotesCalendarEntry;
@@ -35,13 +34,15 @@ public class mainGUI extends javax.swing.JFrame {
     }
 
     private void postInitComponents() {
+        // initialize proxy bean.
         proxy = new ProxyConfigBean();
-        proxyDialog = new ProxyConfigurationDialog(new javax.swing.JFrame(), true, proxy);
+
+        // prepare the sync completed dialog message
+        // (this is not nice, but will have to do for now)
         syncCompletedDialog = new SyncCompletedDialog(new javax.swing.JFrame(), true);
 
         //hide date time pickers
         setDateTimeSelectorVisible(!jCheckBox_LimitDateRange.isSelected());
-
     }
 
     @SuppressWarnings("unchecked")
@@ -62,7 +63,7 @@ public class mainGUI extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
         jTextField_proxyPort = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
-        jCheckBox1 = new javax.swing.JCheckBox();
+        jCheckBox_enableProxy = new javax.swing.JCheckBox();
         jTextField_proxyIP = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
@@ -140,7 +141,7 @@ public class mainGUI extends javax.swing.JFrame {
                     .add(org.jdesktop.layout.GroupLayout.LEADING, jTextField_GoogleURL, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.LEADING, jTextField_GoogleUsername)
                     .add(org.jdesktop.layout.GroupLayout.LEADING, jPasswordField_GooglePassword))
-                .addContainerGap(82, Short.MAX_VALUE))
+                .addContainerGap(97, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -159,12 +160,17 @@ public class mainGUI extends javax.swing.JFrame {
                     .add(jPasswordField_GooglePassword, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .add(18, 18, 18)
                 .add(jLabel_UsernameError, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 21, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(47, Short.MAX_VALUE))
+                .addContainerGap(65, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("General", jPanel1);
 
         jTextField_proxyPort.setEnabled(false);
+        jTextField_proxyPort.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                jTextField_proxyPortFocusLost(evt);
+            }
+        });
         jTextField_proxyPort.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 jTextField_proxyPortKeyReleased(evt);
@@ -173,14 +179,29 @@ public class mainGUI extends javax.swing.JFrame {
 
         jLabel5.setText("Port Number:");
 
-        jCheckBox1.setText("Enable Proxy Support");
-        jCheckBox1.addChangeListener(new javax.swing.event.ChangeListener() {
+        jCheckBox_enableProxy.setText("Enable Proxy Support");
+        jCheckBox_enableProxy.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jCheckBox_enableProxyMouseClicked(evt);
+            }
+        });
+        jCheckBox_enableProxy.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                jCheckBox1StateChanged(evt);
+                jCheckBox_enableProxyStateChanged(evt);
+            }
+        });
+        jCheckBox_enableProxy.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jCheckBox_enableProxyKeyReleased(evt);
             }
         });
 
         jTextField_proxyIP.setEnabled(false);
+        jTextField_proxyIP.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                jTextField_proxyIPFocusLost(evt);
+            }
+        });
         jTextField_proxyIP.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 jTextField_proxyIPKeyReleased(evt);
@@ -205,14 +226,14 @@ public class mainGUI extends javax.swing.JFrame {
                         .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jTextField_proxyPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 56, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jTextField_proxyIP, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 143, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(jCheckBox1))
-                .addContainerGap(242, Short.MAX_VALUE))
+                    .add(jCheckBox_enableProxy))
+                .addContainerGap(262, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jCheckBox1)
+                .add(jCheckBox_enableProxy)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel6)
@@ -221,7 +242,7 @@ public class mainGUI extends javax.swing.JFrame {
                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jTextField_proxyPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 25, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel5))
-                .addContainerGap(106, Short.MAX_VALUE))
+                .addContainerGap(121, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Proxy", jPanel2);
@@ -231,7 +252,7 @@ public class mainGUI extends javax.swing.JFrame {
         jLabel8.setText("Calendar Ending:");
 
         jCheckBox_LimitDateRange.setSelected(true);
-        jCheckBox_LimitDateRange.setText("Synchronize only two weeks, starting today");
+        jCheckBox_LimitDateRange.setText("Synchronize only two weeks of entries");
         jCheckBox_LimitDateRange.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jCheckBox_LimitDateRangeActionPerformed(evt);
@@ -252,15 +273,15 @@ public class mainGUI extends javax.swing.JFrame {
                         .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jPanel3Layout.createSequentialGroup()
                                 .add(jCheckBox_LimitDateRange)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 92, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                             .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                 .add(jPanel3Layout.createSequentialGroup()
                                     .add(jLabel7)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 11, Short.MAX_VALUE)
+                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 33, Short.MAX_VALUE)
                                     .add(jDatePicker_start, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                                 .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel3Layout.createSequentialGroup()
                                     .add(jLabel8)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 17, Short.MAX_VALUE)
+                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 38, Short.MAX_VALUE)
                                     .add(jDatePicker_end, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
                         .add(26, 26, 26)))
                 .add(185, 185, 185))
@@ -280,7 +301,7 @@ public class mainGUI extends javax.swing.JFrame {
                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                     .add(jLabel8, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(jDatePicker_end, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(74, Short.MAX_VALUE))
+                .addContainerGap(80, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Advanced", jPanel3);
@@ -403,13 +424,13 @@ public class mainGUI extends javax.swing.JFrame {
 }//GEN-LAST:event_jButton_SynchronizeActionPerformed
 
     private void jTextField_proxyPortKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField_proxyPortKeyReleased
-        //jButton1.setEnabled(checkCompletion());
+        checkCompletion();
 }//GEN-LAST:event_jTextField_proxyPortKeyReleased
 
-    private void jCheckBox1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jCheckBox1StateChanged
-        jTextField_proxyIP.setEnabled(jCheckBox1.isSelected());
-        jTextField_proxyPort.setEnabled(jCheckBox1.isSelected());
-}//GEN-LAST:event_jCheckBox1StateChanged
+    private void jCheckBox_enableProxyStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jCheckBox_enableProxyStateChanged
+        jTextField_proxyIP.setEnabled(jCheckBox_enableProxy.isSelected());
+        jTextField_proxyPort.setEnabled(jCheckBox_enableProxy.isSelected());
+}//GEN-LAST:event_jCheckBox_enableProxyStateChanged
 
     private void jTextField_proxyIPKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField_proxyIPKeyReleased
         checkCompletion();
@@ -419,6 +440,26 @@ public class mainGUI extends javax.swing.JFrame {
         setDateTimeSelectorVisible(!jCheckBox_LimitDateRange.isSelected());
     }//GEN-LAST:event_jCheckBox_LimitDateRangeActionPerformed
 
+    private void jCheckBox_enableProxyMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jCheckBox_enableProxyMouseClicked
+        proxy.setEnabled(jCheckBox_enableProxy.isSelected());
+        checkCompletion();
+    }//GEN-LAST:event_jCheckBox_enableProxyMouseClicked
+
+    private void jCheckBox_enableProxyKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jCheckBox_enableProxyKeyReleased
+        checkCompletion();
+        proxy.setEnabled(jCheckBox_enableProxy.isSelected());
+    }//GEN-LAST:event_jCheckBox_enableProxyKeyReleased
+
+    private void jTextField_proxyIPFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextField_proxyIPFocusLost
+        proxy.setProxyHost(jTextField_proxyIP.getText());
+        System.out.println(proxy.getProxyHost());
+    }//GEN-LAST:event_jTextField_proxyIPFocusLost
+
+    private void jTextField_proxyPortFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextField_proxyPortFocusLost
+        proxy.setProxyPort(jTextField_proxyPort.getText());
+        System.out.println(proxy.getProxyPort());
+    }//GEN-LAST:event_jTextField_proxyPortFocusLost
+
     public void setDateTimeSelectorVisible(boolean visible) {
         jDatePicker_start.setVisible(visible);
         jDatePicker_end.setVisible(visible);
@@ -427,14 +468,26 @@ public class mainGUI extends javax.swing.JFrame {
     }
 
     private void checkCompletion() {
-      
+        boolean complete = false;
         if (jTextField_GoogleURL.getText().length() > 0 &&
                 jTextField_GoogleUsername.getText().length() > 0 &&
                 jPasswordField_GooglePassword.getPassword().length > 0 &&
                 isUrlValid &&
                 isValidAccount) {
-            jButton_Synchronize.setEnabled(true);
+            complete = true;
         }
+
+        if (jCheckBox_enableProxy.isSelected()) {
+            if (jTextField_proxyIP.getText().length() > 0 &&
+                    jTextField_proxyPort.getText().length() > 0) {
+                complete = true;
+            } else {
+                complete = false;
+            }
+
+        }
+
+        jButton_Synchronize.setEnabled(complete);
     }
 
     @SuppressWarnings("static-access")
@@ -500,14 +553,13 @@ public class mainGUI extends javax.swing.JFrame {
     private boolean isUrlValid = false;
     private boolean isValidAccount = false;
     ProxyConfigBean proxy;
-    ProxyConfigurationDialog proxyDialog;
     SyncCompletedDialog syncCompletedDialog;
     private String[] calcolors;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton_Cancel;
     private javax.swing.JButton jButton_Synchronize;
-    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JCheckBox jCheckBox_LimitDateRange;
+    private javax.swing.JCheckBox jCheckBox_enableProxy;
     private javax.swing.JCheckBox jCheckBox_uploadToMainCalendar;
     private net.sourceforge.jdatepicker.JDatePicker jDatePicker_end;
     private net.sourceforge.jdatepicker.JDatePicker jDatePicker_start;
