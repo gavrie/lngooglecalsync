@@ -303,24 +303,30 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="1" attributes="0">
+                  <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="jCheckBox_uploadToMainCalendar" alignment="0" pref="338" max="32767" attributes="1"/>
-                          <Component id="jCheckBox_GoogleUseSSL" alignment="0" pref="338" max="32767" attributes="1"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace pref="33" max="32767" attributes="0"/>
-                              <Component id="jDatePicker_start" min="-2" max="-2" attributes="0"/>
-                          </Group>
+                      <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="1" attributes="0">
-                              <Component id="jLabel8" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace pref="38" max="32767" attributes="0"/>
-                              <Component id="jDatePicker_end" min="-2" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="1" attributes="0">
+                                  <Component id="jCheckBox_uploadToMainCalendar" alignment="0" pref="435" max="32767" attributes="1"/>
+                                  <Component id="jCheckBox_GoogleSSL" alignment="0" pref="435" max="32767" attributes="1"/>
+                                  <Component id="jCheckBox_LimitDateRange" alignment="0" pref="435" max="32767" attributes="0"/>
+                              </Group>
+                              <EmptySpace min="-2" pref="533" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="jCheckBox_LimitDateRange" alignment="0" pref="338" max="32767" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel8" alignment="0" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="1" attributes="0">
+                                  <Component id="jDatePicker_start" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jDatePicker_end" alignment="1" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace pref="232" max="32767" attributes="0"/>
+                          </Group>
                       </Group>
-                      <EmptySpace min="-2" pref="533" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -330,20 +336,20 @@
                       <EmptySpace min="-2" pref="21" max="-2" attributes="0"/>
                       <Component id="jCheckBox_uploadToMainCalendar" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
-                      <Component id="jCheckBox_GoogleUseSSL" min="-2" max="-2" attributes="0"/>
+                      <Component id="jCheckBox_GoogleSSL" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jCheckBox_LimitDateRange" min="-2" max="-2" attributes="1"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="jLabel7" max="32767" attributes="1"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="jDatePicker_start" alignment="0" min="-2" max="-2" attributes="1"/>
+                          <Component id="jLabel7" alignment="0" min="-2" max="-2" attributes="1"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="jLabel8" max="32767" attributes="1"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="jLabel8" alignment="0" min="-2" max="-2" attributes="1"/>
                           <Component id="jDatePicker_end" alignment="0" min="-2" max="-2" attributes="1"/>
                       </Group>
-                      <EmptySpace pref="53" max="32767" attributes="0"/>
+                      <EmptySpace pref="47" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -374,10 +380,10 @@
             </Component>
             <Component class="javax.swing.JCheckBox" name="jCheckBox_uploadToMainCalendar">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Upload to main Calendar, instead of the secondary"/>
+                <Property name="text" type="java.lang.String" value="Upload to main Calendar, instead of the secondary (Make Backup!!!)"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JCheckBox" name="jCheckBox_GoogleUseSSL">
+            <Component class="javax.swing.JCheckBox" name="jCheckBox_GoogleSSL">
               <Properties>
                 <Property name="selected" type="boolean" value="true"/>
                 <Property name="text" type="java.lang.String" value="Connect to Google using SSL/TLS (recommended!)"/>
