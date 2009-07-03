@@ -26,8 +26,7 @@ public class LotusNotesExport {
         String startDate = dateRange[0];
         String endDate = dateRange[1];
 
-        CalUri = ("($calendar)?ReadViewEntries&KeyType=time&StartKey="+ startDate +"&UntilKey=" + endDate);
-        System.out.println(CalUri);
+        CalUri = ("($calendar)?ReadViewEntries&KeyType=time&StartKey="+ startDate +"&UntilKey=" + endDate);        
     }
 
     public List<NotesCalendarEntry> start(String mailFileURL) {
@@ -50,6 +49,7 @@ public class LotusNotesExport {
 
             HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
 
+                @Override
                 public boolean verify(String arg0, SSLSession arg1) {
                     return true;
                 }

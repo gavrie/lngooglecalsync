@@ -66,6 +66,8 @@ public class mainGUI extends javax.swing.JFrame {
         jCheckBox_enableProxy = new javax.swing.JCheckBox();
         jTextField_proxyIP = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
@@ -144,7 +146,7 @@ public class mainGUI extends javax.swing.JFrame {
                     .add(org.jdesktop.layout.GroupLayout.LEADING, jTextField_GoogleURL, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.LEADING, jTextField_GoogleUsername)
                     .add(org.jdesktop.layout.GroupLayout.LEADING, jPasswordField_GooglePassword))
-                .addContainerGap(82, Short.MAX_VALUE))
+                .addContainerGap(97, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -163,7 +165,7 @@ public class mainGUI extends javax.swing.JFrame {
                     .add(jPasswordField_GooglePassword, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .add(18, 18, 18)
                 .add(jLabel_UsernameError, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 21, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(47, Short.MAX_VALUE))
+                .addContainerGap(65, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("General", jPanel1);
@@ -213,6 +215,10 @@ public class mainGUI extends javax.swing.JFrame {
 
         jLabel6.setText("IP Address:");
 
+        jLabel10.setText("In some networks, you may need to use a proxy to reach the internet.");
+
+        jLabel11.setText("Here is the option for you to supply the proxy server and port.");
+
         org.jdesktop.layout.GroupLayout jPanel2Layout = new org.jdesktop.layout.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -220,6 +226,7 @@ public class mainGUI extends javax.swing.JFrame {
             .add(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jLabel10, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 537, Short.MAX_VALUE)
                     .add(jPanel2Layout.createSequentialGroup()
                         .add(27, 27, 27)
                         .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -229,13 +236,18 @@ public class mainGUI extends javax.swing.JFrame {
                         .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jTextField_proxyPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 56, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jTextField_proxyIP, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 143, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(jCheckBox_enableProxy))
-                .addContainerGap(242, Short.MAX_VALUE))
+                    .add(jCheckBox_enableProxy)
+                    .add(jLabel11, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 537, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel2Layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
+                .add(jLabel10)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jLabel11)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 25, Short.MAX_VALUE)
                 .add(jCheckBox_enableProxy)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
@@ -245,7 +257,7 @@ public class mainGUI extends javax.swing.JFrame {
                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jTextField_proxyPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 25, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel5))
-                .addContainerGap(106, Short.MAX_VALUE))
+                .add(60, 60, 60))
         );
 
         jTabbedPane1.addTab("Proxy", jPanel2);
@@ -276,8 +288,8 @@ public class mainGUI extends javax.swing.JFrame {
                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel3Layout.createSequentialGroup()
                         .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, jCheckBox_GoogleSSL, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 438, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, jCheckBox_LimitDateRange, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 438, Short.MAX_VALUE))
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, jCheckBox_GoogleSSL, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 479, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, jCheckBox_LimitDateRange, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 479, Short.MAX_VALUE))
                         .add(29, 29, 29))
                     .add(jPanel3Layout.createSequentialGroup()
                         .add(27, 27, 27)
@@ -310,7 +322,7 @@ public class mainGUI extends javax.swing.JFrame {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jDatePicker_end, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel8, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 29, Short.MAX_VALUE))
+                    .add(jLabel8, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE))
                 .add(52, 52, 52))
         );
 
@@ -411,7 +423,7 @@ public class mainGUI extends javax.swing.JFrame {
             proxy.activateNow();
             // check whether the user has deselected to use SSL when connecting to google (this is not recommended)
             boolean GoogleConnectUsingSSL = jCheckBox_GoogleSSL.isSelected();
-            GoogleImport googleService = new GoogleImport(jTextField_GoogleUsername.getText(), new String(jPasswordField_GooglePassword.getPassword()),GoogleConnectUsingSSL);
+            GoogleImport googleService = new GoogleImport(jTextField_GoogleUsername.getText(), new String(jPasswordField_GooglePassword.getPassword()), GoogleConnectUsingSSL);
 
             // googleService.setCalendarColor(CALENDARCOLOR);
             googleService.deleteCalendar();
@@ -465,12 +477,10 @@ public class mainGUI extends javax.swing.JFrame {
 
     private void jTextField_proxyIPFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextField_proxyIPFocusLost
         proxy.setProxyHost(jTextField_proxyIP.getText());
-        System.out.println(proxy.getProxyHost());
     }//GEN-LAST:event_jTextField_proxyIPFocusLost
 
     private void jTextField_proxyPortFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextField_proxyPortFocusLost
         proxy.setProxyPort(jTextField_proxyPort.getText());
-        System.out.println(proxy.getProxyPort());
     }//GEN-LAST:event_jTextField_proxyPortFocusLost
 
     public void setDateTimeSelectorVisible(boolean visible) {
@@ -504,8 +514,6 @@ public class mainGUI extends javax.swing.JFrame {
     }
 
     @SuppressWarnings("static-access")
-    // very ugly way of converting the date/time..
-    // need to look for something better, but it works...
     private String[] getFormattedCalendarRange() {
         String[] calrange = new String[2];
 
@@ -563,11 +571,14 @@ public class mainGUI extends javax.swing.JFrame {
             }
         });
     }
-    private boolean isUrlValid = false;
-    private boolean isValidAccount = false;
+
+
     ProxyConfigBean proxy;
     SyncCompletedDialog syncCompletedDialog;
+    private boolean isUrlValid = false;
+    private boolean isValidAccount = false;
     private String[] calcolors;
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton_Cancel;
     private javax.swing.JButton jButton_Synchronize;
@@ -578,6 +589,8 @@ public class mainGUI extends javax.swing.JFrame {
     private net.sourceforge.jdatepicker.JDatePicker jDatePicker_end;
     private net.sourceforge.jdatepicker.JDatePicker jDatePicker_start;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;

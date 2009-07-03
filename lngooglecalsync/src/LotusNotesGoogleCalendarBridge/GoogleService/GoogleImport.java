@@ -16,15 +16,15 @@ public class GoogleImport {
 
     public GoogleImport(String accountname, String password, boolean useSSL) {
         try {
-            String protocol = "https://";
+            String protocol = "https:";
             if (!useSSL) {
-                protocol = "http://";
+                protocol = "http:";
             }
 
-            mainCalendarFeedUrl = new URL(protocol + "www.google.com/calendar/feeds/" + accountname + "/owncalendars/full");
-            privateCalendarFeedUrl = new URL(protocol + "www.google.com/calendar/feeds/" + accountname + "/private/full");
+            mainCalendarFeedUrl = new URL(protocol + "//www.google.com/calendar/feeds/" + accountname + "/owncalendars/full");
+            privateCalendarFeedUrl = new URL(protocol + "//www.google.com/calendar/feeds/" + accountname + "/private/full");
             service = new CalendarService("Corporate-LotusNotes-Calendar");
-            service.useSsl();
+            if (useSSL) service.useSsl();
             service.setUserCredentials(accountname, password);
         } catch (IOException e) {
             System.err.println("API Error: " + e);
@@ -36,35 +36,34 @@ public class GoogleImport {
     public GoogleImport() {
     }
 
-    /*   //for debuging purposes only!
     public static void main(String[] a) {
-    String cmd_user = null;
-    String cmd_pwd = null;
+        String cmd_user = null;
+        String cmd_pwd = null;
 
-    System.out.println(a.length);
+        System.out.println(a.length);
 
-    if (a.length == 2) {
-    cmd_user = a[0];
-    cmd_pwd = a[1];
+        if (a.length == 2) {
+            cmd_user = a[0];
+            cmd_pwd = a[1];
 
-    System.out.println("1: " + cmd_user);
-    } else {
-    System.exit(1);
+            System.out.println("1: " + cmd_user);
+        } else {
+            System.exit(1);
+        }
+
+        try {
+
+            GoogleImport gi = new GoogleImport(cmd_user, cmd_pwd,true);
+            gi.deleteCalendar();
+            CalendarEntry calentry = gi.createCalendar();
+
+        } catch (IOException ex) {
+            Logger.getLogger(GoogleImport.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ServiceException ex) {
+            Logger.getLogger(GoogleImport.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
-    try {
-
-    GoogleImport gi = new GoogleImport(cmd_user, cmd_pwd);
-    gi.deleteCalendar();
-    CalendarEntry calentry = gi.createCalendar();
-
-    } catch (IOException ex) {
-    Logger.getLogger(GoogleImport.class.getName()).log(Level.SEVERE, null, ex);
-    } catch (ServiceException ex) {
-    Logger.getLogger(GoogleImport.class.getName()).log(Level.SEVERE, null, ex);
-    }
-    }
-     */
     public CalendarEntry createCalendar() throws IOException, ServiceException {
 
         CalendarEntry calendar = new CalendarEntry();
