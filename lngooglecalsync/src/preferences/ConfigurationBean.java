@@ -5,7 +5,7 @@ import java.io.FileOutputStream;
 import java.util.Properties;
 
 public class ConfigurationBean {
-    
+
     public ConfigurationBean() {
         config = new Properties();
     }
@@ -92,11 +92,19 @@ public class ConfigurationBean {
     }
 
     public String getLotusMailFileURL() {
-        return config.getProperty("LotusNotesMailURL");
+        String url = config.getProperty("LotusNotesMailURL");
+        if (url == null) {
+            url = "http://lotus.host/mail/mailfile.nsf";
+        }
+        return url;
     }
 
     public String getGoogleUserName() {
-        return config.getProperty("GoogleUsername");
+        String username = config.getProperty("GoogleUsername");
+        if (username == null) {
+            username = "user@google.com";
+        }
+        return username;
     }
 
     public String getGooglePassword() {
@@ -145,8 +153,6 @@ public class ConfigurationBean {
     public String getLotusNotesPassword() {
         return config.getProperty("LotusNotesPassword");
     }
-
     Properties config;
-   
     String configurationFile = "lngooglecalsync.properties";
 }
