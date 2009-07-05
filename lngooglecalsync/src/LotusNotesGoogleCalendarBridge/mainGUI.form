@@ -30,27 +30,20 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="1" attributes="0">
-                      <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
-                      <Component id="jTabbedPane1" pref="573" max="32767" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel1" min="-2" pref="150" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="1" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jButton_Cancel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jButton_Synchronize" min="-2" max="-2" attributes="0"/>
-                  </Group>
+                  <Component id="jTabbedPane1" alignment="0" min="-2" pref="540" max="-2" attributes="0"/>
+                  <Component id="jLabel9" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel1" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
               </Group>
+              <EmptySpace pref="20" max="32767" attributes="0"/>
+          </Group>
+          <Group type="102" alignment="1" attributes="0">
+              <EmptySpace pref="351" max="32767" attributes="0"/>
+              <Component id="jButton_Cancel" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jButton_Synchronize" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -60,16 +53,16 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jTabbedPane1" min="-2" pref="258" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="1" max="-2" attributes="0"/>
+              <Component id="jTabbedPane1" min="-2" pref="324" max="-2" attributes="0"/>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jButton_Synchronize" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jButton_Cancel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -78,7 +71,6 @@
     <Component class="javax.swing.JButton" name="jButton_Synchronize">
       <Properties>
         <Property name="text" type="java.lang.String" value="Synchronize"/>
-        <Property name="enabled" type="boolean" value="false"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton_SynchronizeActionPerformed"/>
@@ -102,6 +94,9 @@
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
       <SubComponents>
         <Container class="javax.swing.JPanel" name="jPanel1">
+          <Properties>
+            <Property name="autoscrolls" type="boolean" value="true"/>
+          </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
               <JTabbedPaneConstraints tabName="General">
@@ -113,45 +108,77 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="jLabel2" alignment="0" pref="184" max="32767" attributes="1"/>
-                          <Component id="jLabel3" alignment="0" max="32767" attributes="1"/>
-                          <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="1"/>
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Component id="jLabel_UsernameError" alignment="1" min="-2" pref="279" max="-2" attributes="1"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="jLabel2" min="-2" pref="184" max="-2" attributes="1"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="jTextField_LotusNotesURL" pref="256" max="32767" attributes="1"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="jLabel12" min="-2" pref="184" max="-2" attributes="1"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="jTextField_LotusNotesUsername" pref="256" max="32767" attributes="1"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="jLabel3" max="32767" attributes="1"/>
+                              <EmptySpace min="-2" pref="346" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="1" max="-2" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="jLabel13" alignment="0" min="-2" pref="184" max="-2" attributes="1"/>
+                                  <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="1"/>
+                              </Group>
+                              <EmptySpace min="-2" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="jPasswordField_GooglePassword" alignment="1" pref="256" max="32767" attributes="1"/>
+                                  <Component id="jTextField_GoogleUsername" alignment="1" pref="256" max="32767" attributes="1"/>
+                                  <Component id="jPasswordField_LotusNotesPassword" alignment="0" pref="256" max="32767" attributes="1"/>
+                              </Group>
+                          </Group>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                          <Component id="jLabel_UsernameError" alignment="0" max="32767" attributes="1"/>
-                          <Component id="jTextField_GoogleURL" alignment="0" pref="256" max="32767" attributes="1"/>
-                          <Component id="jTextField_GoogleUsername" alignment="0" max="32767" attributes="1"/>
-                          <Component id="jPasswordField_GooglePassword" alignment="0" max="32767" attributes="1"/>
-                      </Group>
-                      <EmptySpace pref="97" max="32767" attributes="0"/>
+                      <EmptySpace min="-2" pref="123" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jTextField_GoogleURL" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jTextField_LotusNotesURL" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" pref="7" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="jLabel12" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jTextField_LotusNotesUsername" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jTextField_GoogleUsername" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jPasswordField_LotusNotesPassword" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabel13" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jPasswordField_GooglePassword" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="33" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Group type="102" alignment="1" attributes="0">
+                              <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
+                              <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="1" attributes="0">
+                              <Component id="jTextField_GoogleUsername" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="jPasswordField_GooglePassword" min="-2" pref="28" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
+                          </Group>
                       </Group>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="jLabel_UsernameError" min="-2" pref="21" max="-2" attributes="0"/>
-                      <EmptySpace pref="65" max="32767" attributes="0"/>
+                      <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
+                      <Component id="jLabel_UsernameError" min="-2" pref="22" max="-2" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -177,12 +204,12 @@
                 <Property name="text" type="java.lang.String" value="Google Password:"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JTextField" name="jTextField_GoogleURL">
+            <Component class="javax.swing.JTextField" name="jTextField_LotusNotesURL">
               <Properties>
                 <Property name="text" type="java.lang.String" value="http://lotus.host/mail/mailfile.nsf"/>
               </Properties>
               <Events>
-                <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="jTextField_GoogleURLKeyReleased"/>
+                <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="jTextField_LotusNotesURLKeyReleased"/>
               </Events>
             </Component>
             <Component class="javax.swing.JTextField" name="jTextField_GoogleUsername">
@@ -199,6 +226,26 @@
                   <Color blue="0" green="0" red="ff" type="rgb"/>
                 </Property>
               </Properties>
+            </Component>
+            <Component class="javax.swing.JLabel" name="jLabel12">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Lotus Notes Username:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JLabel" name="jLabel13">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Lotus Notes Password:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JPasswordField" name="jPasswordField_LotusNotesPassword">
+              <Events>
+                <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="jPasswordField_LotusNotesPasswordKeyReleased"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JTextField" name="jTextField_LotusNotesUsername">
+              <Events>
+                <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="jTextField_LotusNotesUsernameKeyReleased"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>
@@ -217,7 +264,8 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jLabel10" alignment="0" pref="537" max="32767" attributes="0"/>
+                          <Component id="jLabel10" alignment="0" pref="479" max="32767" attributes="0"/>
+                          <Component id="jLabel11" alignment="0" pref="479" max="32767" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace min="27" pref="27" max="27" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
@@ -231,7 +279,6 @@
                               </Group>
                           </Group>
                           <Component id="jCheckBox_enableProxy" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel11" alignment="0" pref="537" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -239,12 +286,12 @@
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="1" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabel11" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="25" max="32767" attributes="0"/>
+                      <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="jCheckBox_enableProxy" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
@@ -256,7 +303,7 @@
                           <Component id="jTextField_proxyPort" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
                           <Component id="jLabel5" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" pref="60" max="-2" attributes="0"/>
+                      <EmptySpace pref="111" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -281,9 +328,9 @@
                 <Property name="text" type="java.lang.String" value="Enable Proxy Support"/>
               </Properties>
               <Events>
-                <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jCheckBox_enableProxyMouseClicked"/>
                 <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jCheckBox_enableProxyStateChanged"/>
                 <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="jCheckBox_enableProxyKeyReleased"/>
+                <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jCheckBox_enableProxyMouseClicked"/>
               </Events>
             </Component>
             <Component class="javax.swing.JTextField" name="jTextField_proxyIP">
@@ -329,8 +376,8 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="jCheckBox_GoogleSSL" alignment="0" pref="479" max="32767" attributes="1"/>
-                                  <Component id="jCheckBox_LimitDateRange" alignment="0" pref="479" max="32767" attributes="0"/>
+                                  <Component id="jCheckBox_GoogleSSL" alignment="0" pref="470" max="32767" attributes="1"/>
+                                  <Component id="jCheckBox_LimitDateRange" alignment="0" pref="470" max="32767" attributes="0"/>
                               </Group>
                               <EmptySpace min="-2" pref="29" max="-2" attributes="0"/>
                           </Group>
@@ -352,7 +399,7 @@
                           </Group>
                           <Component id="jCheckBox_uploadToMainCalendar" alignment="0" min="-2" pref="467" max="-2" attributes="1"/>
                       </Group>
-                      <EmptySpace min="-2" pref="41" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="102" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -373,9 +420,9 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="jDatePicker_end" min="-2" max="-2" attributes="1"/>
-                          <Component id="jLabel8" pref="30" max="32767" attributes="1"/>
+                          <Component id="jLabel8" pref="29" max="32767" attributes="1"/>
                       </Group>
-                      <EmptySpace min="-2" pref="52" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="225" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>

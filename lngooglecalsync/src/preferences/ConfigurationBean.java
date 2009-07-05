@@ -1,19 +1,17 @@
 package preferences;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.Properties;
 
 public class ConfigurationBean {
-
-    public static void main(String[] a) {
-        ConfigurationBean cb = new ConfigurationBean();
-        cb.writeConfig();
+    
+    public ConfigurationBean() {
+        config = new Properties();
     }
-
 
     public void writeConfig() {
 
-        Properties config = new Properties();
-        config.setProperty("LotusNotesMailURL", getLotusMailFileURL());
         config.setProperty("GoogleUsername", getGoogleUserName());
         config.setProperty("GooglePassword", getGooglePassword());
         config.setProperty("GoogleEnableProxy", new Boolean(getGoogleEnableProxy()).toString());
@@ -21,82 +19,134 @@ public class ConfigurationBean {
         config.setProperty("GoogleProxyPort", getGoogleProxyPort());
         config.setProperty("GoogleUploadToMainCalendar", new Boolean(getGoogleUploadToMainCalendar()).toString());
         config.setProperty("GoogleUseSSL", new Boolean(getGoogleUseSSL()).toString());
+        config.setProperty("LotusNotesUsername", getLotusNotesUsername());
+        config.setProperty("LotusNotesPassword", getLotusNotesPassword());
 
+        // Write properties file.
+        try {
+            config.store(new FileOutputStream(configurationFile), null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
     public void readConfig() {
+        try {
+            config.load(new FileInputStream(configurationFile));
+        } catch (Exception e) {
+        }
+
     }
 
     public void setLotusMailFileURL(String lotusMailFileURL) {
-        this.lotusMailFileURL = lotusMailFileURL;
-    }
-
-    public String getLotusMailFileURL() {
-        return lotusMailFileURL;
+        config.setProperty("LotusNotesMailURL", lotusMailFileURL);
     }
 
     public void setGoogleUserName(String googleUserName) {
-        this.googleUserName = googleUserName;
-    }
-
-    public String getGoogleUserName() {
-        return googleUserName;
+        config.setProperty("GoogleUsername", googleUserName);
     }
 
     public void setGooglePassword(String googlePassword) {
-        this.googlePassword = googlePassword;
-    }
-
-    public String getGooglePassword() {
-        return googlePassword;
-    }
-
-    public void setGoogleEnableProxy(boolean googleEnableProxy) {
-        this.googleEnableProxy = googleEnableProxy;
-    }
-
-    public boolean getGoogleEnableProxy() {
-        return googleEnableProxy;
+        config.setProperty("GooglePassword", googlePassword);
     }
 
     public void setGoogleProxyIP(String googleProxyIP) {
-        this.googleProxyIP = googleProxyIP;
-    }
-
-    public String getGoogleProxyIP() {
-        return googleProxyIP;
+        config.setProperty("GoogleProxyIP", googleProxyIP);
     }
 
     public void setGoogleProxyPort(String googleProxyPort) {
-        this.googleProxyPort = googleProxyPort;
+        config.setProperty("GoogleProxyPort", googleProxyPort);
     }
 
-    public String getGoogleProxyPort() {
-        return googleProxyPort;
+    public void setGoogleEnableProxy(boolean googleEnableProxy) {
+        if (googleEnableProxy) {
+            config.setProperty("GoogleEnableProxy", "true");
+        } else {
+            config.setProperty("GoogleEnableProxy", "false");
+        }
     }
 
     public void setGoogleUploadToMainCalendar(boolean googleUploadToMainCalendar) {
-        this.googleUploadToMainCalendar = googleUploadToMainCalendar;
-    }
-
-    public boolean getGoogleUploadToMainCalendar() {
-        return googleUploadToMainCalendar;
+        if (googleUploadToMainCalendar) {
+            config.setProperty("GoogleUploadToMainCalendar", "true");
+        } else {
+            config.setProperty("GoogleUploadToMainCalendar", "false");
+        }
     }
 
     public void setGoogleUseSSL(boolean googleUseSSL) {
-        this.googleUseSSL = googleUseSSL;
+        if (googleUseSSL) {
+            config.setProperty("GoogleUseSSL", "true");
+        } else {
+            config.setProperty("GoogleUseSSL", "false");
+        }
+    }
+
+    public void setLotusNotesUsername(String LotusNotesUsername) {
+        config.setProperty("LotusNotesUsername", LotusNotesUsername);
+    }
+
+    public void setLotusNotesPassword(String LotusNotesPassword) {
+        config.setProperty("LotusNotesPassword", LotusNotesPassword);
+    }
+
+    public String getLotusMailFileURL() {
+        return config.getProperty("LotusNotesMailURL");
+    }
+
+    public String getGoogleUserName() {
+        return config.getProperty("GoogleUsername");
+    }
+
+    public String getGooglePassword() {
+        return config.getProperty("GooglePassword");
+    }
+
+    public String getGoogleProxyIP() {
+        return config.getProperty("GoogleProxyIP");
+    }
+
+    public String getGoogleProxyPort() {
+        return config.getProperty("GoogleProxyPort");
+    }
+
+    public boolean getGoogleEnableProxy() {
+        String property = config.getProperty("GoogleEnableProxy");
+        boolean enable = false;
+        if (property.equalsIgnoreCase("true")) {
+            enable = true;
+        }
+        return enable;
+    }
+
+    public boolean getGoogleUploadToMainCalendar() {
+        String property = config.getProperty("GoogleUploadToMainCalendar");
+        boolean enable = false;
+        if (property.equalsIgnoreCase("true")) {
+            enable = true;
+        }
+        return enable;
     }
 
     public boolean getGoogleUseSSL() {
-        return googleUseSSL;
+        String property = config.getProperty("GoogleUseSSL");
+        boolean enable = false;
+        if (property.equalsIgnoreCase("true")) {
+            enable = true;
+        }
+        return enable;
     }
-    String lotusMailFileURL;
-    String googleUserName;
-    String googlePassword;
-    boolean googleEnableProxy;
-    String googleProxyIP;
-    String googleProxyPort;
-    boolean googleUploadToMainCalendar;
-    boolean googleUseSSL;
+
+    public String getLotusNotesUsername() {
+        return config.getProperty("LotusNotesUsername");
+    }
+
+    public String getLotusNotesPassword() {
+        return config.getProperty("LotusNotesPassword");
+    }
+
+    Properties config;
+   
+    String configurationFile = "lngooglecalsync.properties";
 }

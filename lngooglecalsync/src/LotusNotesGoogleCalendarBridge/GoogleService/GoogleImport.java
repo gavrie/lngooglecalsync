@@ -3,7 +3,10 @@ package LotusNotesGoogleCalendarBridge.GoogleService;
 import LotusNotesGoogleCalendarBridge.LotusNotesService.NotesCalendarEntry;
 import com.google.gdata.client.calendar.*;
 import com.google.gdata.data.*;
+import com.google.gdata.data.batch.BatchOperationType;
+import com.google.gdata.data.batch.BatchUtils;
 import com.google.gdata.data.calendar.*;
+import com.google.gdata.data.calendar.CalendarEventEntry;
 import com.google.gdata.data.extensions.*;
 import com.google.gdata.util.*;
 import java.io.*;
@@ -24,7 +27,9 @@ public class GoogleImport {
             mainCalendarFeedUrl = new URL(protocol + "//www.google.com/calendar/feeds/" + accountname + "/owncalendars/full");
             privateCalendarFeedUrl = new URL(protocol + "//www.google.com/calendar/feeds/" + accountname + "/private/full");
             service = new CalendarService("Corporate-LotusNotes-Calendar");
-            if (useSSL) service.useSsl();
+            if (useSSL) {
+                service.useSsl();
+            }
             service.setUserCredentials(accountname, password);
         } catch (IOException e) {
             System.err.println("API Error: " + e);
@@ -36,34 +41,35 @@ public class GoogleImport {
     public GoogleImport() {
     }
 
+    /*
     public static void main(String[] a) {
-        String cmd_user = null;
-        String cmd_pwd = null;
+    String cmd_user = null;
+    String cmd_pwd = null;
 
-        System.out.println(a.length);
+    System.out.println(a.length);
 
-        if (a.length == 2) {
-            cmd_user = a[0];
-            cmd_pwd = a[1];
+    if (a.length == 2) {
+    cmd_user = a[0];
+    cmd_pwd = a[1];
 
-            System.out.println("1: " + cmd_user);
-        } else {
-            System.exit(1);
-        }
-
-        try {
-
-            GoogleImport gi = new GoogleImport(cmd_user, cmd_pwd,true);
-            gi.deleteCalendar();
-            CalendarEntry calentry = gi.createCalendar();
-
-        } catch (IOException ex) {
-            Logger.getLogger(GoogleImport.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ServiceException ex) {
-            Logger.getLogger(GoogleImport.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    System.out.println("1: " + cmd_user);
+    } else {
+    System.exit(1);
     }
 
+    try {
+
+    GoogleImport gi = new GoogleImport(cmd_user, cmd_pwd,true);
+    gi.deleteCalendar();
+    CalendarEntry calentry = gi.createCalendar();
+
+    } catch (IOException ex) {
+    Logger.getLogger(GoogleImport.class.getName()).log(Level.SEVERE, null, ex);
+    } catch (ServiceException ex) {
+    Logger.getLogger(GoogleImport.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    }
+     */
     public CalendarEntry createCalendar() throws IOException, ServiceException {
 
         CalendarEntry calendar = new CalendarEntry();
@@ -81,6 +87,26 @@ public class GoogleImport {
         newCalendarFeedUrl = new URL(returnedCalendar.getLink("alternate", "application/atom+xml").getHref());
 
         return returnedCalendar;
+    }
+
+    public void deleteCalendarEntries() {
+        //for future!
+
+        try {
+            CalendarEventFeed feed = service.getFeed(mainCalendarFeedUrl, CalendarEventFeed.class);
+            //List<CalendarEventEntry> entries = feed.getEntries();
+            int entries = feed.getEntries().size();
+            for (int i = 0; i < entries; i++) {
+                BatchUtils.setBatchId(feed.getEntries().get(i), new Integer(i).toString());
+                BatchUtils.setBatchOperationType(feed.getEntries().get(i), BatchOperationType.DELETE);
+            }
+
+            CalendarEventEntry toDelete = feed.getEntries().get(2);
+
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+
     }
 
     public void deleteCalendar() {
