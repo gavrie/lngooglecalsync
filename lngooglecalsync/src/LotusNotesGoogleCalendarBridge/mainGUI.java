@@ -44,7 +44,7 @@ public class mainGUI extends javax.swing.JFrame {
         confBean = new ConfigurationBean();
         confBean.readConfig();
 
-        DisplayConfiguration();
+        activateConfiguration();
 
         validate();
         // check whether the loaded configuration meets our requirements to sync.
@@ -541,7 +541,7 @@ public class mainGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextField_proxyIPFocusLost
 
     private void jTextField_proxyPortFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextField_proxyPortFocusLost
-        proxy.setProxyPort(jTextField_proxyPort.getText());
+        proxy.setProxyPort(jTextField_proxyPort.getText());        
     }//GEN-LAST:event_jTextField_proxyPortFocusLost
 
     private void jPasswordField_LotusNotesPasswordKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jPasswordField_LotusNotesPasswordKeyReleased
@@ -649,7 +649,7 @@ public class mainGUI extends javax.swing.JFrame {
 
         confBean.setGoogleEnableProxy(jCheckBox_enableProxy.isSelected());
         confBean.setGoogleProxyPort(jTextField_proxyPort.getText());
-        confBean.setGoogleProxyIP(jTextField_proxyPort.getText());
+        confBean.setGoogleProxyIP(jTextField_proxyIP.getText());
 
         confBean.setGoogleUseSSL(jCheckBox_GoogleSSL.isSelected());
         confBean.setGoogleUploadToMainCalendar(jCheckBox_uploadToMainCalendar.isSelected());
@@ -658,7 +658,7 @@ public class mainGUI extends javax.swing.JFrame {
         confBean.writeConfig();
     }
 
-    private void DisplayConfiguration() {
+    private void activateConfiguration() {
         try {
             jTextField_LotusNotesURL.setText(confBean.getLotusMailFileURL());
             jTextField_GoogleUsername.setText(confBean.getGoogleUserName());
@@ -670,6 +670,12 @@ public class mainGUI extends javax.swing.JFrame {
             jTextField_proxyPort.setText(confBean.getGoogleProxyPort());
             jTextField_LotusNotesUsername.setText(confBean.getLotusNotesUsername());
             jPasswordField_LotusNotesPassword.setText(new String(confBean.getLotusNotesPassword()));
+
+            //configure proxy settings from the configuration
+            proxy.setProxyHost(confBean.getGoogleProxyIP());
+            proxy.setProxyPort(confBean.getGoogleProxyPort());
+            proxy.setEnabled(confBean.getGoogleEnableProxy());
+
         } catch (Exception e) {
             System.err.println("Some preferences were not set in the configuration file," +
                     " please set them inside the GUI.\n " +
