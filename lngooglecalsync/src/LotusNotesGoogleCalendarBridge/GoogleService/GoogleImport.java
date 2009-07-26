@@ -12,8 +12,6 @@ import com.google.gdata.util.*;
 import java.io.*;
 import java.net.*;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class GoogleImport {
 
