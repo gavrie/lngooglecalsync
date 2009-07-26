@@ -1,5 +1,7 @@
 package LotusNotesGoogleCalendarBridge.ProxyModule;
 
+import java.net.Authenticator;
+
 public class ProxyConfigBean {
 
     public ProxyConfigBean() {
@@ -35,7 +37,30 @@ public class ProxyConfigBean {
         return proxyPort;
     }
 
+    public void enableProxyAuthentication(boolean enableProxyAuthentication) {
+        this.enableProxyAuthentication = enableProxyAuthentication;
+    }
+
+    public void setProxyPassword(String proxyPassword) {
+        this.proxyPassword = proxyPassword;
+    }
+
+    public void setProxyUser(String proxyUser) {
+        this.proxyUser = proxyUser;
+    }
+
+    public String getProxyUser() {
+        return proxyUser;
+    }
+
+    public String getProxyPassword() {
+        return proxyPassword;
+    }
+
     public void activateNow() {
+        if (enableProxyAuthentication) {
+            Authenticator.setDefault(new DefaultProxyAuthenticator(getProxyUser(), getProxyPassword()));
+        }
         System.getProperties().put("proxySet", "true");
         System.getProperties().put("proxyHost", proxyHost);
         System.getProperties().put("proxyPort", proxyPort);
@@ -43,6 +68,9 @@ public class ProxyConfigBean {
     }
 
     public void deactivateNow() {
+        if (enableProxyAuthentication) {
+            Authenticator.setDefault(null);
+        }
         System.getProperties().put("proxySet", "false");
         System.getProperties().put("proxyHost", "");
         System.getProperties().put("proxyPort", "");
@@ -54,8 +82,9 @@ public class ProxyConfigBean {
             System.out.println("DEBUG: " + message);
         }
     }
-    String proxyHost, proxyPort;
+    String proxyHost, proxyPort, proxyUser, proxyPassword;
     boolean enabled;
     // enable or disable debug messages concerning the proxy configuration process
     boolean debug = false;
+    boolean enableProxyAuthentication = false;
 }
