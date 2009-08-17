@@ -27,7 +27,7 @@ public class SyncCompletedDialog extends javax.swing.JDialog {
         setResizable(false);
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Synchronization Completed!");
+        jLabel1.setText("Synchronization attempt Completed!");
         jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         jButton1.setText("OK");

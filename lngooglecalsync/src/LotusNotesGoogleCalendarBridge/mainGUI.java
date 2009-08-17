@@ -49,6 +49,11 @@ public class mainGUI extends javax.swing.JFrame {
         validate();
         // check whether the loaded configuration meets our requirements to sync.
         checkCompletion();
+
+        if (confBean.getSyncOnStartup() && jButton_Synchronize.isEnabled()) {
+            SyncNow();
+        }
+
     }
 
     public static void main(String args[]) {
@@ -103,6 +108,8 @@ public class mainGUI extends javax.swing.JFrame {
         jCheckBox_LimitDateRange = new javax.swing.JCheckBox();
         jCheckBox_uploadToMainCalendar = new javax.swing.JCheckBox();
         jCheckBox_GoogleSSL = new javax.swing.JCheckBox();
+        jCheckBox_SyncOnStart = new javax.swing.JCheckBox();
+        jSeparator1 = new javax.swing.JSeparator();
         jLabel9 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
 
@@ -346,33 +353,52 @@ public class mainGUI extends javax.swing.JFrame {
 
         jCheckBox_GoogleSSL.setSelected(true);
         jCheckBox_GoogleSSL.setText("Connect to Google using SSL/TLS (recommended!)");
+        jCheckBox_GoogleSSL.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox_GoogleSSLActionPerformed(evt);
+            }
+        });
+
+        jCheckBox_SyncOnStart.setText("Sync on Startup");
 
         org.jdesktop.layout.GroupLayout jPanel3Layout = new org.jdesktop.layout.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel3Layout.createSequentialGroup()
-                .add(12, 12, 12)
+                .add(17, 17, 17)
+                .add(jCheckBox_uploadToMainCalendar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 467, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(102, 102, 102))
+            .add(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .add(jCheckBox_SyncOnStart, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 438, Short.MAX_VALUE)
+                .add(131, 131, 131))
+            .add(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel3Layout.createSequentialGroup()
-                        .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, jCheckBox_GoogleSSL, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 470, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, jCheckBox_LimitDateRange, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 470, Short.MAX_VALUE))
-                        .add(29, 29, 29))
+                        .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jPanel3Layout.createSequentialGroup()
+                                .add(27, 27, 27)
+                                .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                                    .add(jPanel3Layout.createSequentialGroup()
+                                        .add(jLabel8)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                                        .add(jDatePicker_end, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                    .add(jPanel3Layout.createSequentialGroup()
+                                        .add(jLabel7)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(jDatePicker_start, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 221, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(jCheckBox_LimitDateRange, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 569, Short.MAX_VALUE))
+                        .addContainerGap())
                     .add(jPanel3Layout.createSequentialGroup()
-                        .add(27, 27, 27)
-                        .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(jPanel3Layout.createSequentialGroup()
-                                .add(jLabel8)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                .add(jDatePicker_end, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(jPanel3Layout.createSequentialGroup()
-                                .add(jLabel7)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jDatePicker_start, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                        .add(119, 119, 119))
-                    .add(jCheckBox_uploadToMainCalendar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 467, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(102, 102, 102))
+                        .add(jCheckBox_GoogleSSL, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 522, Short.MAX_VALUE)
+                        .add(47, 47, 47))))
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 546, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -380,10 +406,14 @@ public class mainGUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .add(jCheckBox_uploadToMainCalendar)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jCheckBox_GoogleSSL)
+                .add(jCheckBox_SyncOnStart)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jCheckBox_GoogleSSL)
+                .add(4, 4, 4)
+                .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(2, 2, 2)
                 .add(jCheckBox_LimitDateRange)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                     .add(jLabel7, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(jDatePicker_start, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -391,14 +421,14 @@ public class mainGUI extends javax.swing.JFrame {
                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jDatePicker_end, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel8, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 29, Short.MAX_VALUE))
-                .add(225, 225, 225))
+                .add(80, 80, 80))
         );
 
         jTabbedPane1.addTab("Advanced", jPanel3);
 
         jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/lngooglecalsync-logo.png"))); // NOI18N
 
-        jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 14));
         jLabel1.setForeground(new java.awt.Color(255, 51, 51));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel1.setText("Beta Release 0.3");
@@ -413,9 +443,9 @@ public class mainGUI extends javax.swing.JFrame {
                     .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 540, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel9)
                     .add(jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addContainerGap(87, Short.MAX_VALUE))
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(351, Short.MAX_VALUE)
+                .addContainerGap(418, Short.MAX_VALUE)
                 .add(jButton_Cancel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jButton_Synchronize)
@@ -458,55 +488,7 @@ public class mainGUI extends javax.swing.JFrame {
 }//GEN-LAST:event_jPasswordField_GooglePasswordKeyReleased
 
     private void jButton_SynchronizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_SynchronizeActionPerformed
-        try {
-            //write configuration
-            updateConfiguration();
-
-            proxy.deactivateNow();
-
-            String[] dateRange;
-            LotusNotesExport lotusNotesService;
-
-            if (!jCheckBox_LimitDateRange.isSelected()) {
-                dateRange = getFormattedCalendarRange();
-                lotusNotesService = new LotusNotesExport(dateRange);
-            } else {
-                lotusNotesService = new LotusNotesExport();
-            }
-
-            lotusNotesService.setRequiresAuth(true);
-            String LotusNotesUsername = jTextField_LotusNotesUsername.getText();
-            String LotusNotesPassword = new String(jPasswordField_LotusNotesPassword.getPassword());
-            lotusNotesService.setCredentials(LotusNotesUsername, LotusNotesPassword);
-
-            List<NotesCalendarEntry> cals = lotusNotesService.start(jTextField_LotusNotesURL.getText());
-
-            proxy.activateNow();
-            // check whether the user has deselected to use SSL when connecting to google (this is not recommended)
-            boolean GoogleConnectUsingSSL = jCheckBox_GoogleSSL.isSelected();
-            GoogleImport googleService = new GoogleImport(jTextField_GoogleUsername.getText(), new String(jPasswordField_GooglePassword.getPassword()), GoogleConnectUsingSSL);
-
-            // googleService.setCalendarColor(CALENDARCOLOR);
-            googleService.deleteCalendar();
-
-            if (jCheckBox_uploadToMainCalendar.isSelected()) {
-                googleService.createEvent(cals, true);
-            } else {
-                googleService.createCalendar();
-                googleService.createEvent(cals, false);
-            }
-            jTextField_LotusNotesURL.setEnabled(false);
-            jTextField_GoogleUsername.setEnabled(false);
-            jPasswordField_GooglePassword.setEnabled(false);
-
-            jButton_Cancel.setText("Exit");
-            jButton_Synchronize.setText("Synch Again!");
-            syncCompletedDialog.setVisible(true);
-        } catch (ServiceException ex) {
-            Logger.getLogger(mainGUI.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(mainGUI.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        SyncNow();
 }//GEN-LAST:event_jButton_SynchronizeActionPerformed
 
     private void jTextField_proxyPortKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField_proxyPortKeyReleased
@@ -541,7 +523,7 @@ public class mainGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextField_proxyIPFocusLost
 
     private void jTextField_proxyPortFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextField_proxyPortFocusLost
-        proxy.setProxyPort(jTextField_proxyPort.getText());        
+        proxy.setProxyPort(jTextField_proxyPort.getText());
     }//GEN-LAST:event_jTextField_proxyPortFocusLost
 
     private void jPasswordField_LotusNotesPasswordKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jPasswordField_LotusNotesPasswordKeyReleased
@@ -549,6 +531,10 @@ public class mainGUI extends javax.swing.JFrame {
 
     private void jTextField_LotusNotesUsernameKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField_LotusNotesUsernameKeyReleased
     }//GEN-LAST:event_jTextField_LotusNotesUsernameKeyReleased
+
+    private void jCheckBox_GoogleSSLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox_GoogleSSLActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jCheckBox_GoogleSSLActionPerformed
 
     public void setDateTimeSelectorVisible(boolean visible) {
         jDatePicker_start.setVisible(visible);
@@ -653,6 +639,7 @@ public class mainGUI extends javax.swing.JFrame {
 
         confBean.setGoogleUseSSL(jCheckBox_GoogleSSL.isSelected());
         confBean.setGoogleUploadToMainCalendar(jCheckBox_uploadToMainCalendar.isSelected());
+        confBean.setSyncOnStartup(jCheckBox_SyncOnStart.isSelected());
 
         //save configuration to file
         confBean.writeConfig();
@@ -670,6 +657,7 @@ public class mainGUI extends javax.swing.JFrame {
             jTextField_proxyPort.setText(confBean.getGoogleProxyPort());
             jTextField_LotusNotesUsername.setText(confBean.getLotusNotesUsername());
             jPasswordField_LotusNotesPassword.setText(new String(confBean.getLotusNotesPassword()));
+            jCheckBox_SyncOnStart.setSelected(confBean.getSyncOnStartup());
 
             //configure proxy settings from the configuration
             proxy.setProxyHost(confBean.getGoogleProxyIP());
@@ -680,8 +668,61 @@ public class mainGUI extends javax.swing.JFrame {
             System.err.println("Some preferences were not set in the configuration file," +
                     " please set them inside the GUI.\n " +
                     "They will be saved to a configuration file next time");
+            
         }
 
+    }
+
+    public void SyncNow() {
+        try {
+            //write configuration
+            updateConfiguration();
+
+            proxy.deactivateNow();
+
+            String[] dateRange;
+            LotusNotesExport lotusNotesService;
+
+            if (!jCheckBox_LimitDateRange.isSelected()) {
+                dateRange = getFormattedCalendarRange();
+                lotusNotesService = new LotusNotesExport(dateRange);
+            } else {
+                lotusNotesService = new LotusNotesExport();
+            }
+
+            lotusNotesService.setRequiresAuth(true);
+            String LotusNotesUsername = jTextField_LotusNotesUsername.getText();
+            String LotusNotesPassword = new String(jPasswordField_LotusNotesPassword.getPassword());
+            lotusNotesService.setCredentials(LotusNotesUsername, LotusNotesPassword);
+
+            List<NotesCalendarEntry> cals = lotusNotesService.start(jTextField_LotusNotesURL.getText());
+
+            proxy.activateNow();
+            // check whether the user has deselected to use SSL when connecting to google (this is not recommended)
+            boolean GoogleConnectUsingSSL = jCheckBox_GoogleSSL.isSelected();
+            GoogleImport googleService = new GoogleImport(jTextField_GoogleUsername.getText(), new String(jPasswordField_GooglePassword.getPassword()), GoogleConnectUsingSSL);
+
+            // googleService.setCalendarColor(CALENDARCOLOR);
+            googleService.deleteCalendar();
+
+            if (jCheckBox_uploadToMainCalendar.isSelected()) {
+                googleService.createEvent(cals, true);
+            } else {
+                googleService.createCalendar();
+                googleService.createEvent(cals, false);
+            }
+            jTextField_LotusNotesURL.setEnabled(false);
+            jTextField_GoogleUsername.setEnabled(false);
+            jPasswordField_GooglePassword.setEnabled(false);
+
+            jButton_Cancel.setText("Exit");
+            jButton_Synchronize.setText("Synch Again!");
+            syncCompletedDialog.setVisible(true);
+        } catch (ServiceException ex) {
+            Logger.getLogger(mainGUI.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(mainGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     ProxyConfigBean proxy;
     SyncCompletedDialog syncCompletedDialog;
@@ -694,6 +735,7 @@ public class mainGUI extends javax.swing.JFrame {
     private javax.swing.JButton jButton_Synchronize;
     private javax.swing.JCheckBox jCheckBox_GoogleSSL;
     private javax.swing.JCheckBox jCheckBox_LimitDateRange;
+    private javax.swing.JCheckBox jCheckBox_SyncOnStart;
     private javax.swing.JCheckBox jCheckBox_enableProxy;
     private javax.swing.JCheckBox jCheckBox_uploadToMainCalendar;
     private net.sourceforge.jdatepicker.JDatePicker jDatePicker_end;
@@ -717,6 +759,7 @@ public class mainGUI extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPasswordField jPasswordField_GooglePassword;
     private javax.swing.JPasswordField jPasswordField_LotusNotesPassword;
+    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextField jTextField_GoogleUsername;
     private javax.swing.JTextField jTextField_LotusNotesURL;

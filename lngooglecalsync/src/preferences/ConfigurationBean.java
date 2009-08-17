@@ -21,6 +21,7 @@ public class ConfigurationBean {
         config.setProperty("GoogleUseSSL", new Boolean(getGoogleUseSSL()).toString());
         config.setProperty("LotusNotesUsername", getLotusNotesUsername());
         config.setProperty("LotusNotesPassword", getLotusNotesPassword());
+        config.setProperty("SyncOnStartup", new Boolean(getSyncOnStartup()).toString());
 
         // Write properties file.
         try {
@@ -80,6 +81,14 @@ public class ConfigurationBean {
             config.setProperty("GoogleUseSSL", "true");
         } else {
             config.setProperty("GoogleUseSSL", "false");
+        }
+    }
+
+        public void setSyncOnStartup(boolean syncOnStartup) {
+        if (syncOnStartup) {
+            config.setProperty("SyncOnStartup", "true");
+        } else {
+            config.setProperty("SyncOnStartup", "false");
         }
     }
 
@@ -153,6 +162,16 @@ public class ConfigurationBean {
     public String getLotusNotesPassword() {
         return config.getProperty("LotusNotesPassword");
     }
+
+    public boolean getSyncOnStartup() {
+        String property = config.getProperty("SyncOnStartup");
+        boolean enable = false;
+        if (property.equalsIgnoreCase("true")) {
+            enable = true;
+        }
+        return enable;
+    }
+    
     Properties config;
     String configurationFile = "lngooglecalsync.properties";
 }
