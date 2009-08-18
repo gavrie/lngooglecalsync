@@ -84,7 +84,7 @@ public class ConfigurationBean {
         }
     }
 
-        public void setSyncOnStartup(boolean syncOnStartup) {
+    public void setSyncOnStartup(boolean syncOnStartup) {
         if (syncOnStartup) {
             config.setProperty("SyncOnStartup", "true");
         } else {
@@ -101,77 +101,137 @@ public class ConfigurationBean {
     }
 
     public String getLotusMailFileURL() {
-        String url = config.getProperty("LotusNotesMailURL");
-        if (url == null) {
-            url = "http://lotus.host/mail/mailfile.nsf";
+        String url = null;
+        try {
+            url = config.getProperty("LotusNotesMailURL");
+            if (url == null || url.equals("")) {
+                url = "http://lotus.host/mail/mailfile.nsf";
+            }
+        } catch (Exception e) {
+            System.err.println("Configuration Warning: LotusNotesMailURL is not set yet!");
         }
         return url;
     }
 
     public String getGoogleUserName() {
-        String username = config.getProperty("GoogleUsername");
-        if (username == null) {
-            username = "user@google.com";
+        String property = null;
+        try {
+            property = config.getProperty("GoogleUsername");
+            if (property == null || property.equals("")) {
+                property = "user@google.com";
+            }
+        } catch (Exception e) {
+            System.err.println("Configuration Warning: GoogleUsername is not set yet!");
         }
-        return username;
+        return property;
     }
 
     public String getGooglePassword() {
-        return config.getProperty("GooglePassword");
+        String property = null;
+        try {
+            property = config.getProperty("GooglePassword");
+        } catch (Exception e) {
+            System.err.println("Configuration Warning: GooglePassword is not set yet!");
+        }
+        return property;
     }
 
     public String getGoogleProxyIP() {
-        return config.getProperty("GoogleProxyIP");
+        String property = null;
+        try {
+            property = config.getProperty("GoogleProxyIP");
+        } catch (Exception e) {
+            System.err.println("Configuration Warning: GoogleProxyIP is not set yet!");
+        }
+        return property;
     }
 
     public String getGoogleProxyPort() {
-        return config.getProperty("GoogleProxyPort");
+        String property = null;
+        try {
+            property = config.getProperty("GoogleProxyPort");
+        } catch (Exception e) {
+            System.err.println("Configuration Warning: GoogleProxyPort is not set yet!");
+        }
+        return property;
     }
 
     public boolean getGoogleEnableProxy() {
-        String property = config.getProperty("GoogleEnableProxy");
+        String property = null;
         boolean enable = false;
-        if (property.equalsIgnoreCase("true")) {
-            enable = true;
+        try {
+            property = config.getProperty("GoogleEnableProxy");
+            if (property.equalsIgnoreCase("true")) {
+                enable = true;
+            }
+        } catch (Exception e) {
+            System.err.println("Configuration Warning: GoogleEnableProxy is not set yet!");
         }
         return enable;
     }
 
     public boolean getGoogleUploadToMainCalendar() {
-        String property = config.getProperty("GoogleUploadToMainCalendar");
+        String property = null;
         boolean enable = false;
-        if (property.equalsIgnoreCase("true")) {
-            enable = true;
+        try {
+            property = config.getProperty("GoogleUploadToMainCalendar");
+            if (property.equalsIgnoreCase("true")) {
+                enable = true;
+            }
+        } catch (Exception e) {
+            System.err.println("Configuration Warning: GoogleUploadToMainCalendar is not set yet!");
         }
         return enable;
     }
 
     public boolean getGoogleUseSSL() {
-        String property = config.getProperty("GoogleUseSSL");
         boolean enable = false;
-        if (property.equalsIgnoreCase("true")) {
-            enable = true;
+        String property = null;
+        try {
+            property = config.getProperty("GoogleUseSSL");
+            if (property.equalsIgnoreCase("true")) {
+                enable = true;
+            }
+        } catch (Exception e) {
+            System.err.println("Configuration Warning: GoogleUseSSL is not set yet!");
         }
         return enable;
     }
 
     public String getLotusNotesUsername() {
-        return config.getProperty("LotusNotesUsername");
+        String property = null;
+        try {
+            property = config.getProperty("LotusNotesUsername");
+        } catch (Exception e) {
+            System.err.println("Configuration Warning: LotusNotesUsername is not set yet!");
+        }
+        return property;
     }
 
     public String getLotusNotesPassword() {
-        return config.getProperty("LotusNotesPassword");
+        String property = null;
+        try {
+            property = config.getProperty("LotusNotesPassword");
+        } catch (Exception e) {
+            System.err.println("Configuration Warning: LotusNotesPassword is not set yet!");
+        }
+        return property;
     }
 
     public boolean getSyncOnStartup() {
-        String property = config.getProperty("SyncOnStartup");
+        String property = null;
         boolean enable = false;
-        if (property.equalsIgnoreCase("true")) {
-            enable = true;
+
+        try {
+            property = config.getProperty("SyncOnStartup");
+            if (property.equalsIgnoreCase("true")) {
+                enable = true;
+            }
+        } catch (Exception e) {
+            System.err.println("Configuration Warning: SyncOnStartup is not set yet!");
         }
         return enable;
     }
-    
     Properties config;
     String configurationFile = "lngooglecalsync.properties";
 }

@@ -51,6 +51,7 @@ public class mainGUI extends javax.swing.JFrame {
         checkCompletion();
 
         if (confBean.getSyncOnStartup() && jButton_Synchronize.isEnabled()) {
+            System.out.println("Automatic Sync on Startup is enabled. Starting sync now!");
             SyncNow();
         }
 
@@ -187,38 +188,42 @@ public class mainGUI extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel_UsernameError, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 279, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel1Layout.createSequentialGroup()
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jPanel1Layout.createSequentialGroup()
+                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(jLabel_UsernameError, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 279, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel1Layout.createSequentialGroup()
+                                .add(jLabel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .add(346, 346, 346))
+                            .add(jPanel1Layout.createSequentialGroup()
+                                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(jLabel13, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 184, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(jLabel4))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPasswordField_GooglePassword, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
+                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jTextField_GoogleUsername, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
+                                    .add(jPasswordField_LotusNotesPassword, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE))))
+                        .add(123, 123, 123))
+                    .add(jPanel1Layout.createSequentialGroup()
                         .add(jLabel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 184, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jTextField_LotusNotesURL, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE))
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel1Layout.createSequentialGroup()
+                        .add(jTextField_LotusNotesURL, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 330, Short.MAX_VALUE)
+                        .add(49, 49, 49))
+                    .add(jPanel1Layout.createSequentialGroup()
                         .add(jLabel12, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 184, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jTextField_LotusNotesUsername, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE))
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel1Layout.createSequentialGroup()
-                        .add(jLabel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(346, 346, 346))
-                    .add(jPanel1Layout.createSequentialGroup()
-                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jLabel13, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 184, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel4))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPasswordField_GooglePassword, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jTextField_GoogleUsername, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
-                            .add(jPasswordField_LotusNotesPassword, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE))))
-                .add(123, 123, 123))
+                        .add(jTextField_LotusNotesUsername, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 330, Short.MAX_VALUE)
+                        .add(49, 49, 49))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
+                .add(19, 19, 19)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel2)
                     .add(jTextField_LotusNotesURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(7, 7, 7)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel12)
                     .add(jTextField_LotusNotesUsername, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -348,56 +353,64 @@ public class mainGUI extends javax.swing.JFrame {
                 jCheckBox_LimitDateRangeActionPerformed(evt);
             }
         });
+        jCheckBox_LimitDateRange.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jCheckBox_LimitDateRangeStateChanged(evt);
+            }
+        });
 
         jCheckBox_uploadToMainCalendar.setText("Upload to main Calendar, instead of the secondary (Make Backup!!!)");
+        jCheckBox_uploadToMainCalendar.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jCheckBox_uploadToMainCalendarStateChanged(evt);
+            }
+        });
 
         jCheckBox_GoogleSSL.setSelected(true);
         jCheckBox_GoogleSSL.setText("Connect to Google using SSL/TLS (recommended!)");
-        jCheckBox_GoogleSSL.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox_GoogleSSLActionPerformed(evt);
+        jCheckBox_GoogleSSL.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jCheckBox_GoogleSSLStateChanged(evt);
             }
         });
 
         jCheckBox_SyncOnStart.setText("Sync on Startup");
+        jCheckBox_SyncOnStart.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jCheckBox_SyncOnStartStateChanged(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout jPanel3Layout = new org.jdesktop.layout.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel3Layout.createSequentialGroup()
-                .add(17, 17, 17)
-                .add(jCheckBox_uploadToMainCalendar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 467, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(102, 102, 102))
-            .add(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .add(jCheckBox_SyncOnStart, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 438, Short.MAX_VALUE)
-                .add(131, 131, 131))
-            .add(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel3Layout.createSequentialGroup()
-                        .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jPanel3Layout.createSequentialGroup()
-                                .add(27, 27, 27)
-                                .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                                    .add(jPanel3Layout.createSequentialGroup()
-                                        .add(jLabel8)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                        .add(jDatePicker_end, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                    .add(jPanel3Layout.createSequentialGroup()
-                                        .add(jLabel7)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jDatePicker_start, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 221, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(jCheckBox_LimitDateRange, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 569, Short.MAX_VALUE))
-                        .addContainerGap())
+                        .add(jCheckBox_SyncOnStart, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
+                        .add(131, 131, 131))
                     .add(jPanel3Layout.createSequentialGroup()
-                        .add(jCheckBox_GoogleSSL, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 522, Short.MAX_VALUE)
-                        .add(47, 47, 47))))
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 546, Short.MAX_VALUE)
+                        .add(27, 27, 27)
+                        .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(jPanel3Layout.createSequentialGroup()
+                                .add(jLabel8)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                                .add(jDatePicker_end, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(jPanel3Layout.createSequentialGroup()
+                                .add(jLabel7)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jDatePicker_start, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 151, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(jCheckBox_LimitDateRange, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 499, Short.MAX_VALUE)
+                    .add(jPanel3Layout.createSequentialGroup()
+                        .add(jCheckBox_GoogleSSL, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 452, Short.MAX_VALUE)
+                        .add(47, 47, 47))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 499, Short.MAX_VALUE)
+                    .add(jPanel3Layout.createSequentialGroup()
+                        .add(jCheckBox_uploadToMainCalendar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 467, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 32, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
@@ -421,7 +434,7 @@ public class mainGUI extends javax.swing.JFrame {
                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jDatePicker_end, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel8, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 29, Short.MAX_VALUE))
-                .add(80, 80, 80))
+                .add(83, 83, 83))
         );
 
         jTabbedPane1.addTab("Advanced", jPanel3);
@@ -475,7 +488,6 @@ public class mainGUI extends javax.swing.JFrame {
 }//GEN-LAST:event_jButton_CancelActionPerformed
 
     private void jTextField_LotusNotesURLKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField_LotusNotesURLKeyReleased
-
         checkCompletion();
 }//GEN-LAST:event_jTextField_LotusNotesURLKeyReleased
 
@@ -527,14 +539,28 @@ public class mainGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextField_proxyPortFocusLost
 
     private void jPasswordField_LotusNotesPasswordKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jPasswordField_LotusNotesPasswordKeyReleased
+        checkCompletion();
     }//GEN-LAST:event_jPasswordField_LotusNotesPasswordKeyReleased
 
     private void jTextField_LotusNotesUsernameKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField_LotusNotesUsernameKeyReleased
+        checkCompletion();
     }//GEN-LAST:event_jTextField_LotusNotesUsernameKeyReleased
 
-    private void jCheckBox_GoogleSSLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox_GoogleSSLActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jCheckBox_GoogleSSLActionPerformed
+    private void jCheckBox_SyncOnStartStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jCheckBox_SyncOnStartStateChanged
+        updateConfiguration();
+    }//GEN-LAST:event_jCheckBox_SyncOnStartStateChanged
+
+    private void jCheckBox_uploadToMainCalendarStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jCheckBox_uploadToMainCalendarStateChanged
+        updateConfiguration();
+    }//GEN-LAST:event_jCheckBox_uploadToMainCalendarStateChanged
+
+    private void jCheckBox_GoogleSSLStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jCheckBox_GoogleSSLStateChanged
+        updateConfiguration();
+    }//GEN-LAST:event_jCheckBox_GoogleSSLStateChanged
+
+    private void jCheckBox_LimitDateRangeStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jCheckBox_LimitDateRangeStateChanged
+        updateConfiguration();
+    }//GEN-LAST:event_jCheckBox_LimitDateRangeStateChanged
 
     public void setDateTimeSelectorVisible(boolean visible) {
         jDatePicker_start.setVisible(visible);
@@ -578,8 +604,10 @@ public class mainGUI extends javax.swing.JFrame {
 
         }
 
-        System.out.println(complete);
         jButton_Synchronize.setEnabled(complete);
+
+        //write configuration
+        updateConfiguration();
     }
 
     @SuppressWarnings("static-access")
@@ -668,15 +696,13 @@ public class mainGUI extends javax.swing.JFrame {
             System.err.println("Some preferences were not set in the configuration file," +
                     " please set them inside the GUI.\n " +
                     "They will be saved to a configuration file next time");
-            
+
         }
 
     }
 
     public void SyncNow() {
         try {
-            //write configuration
-            updateConfiguration();
 
             proxy.deactivateNow();
 
