@@ -1,38 +1,17 @@
 package LotusNotesGoogleCalendarBridge.LotusNotesService;
 
-import LotusNotesGoogleCalendarBridge.SSLModule.EasySSLProtocolSocketFactory;
-import java.io.IOException;
-import java.io.InputStream;
+import lotus.domino.*;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.cookie.CookiePolicy;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.protocol.Protocol;
-import org.jdom.*;
-import org.jdom.input.SAXBuilder;
+
 
 public class LotusNotesExport {
 
     public LotusNotesExport() {
-        configureSSL();
-    }
-
-    public LotusNotesExport(String[] dateRange) {
-        String startDate = dateRange[0];
-        String endDate = dateRange[1];
-
-        CalUri = ("/($calendar)?ReadViewEntries&KeyType=time&count=9999&StartKey=" + startDate + "&UntilKey=" + endDate);
-        configureSSL();
-    }
-
-    private void configureSSL() {
-        Protocol easyhttps = new Protocol("https", new EasySSLProtocolSocketFactory(), 443);
-        Protocol.registerProtocol("https", easyhttps);
     }
 
     public void setRequiresAuth(boolean requiresAuth) {
@@ -45,103 +24,157 @@ public class LotusNotesExport {
         this.password = password;
     }
 
-    private InputStream getLotusNotesXML() {
 
-        InputStream XMLresult = null;
-
-        try {
-
-            HttpClient client = new HttpClient();
-
-            if (requiresAuth) {
-                
-                PostMethod post = new PostMethod(MailFileURL + "/?Login");
-                post.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-                NameValuePair[] data = {new NameValuePair("username", username), new NameValuePair("password", password)};
-                post.setRequestBody(data);
-
-                //login and keep cookie for this session.
-                client.executeMethod(post);
-            }
-
-            GetMethod get = new GetMethod(MailFileURL + CalUri);
-            
-            //now get the data
-            client.executeMethod(get);
-
-            XMLresult = get.getResponseBodyAsStream();
-      
-        } catch (IOException ex) {
-            Logger.getLogger(LotusNotesExport.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return XMLresult;
-    }
-
-    public List<NotesCalendarEntry> start(String mailFileURL) {
-        this.MailFileURL = mailFileURL;
+    /**
+     * Retrieve a list of Lotus Notes calendar entries.
+     * @param dominoServer The Domino server to retrieve data from, e.g. "IBM-Domino".
+     *    Pass in null to retrieve from a local mail file.
+     * @param mailFileName The mail file to read from, e.g. "mail/johnsmith.nsf".
+     * @return A list of Lotus Notes calendar entries.
+     */
+    public List<NotesCalendarEntry> start(String dominoServer, String mailFileName) {
         List<NotesCalendarEntry> cals = new ArrayList<NotesCalendarEntry>();
 
         try {
+            // For repeating events, define our min start date
+            Calendar now = Calendar.getInstance();
+            now.add(Calendar.DATE, -7);
+            Date minStartDate = now.getTime();
+            // For repeating events, define our max end date
+            now.add(Calendar.DATE, 67);
+            Date maxEndDate = now.getTime();
 
-            InputStream xmldata = getLotusNotesXML();
+            // Make sure your Windows PATH statement includes the location
+            // for the Lotus main directory, e.g. "c:\Program Files\Lotus\Notes".
+            // This is necessary because the Java classes call native/C dlls in
+            // this directory.
+            NotesThread.sinitThread();
 
-            SAXBuilder builder = new SAXBuilder();
-            Document doc = builder.build(xmldata);
-            Element root = doc.getRootElement();
-            //System.out.println("ROOT ELEMENT: "+ root.getName());
-            List viewentries = root.getChildren("viewentry");
+            // Note: We cast null to a String to avoid overload conflicts
+            Session session = NotesFactory.createSession((String)null, (String)null, password);
 
-            for (int i = 0; i < viewentries.size(); i++) {
-                boolean supported = true;
+            String dominoServerTemp = dominoServer;
+            if (dominoServer.equals(""))
+                dominoServerTemp = null;
+            Database db = session.getDatabase(dominoServerTemp, mailFileName, false);
+            if (db == null)
+                throw new Exception("Couldn't create Database object.");
+            
+            View v;
+
+            v = db.getView(calendarViewName);
+            // If true, the view doesn't exist
+            if (v == null) {
+                // Dynamically create a view that selects all calendar entries from (today - 7 days) to (today + 60 days).
+                // This gives us a good range of entries.
+                //
+                // To understand this SELECT, go to http://publib.boulder.ibm.com/infocenter/domhelp/v8r0/index.jsp
+                // and search for the various keywords. Here is an overview...
+                // @IsAvailable(CalendarDateTime) is true if the LN document is a calendar entry
+                // @Explode splits a string based on the delimiters ",; "
+                // The operator *= is a permuted equal operator. It compares all entries on
+                // the left side to all entries on the right side. If there is at least one
+                // match, then true is returned.
+                v = db.createView(calendarViewName,
+                        "SELECT (@IsAvailable(CalendarDateTime) & (@Explode(CalendarDateTime) *= @Explode(@TextToTime(@Text(@Adjust(@Today;0;0;-7;0;0;0)) + \"-\" + @Text(@Adjust(@Today;0;0;60;0;0;0))))))");
+            }
+
+            ViewNavigator vn = v.createViewNav();
+            ViewEntry e = vn.getFirstDocument();
+            // Loop through all entries in the View
+            while (e != null)
+            {
+                lotus.domino.Document doc = e.getDocument();
+
                 NotesCalendarEntry cal = new NotesCalendarEntry();
-                Element viewentry = (Element) viewentries.get(i);
-                cal.setID(viewentry.getAttributeValue("unid"));
-                List entries = viewentry.getChildren("entrydata");
-                for (int a = 0; a < entries.size(); a++) {
-                    Element entrydata = (Element) entries.get(a);
-                    String field = entrydata.getAttributeValue("name");
 
-                    if (field.equals(startDateTimeField)) {
-                        cal.setStartDateTime(entrydata.getChildText("datetime"));
+                Item lnItem;
+                lnItem = doc.getFirstItem("Subject");
+                cal.setSubject(lnItem.getText());
+
+                // Get the type of Lotus calendar entry
+                lnItem = doc.getFirstItem("Form");
+                if (lnItem != null)
+                {
+                    cal.setEntryType(lnItem.getText());
+                    if (cal.getEntryType() == NotesCalendarEntry.EntryType.APPOINTMENT)
+                    {
+                        lnItem = doc.getFirstItem("AppointmentType");
+                        if (lnItem != null)
+                            cal.setAppointmentType(lnItem.getText());                    
                     }
-                    if (field.equals(endDateTimeField)) {
-                        cal.setEndDateTime(entrydata.getChildText("datetime"));
+                }
+
+                cal.setLocation("<no location>");
+                lnItem = doc.getFirstItem("Room");
+                if (lnItem != null)
+                    cal.setLocation(lnItem.getText());
+                lnItem = doc.getFirstItem("Location");
+                if (lnItem != null)
+                    cal.setLocation(lnItem.getText());
+
+                lnItem = doc.getFirstItem("OrgRepeat");
+                // If true, this is a repeating calendar entry
+                if (lnItem != null)
+                {
+                    // Handle Lotus Notes repeating entries by creating multiple Google
+                    // entries
+
+                    String[] startDates = null;
+                    String[] endDates = null;
+                    lnItem = doc.getFirstItem("StartDateTime");
+                    if (lnItem != null)
+                    {
+                        startDates = lnItem.getText().split(";");
                     }
 
-                    if (field.equals(contentField)) {
-                        try {
-                            List textlist = entrydata.getChild("textlist").getChildren("text");
-                            Element tSubject = (Element) textlist.get(0);
-                            cal.setSubject(tSubject.getText());
-                            if (textlist.size() == 3) {
-                                Element tLocation = (Element) textlist.get(1);
-                                cal.setLocation(tLocation.getText());
+                    lnItem = doc.getFirstItem("EndDateTime");
+                    if (lnItem != null)
+                    {
+                        endDates = lnItem.getText().split(";");
+                    }
+
+                    if (startDates != null)
+                    {
+                        for (int i = 0 ; i < startDates.length ; i++) {
+                            Date dt = cal.toDate(startDates[i]);
+                            // Only add the entry if it is within our sync date range
+                            if (dt != null && dt.compareTo(minStartDate) >= 0 && dt.compareTo(maxEndDate) <= 0)
+                            {
+                                cal.setStartDateTime(startDates[i]);
+                                cal.setEndDateTime(endDates[i]);
+
+                                cals.add(cal.clone());
                             }
-                        } catch (Exception e) {
-                            supported = false;
-                            System.err.println("Skipping a calendar entry as it is not supported yet!");
                         }
                     }
-
                 }
-                if (supported) {
+                else
+                {
+                    lnItem = doc.getFirstItem("StartDateTime");
+                    if (lnItem != null)
+                        cal.setStartDateTime(lnItem.getText());
+
+                    lnItem = doc.getFirstItem("EndDateTime");
+                    if (lnItem != null)
+                        cal.setEndDateTime(lnItem.getText());
+                    
                     cals.add(cal);
                 }
 
-            }
 
-        } catch (IOException ex) {
+                e = vn.getNextDocument();
+            }
+        } catch (Exception ex) {
             Logger.getLogger(LotusNotesExport.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (JDOMException ex) {
+        } finally {
+            NotesThread.stermThread();
         }
+
         return cals;
     }
-    static String CalUri = "/($calendar)?ReadViewEntries";
-    static String startDateTimeField = "$144";
-    static String endDateTimeField = "$146";
-    static String contentField = "$147";
+
+    String calendarViewName = "Google Calendar Sync";
     String MailFileURL, username, password;
     boolean requiresAuth;
 }
-
-

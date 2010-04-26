@@ -11,7 +11,6 @@ public class ConfigurationBean {
     }
 
     public void writeConfig() {
-
         config.setProperty("GoogleUsername", getGoogleUserName());
         config.setProperty("GooglePassword", getGooglePassword());
         config.setProperty("GoogleEnableProxy", new Boolean(getGoogleEnableProxy()).toString());
@@ -19,8 +18,12 @@ public class ConfigurationBean {
         config.setProperty("GoogleProxyPort", getGoogleProxyPort());
         config.setProperty("GoogleUploadToMainCalendar", new Boolean(getGoogleUploadToMainCalendar()).toString());
         config.setProperty("GoogleUseSSL", new Boolean(getGoogleUseSSL()).toString());
+
+        config.setProperty(PROP_NAME_LOTUS_NOTES_SERVER, getLotusNotesServer());
+        config.setProperty(PROP_NAME_LOTUS_NOTES_MAIL_FILE, getLotusNotesMailFile());
         config.setProperty("LotusNotesUsername", getLotusNotesUsername());
         config.setProperty("LotusNotesPassword", getLotusNotesPassword());
+
         config.setProperty("SyncOnStartup", new Boolean(getSyncOnStartup()).toString());
 
         // Write properties file.
@@ -42,6 +45,14 @@ public class ConfigurationBean {
 
     public void setLotusMailFileURL(String lotusMailFileURL) {
         config.setProperty("LotusNotesMailURL", lotusMailFileURL);
+    }
+
+    public void setLotusNotesServer(String value) {
+        config.setProperty(PROP_NAME_LOTUS_NOTES_SERVER, value);
+    }
+
+    public void setLotusNotesMailFile(String value) {
+        config.setProperty(PROP_NAME_LOTUS_NOTES_MAIL_FILE, value);
     }
 
     public void setGoogleUserName(String googleUserName) {
@@ -100,17 +111,30 @@ public class ConfigurationBean {
         config.setProperty("LotusNotesPassword", LotusNotesPassword);
     }
 
-    public String getLotusMailFileURL() {
-        String url = null;
+    public String getLotusNotesServer() {
+        String property = null;
         try {
-            url = config.getProperty("LotusNotesMailURL");
-            if (url == null || url.equals("")) {
-                url = "http://lotus.host/mail/mailfile.nsf";
+            property = config.getProperty(PROP_NAME_LOTUS_NOTES_SERVER);
+            if (property == null) {
+                property = "";
             }
         } catch (Exception e) {
-            System.err.println("Configuration Warning: LotusNotesMailURL is not set yet!");
+            System.err.println("Configuration Warning: " + PROP_NAME_LOTUS_NOTES_SERVER + " is not set yet!");
         }
-        return url;
+        return property;
+    }
+
+    public String getLotusNotesMailFile() {
+        String property = null;
+        try {
+            property = config.getProperty(PROP_NAME_LOTUS_NOTES_MAIL_FILE);
+            if (property == null) {
+                property = "";
+            }
+        } catch (Exception e) {
+            System.err.println("Configuration Warning: " + PROP_NAME_LOTUS_NOTES_MAIL_FILE + " is not set yet!");
+        }
+        return property;
     }
 
     public String getGoogleUserName() {
@@ -232,6 +256,10 @@ public class ConfigurationBean {
         }
         return enable;
     }
-    Properties config;
-    String configurationFile = "lngooglecalsync.properties";
+    
+    protected static final String PROP_NAME_LOTUS_NOTES_SERVER = "LotusNotesServer";
+    protected static final String PROP_NAME_LOTUS_NOTES_MAIL_FILE = "LotusNotesMailFile";
+
+    protected Properties config;
+    protected String configurationFile = "lngooglecalsync.properties";
 }
