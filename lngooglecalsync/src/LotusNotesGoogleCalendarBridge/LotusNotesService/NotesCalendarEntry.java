@@ -83,6 +83,9 @@ public class NotesCalendarEntry {
         return appointmentType;
     }
 
+    /**
+     * @return Returns the start datetime in Lotus Notes format.
+     */
     public String getStartDateTime() {
         return startDateTime;
     }
@@ -139,7 +142,7 @@ public class NotesCalendarEntry {
 
     /**
      * Convert from Lotus Notes Document datetime format (MM/DD/YYYY HH:MM:SS PM) to
-     * Java Date object.
+     * a Java Date object.
      */
     public Date toDate(String lotusnotesDateTimeFormat) {
         try {
@@ -147,7 +150,7 @@ public class NotesCalendarEntry {
             Date dt = dfLotus.parse(lotusnotesDateTimeFormat);
 
             return dt;
-        } catch (Exception e) {
+        } catch (Exception ex) {
             return null;
         }
     }
@@ -177,6 +180,7 @@ public class NotesCalendarEntry {
 
     protected EntryType entryType;
     protected AppointmentType appointmentType;
+    // DateTime in Lotus Notes format
     protected String startDateTime, endDateTime;
     protected String subject, location;
     protected String body;

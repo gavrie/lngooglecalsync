@@ -1,17 +1,21 @@
 package LotusNotesGoogleCalendarBridge.LotusNotesService;
 
 import lotus.domino.*;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.*;
+import java.util.*;
 
 
 public class LotusNotesExport {
 
     public LotusNotesExport() {
+    }
+
+    public void setServer(String server) {
+        this.server = server;
+    }
+
+    public void setMailFile(String mailfile) {
+        this.mailfile = mailfile;
     }
 
     public void setRequiresAuth(boolean requiresAuth) {
@@ -24,26 +28,28 @@ public class LotusNotesExport {
         this.password = password;
     }
 
+    public void setDiagnosticMode(boolean value) {
+        diagnosticMode = value;
+    }
+
+    public void setMinStartDate(Date minStartDate) {
+        this.minStartDate = minStartDate;
+    }
+
+    public void setMaxEndDate(Date maxEndDate) {
+        this.maxEndDate = maxEndDate;
+    }
 
     /**
      * Retrieve a list of Lotus Notes calendar entries.
      * @param dominoServer The Domino server to retrieve data from, e.g. "IBM-Domino".
      *    Pass in null to retrieve from a local mail file.
      * @param mailFileName The mail file to read from, e.g. "mail/johnsmith.nsf".
-     * @return A list of Lotus Notes calendar entries.
      */
-    public List<NotesCalendarEntry> start(String dominoServer, String mailFileName) {
-        List<NotesCalendarEntry> cals = new ArrayList<NotesCalendarEntry>();
+    public List<NotesCalendarEntry> getCalendarEntries() throws Exception {
+        List<NotesCalendarEntry> calendarEntries = new ArrayList<NotesCalendarEntry>();
 
         try {
-            // For repeating events, define our min start date
-            Calendar now = Calendar.getInstance();
-            now.add(Calendar.DATE, -7);
-            Date minStartDate = now.getTime();
-            // For repeating events, define our max end date
-            now.add(Calendar.DATE, 67);
-            Date maxEndDate = now.getTime();
-
             // Make sure your Windows PATH statement includes the location
             // for the Lotus main directory, e.g. "c:\Program Files\Lotus\Notes".
             // This is necessary because the Java classes call native/C dlls in
@@ -53,18 +59,18 @@ public class LotusNotesExport {
             // Note: We cast null to a String to avoid overload conflicts
             Session session = NotesFactory.createSession((String)null, (String)null, password);
 
-            String dominoServerTemp = dominoServer;
-            if (dominoServer.equals(""))
+            String dominoServerTemp = server;
+            if (server.equals(""))
                 dominoServerTemp = null;
-            Database db = session.getDatabase(dominoServerTemp, mailFileName, false);
+            Database db = session.getDatabase(dominoServerTemp, mailfile, false);
             if (db == null)
                 throw new Exception("Couldn't create Database object.");
             
-            View v;
+            View lnView;
 
-            v = db.getView(calendarViewName);
+            lnView = db.getView(calendarViewName);
             // If true, the view doesn't exist
-            if (v == null) {
+            if (lnView == null) {
                 // Dynamically create a view that selects all calendar entries from (today - 7 days) to (today + 60 days).
                 // This gives us a good range of entries.
                 //
@@ -75,20 +81,26 @@ public class LotusNotesExport {
                 // The operator *= is a permuted equal operator. It compares all entries on
                 // the left side to all entries on the right side. If there is at least one
                 // match, then true is returned.
-                v = db.createView(calendarViewName,
+                lnView = db.createView(calendarViewName,
                         "SELECT (@IsAvailable(CalendarDateTime) & (@Explode(CalendarDateTime) *= @Explode(@TextToTime(@Text(@Adjust(@Today;0;0;-7;0;0;0)) + \"-\" + @Text(@Adjust(@Today;0;0;60;0;0;0))))))");
             }
 
-            ViewNavigator vn = v.createViewNav();
+            ViewNavigator vn = lnView.createViewNav();
             ViewEntry e = vn.getFirstDocument();
             // Loop through all entries in the View
             while (e != null)
             {
+                Item lnItem;
+
                 lotus.domino.Document doc = e.getDocument();
+
+                // If we are in diagnostic mode, write the entry to a text file
+                if (diagnosticMode) {
+                    writeEntryToFile(doc);
+                }
 
                 NotesCalendarEntry cal = new NotesCalendarEntry();
 
-                Item lnItem;
                 lnItem = doc.getFirstItem("Subject");
                 cal.setSubject(lnItem.getText());
 
@@ -124,27 +136,23 @@ public class LotusNotesExport {
                     String[] endDates = null;
                     lnItem = doc.getFirstItem("StartDateTime");
                     if (lnItem != null)
-                    {
                         startDates = lnItem.getText().split(";");
-                    }
 
                     lnItem = doc.getFirstItem("EndDateTime");
                     if (lnItem != null)
-                    {
                         endDates = lnItem.getText().split(";");
-                    }
 
                     if (startDates != null)
                     {
                         for (int i = 0 ; i < startDates.length ; i++) {
                             Date dt = cal.toDate(startDates[i]);
                             // Only add the entry if it is within our sync date range
-                            if (dt != null && dt.compareTo(minStartDate) >= 0 && dt.compareTo(maxEndDate) <= 0)
+                            if (isDateInRange(dt))
                             {
                                 cal.setStartDateTime(startDates[i]);
                                 cal.setEndDateTime(endDates[i]);
 
-                                cals.add(cal.clone());
+                                calendarEntries.add(cal.clone());
                             }
                         }
                     }
@@ -159,22 +167,118 @@ public class LotusNotesExport {
                     if (lnItem != null)
                         cal.setEndDateTime(lnItem.getText());
                     
-                    cals.add(cal);
+                    // Only add the entry if it is within our sync date range
+                    if (isDateInRange(cal.toDate(cal.getStartDateTime())))
+                        calendarEntries.add(cal);
                 }
-
 
                 e = vn.getNextDocument();
             }
+
+            if (diagnosticMode)
+                writeInRangeEntriesToFile(calendarEntries);
+
+            return calendarEntries;
         } catch (Exception ex) {
-            Logger.getLogger(LotusNotesExport.class.getName()).log(Level.SEVERE, null, ex);
+            throw new Exception("There was a problem reading Lotus Notes calendar entries.", ex);
         } finally {
+            if (lnFoundEntriesWriter != null) {
+                lnFoundEntriesWriter.close();
+                lnFoundEntriesWriter = null;
+            }
+
             NotesThread.stermThread();
         }
+    }
 
-        return cals;
+
+    /**
+     * Determine if the calendar entry date is in the range of dates to be processed.
+     * @param entryDate - The calendar date to inspect.
+     * @return True if the date is in the range, false otherwise.
+     */
+    public boolean isDateInRange(Date entryDate) {
+        if (entryDate != null && entryDate.compareTo(minStartDate) >= 0 && entryDate.compareTo(maxEndDate) <= 0)
+            return true;
+
+        return false;
+    }
+
+
+    /**
+     * Write all the items in a Lotus Notes Document (aka calendar entry) to a text file.
+     * @param doc - The Document to process.
+     */
+    public void writeEntryToFile(lotus.domino.Document doc) throws IOException, NotesException {
+        // Open the output file if it is not open
+        if (lnFoundEntriesWriter == null) {
+            lnFoundEntriesFile = new File("LotusNotesFoundEntries.txt");
+            lnFoundEntriesWriter = new BufferedWriter(new FileWriter(lnFoundEntriesFile));
+        }
+
+        // Add the items to a list so we can sort them later
+        List<String> itemsAndValues = new ArrayList<String>();
+
+        lnFoundEntriesWriter.write("=== Calendar Entry ===\n");
+
+        // Loop through each item
+        for (Object itemObj : doc.getItems())
+        {
+            String itemName = ((Item)itemObj).getName();
+            // Get the item value using the item name
+            Item lnItem = doc.getFirstItem(itemName);
+
+            if (lnItem != null)
+                itemsAndValues.add("  " + itemName + ": " + lnItem.getText() + "\n");
+        }
+
+        Collections.sort(itemsAndValues, String.CASE_INSENSITIVE_ORDER);
+        for (String itemStr : itemsAndValues) {
+            lnFoundEntriesWriter.write(itemStr);
+        }
+
+        lnFoundEntriesWriter.write("\n\n");
+    }
+
+
+    public void writeInRangeEntriesToFile(List<NotesCalendarEntry> calendarEntries) throws IOException {
+        try {
+            lnInRangeEntriesFile = new File("LotusNotesInRangeEntries.txt");
+            lnInRangeEntriesWriter = new BufferedWriter(new FileWriter(lnInRangeEntriesFile));
+
+            for (NotesCalendarEntry entry : calendarEntries) {
+                lnInRangeEntriesWriter.write("=== " + entry.getSubject() + "\n");
+                lnInRangeEntriesWriter.write("  Start Date: " + entry.getStartDateTime() + "\n");
+                lnInRangeEntriesWriter.write("  End Date: " + entry.getEndDateTime() + "\n");
+                lnInRangeEntriesWriter.write("  Location: " + entry.getLocation() + "\n");
+                lnInRangeEntriesWriter.write("  Appointment Type: " + entry.getAppointmentType() + "\n");
+                lnInRangeEntriesWriter.write("  Entry Type: " + entry.getEntryType() + "\n");
+                lnInRangeEntriesWriter.write("\n");
+            }
+        } catch (Exception e) {
+        }
+        finally {
+            if (lnInRangeEntriesWriter != null) {
+                lnInRangeEntriesWriter.close();
+                lnInRangeEntriesWriter = null;
+            }
+        }
     }
 
     String calendarViewName = "Google Calendar Sync";
-    String MailFileURL, username, password;
+    String username, password;
+    String server, mailfile;
     boolean requiresAuth;
+    boolean diagnosticMode = false;
+
+    // Our min and max dates for entries we will process.
+    // If the calendar entry is outside this range, it is ignored.
+    Date minStartDate = null;
+    Date maxEndDate = null;
+
+    // These items are used when diagnosticMode = true
+    File lnFoundEntriesFile = null;
+    BufferedWriter lnFoundEntriesWriter = null;
+    File lnInRangeEntriesFile = null;
+    BufferedWriter lnInRangeEntriesWriter = null;
 }

@@ -43,14 +43,14 @@ public class SyncCompletedDialog extends javax.swing.JDialog {
         jLabel1.setText("Synchronization completed!");
         jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
-        jButton1.setText("Exit");
+        jButton1.setText("Exit Application");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
             }
         });
 
-        jButton2.setText("Configure...");
+        jButton2.setText("Close Dialog");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);

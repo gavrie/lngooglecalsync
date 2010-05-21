@@ -36,10 +36,12 @@ public class GoogleImport {
             service.setUserCredentials(accountname, password);
 
             createCalendar();
-        } catch (InvalidCredentialsException e) {
-            throw new Exception("The username and password are invalid for signing into the Google account", e);
-        } catch (Exception e) {
-            throw new Exception("Unable to create GoogleImport object", e);
+        } catch (InvalidCredentialsException ex) {
+            throw new Exception("The username and/or password are invalid for signing into the Google account.", ex);
+        } catch (AuthenticationException ex) {
+            throw new Exception("Unable to login to Google. Perhaps you need to use a proxy server.", ex);
+        } catch (Exception ex) {
+            throw ex;
         }
     }
 
@@ -67,8 +69,8 @@ public class GoogleImport {
                     destinationCalendarFeedUrl = new URL(calendar.getLink("alternate", "application/atom+xml").getHref());
                 }
             }
-        } catch (Exception e) {
-            throw e;
+        } catch (Exception ex) {
+            throw ex;
         }
 
         return destinationCalendarFeedUrl;
@@ -111,8 +113,9 @@ public class GoogleImport {
 
     /**
      * Delete all Google calendar entries for a specific date range.
+     * @return The number of entries successfully deleted.
      */
-    public void deleteCalendarEntries() throws Exception {
+    public int deleteCalendarEntries() throws Exception {
         try {
             URL feedUrl = getDestinationCalendarUrl();
             CalendarQuery myQuery = new CalendarQuery(feedUrl);
@@ -120,6 +123,10 @@ public class GoogleImport {
             // Get today - 7 days
             Calendar now = Calendar.getInstance();
             now.add(Calendar.DATE, -7);
+            // Clear out the time portion
+            now.set(Calendar.HOUR_OF_DAY, 0);
+            now.set(Calendar.MINUTE, 0);
+            now.set(Calendar.SECOND, 0);
 
             myQuery.setMinimumStartTime(new com.google.gdata.data.DateTime(now.getTime()));
             // Make the end time far into the future so we delete everything
@@ -184,8 +191,10 @@ public class GoogleImport {
             if (!isSuccess) {
                 throw new Exception(batchFailureMsg.toString());
             }
-        } catch (Exception e) {
-            throw e;
+
+            return batchRequest.getEntries().size();
+        } catch (Exception ex) {
+            throw ex;
         }
     }
 
@@ -210,8 +219,8 @@ public class GoogleImport {
                     calendar.delete();
                 }
             }
-        } catch (Exception e) {
-            throw e;
+        } catch (Exception ex) {
+            throw ex;
         }
     }
 
@@ -237,36 +246,33 @@ public class GoogleImport {
             event.addLocation(location);
 
             DateTime startTime, endTime;
-            try {
-                if (cal.getEntryType() == NotesCalendarEntry.EntryType.TASK ||
-                        cal.getAppointmentType() == NotesCalendarEntry.AppointmentType.ALL_DAY_EVENT ||
-                        cal.getAppointmentType() == NotesCalendarEntry.AppointmentType.ANNIVERSARY )
-                {
-                    // Create a Google all-day event. All-day events are created by
-                    // setting start/end dates the same and having no time portion.
-                    startTime = DateTime.parseDate(cal.getStartDateGoogle());
-                    endTime = DateTime.parseDate(cal.getStartDateGoogle());
-                }
-                else if (cal.getAppointmentType() == NotesCalendarEntry.AppointmentType.APPOINTMENT ||
-                        cal.getAppointmentType() == NotesCalendarEntry.AppointmentType.MEETING)
-                {
-                    // Create a standard event
-                    startTime = DateTime.parseDateTime(cal.getStartDateTimeGoogle());
-                    endTime = DateTime.parseDateTime(cal.getEndDateTimeGoogle());
-                }
-                else if (cal.getAppointmentType() == NotesCalendarEntry.AppointmentType.REMINDER)
-                {
-                    // Create a standard event with the start and end times the same
-                    startTime = DateTime.parseDateTime(cal.getStartDateTimeGoogle());
-                    endTime = DateTime.parseDateTime(cal.getStartDateTimeGoogle());
-                }
-                else
-                {
-                    throw new Exception("Unknown Lotus Notes event type.");
-                }
-            } catch (Exception e) {
-                System.err.println("Skipping this Lotus Notes event because it is not a known type: " + cal.getSubject());
-                continue;
+            if (cal.getEntryType() == NotesCalendarEntry.EntryType.TASK ||
+                    cal.getAppointmentType() == NotesCalendarEntry.AppointmentType.ALL_DAY_EVENT ||
+                    cal.getAppointmentType() == NotesCalendarEntry.AppointmentType.ANNIVERSARY )
+            {
+                // Create a Google all-day event. All-day events are created by
+                // setting start/end dates the same and having no time portion.
+                startTime = DateTime.parseDate(cal.getStartDateGoogle());
+                endTime = DateTime.parseDate(cal.getStartDateGoogle());
+            }
+            else if (cal.getAppointmentType() == NotesCalendarEntry.AppointmentType.APPOINTMENT ||
+                    cal.getAppointmentType() == NotesCalendarEntry.AppointmentType.MEETING)
+            {
+                // Create a standard event
+                startTime = DateTime.parseDateTime(cal.getStartDateTimeGoogle());
+                endTime = DateTime.parseDateTime(cal.getEndDateTimeGoogle());
+            }
+            else if (cal.getAppointmentType() == NotesCalendarEntry.AppointmentType.REMINDER)
+            {
+                // Create a standard event with the start and end times the same
+                startTime = DateTime.parseDateTime(cal.getStartDateTimeGoogle());
+                endTime = DateTime.parseDateTime(cal.getStartDateTimeGoogle());
+            }
+            else
+            {
+                throw new Exception("Couldn't determine Lotus Notes event type.\nEvent subject: " + cal.getSubject() +
+                        "\nEntry Type: " + cal.getEntryType() +
+                        "\nAppointment Type: " + cal.getAppointmentType());
             }
 
             When eventTimes = new When();
@@ -282,8 +288,8 @@ public class GoogleImport {
                 }
 
                 createdCount++;
-            } catch (Exception e) {
-                throw e;
+            } catch (Exception ex) {
+                throw ex;
             }
         }
 
