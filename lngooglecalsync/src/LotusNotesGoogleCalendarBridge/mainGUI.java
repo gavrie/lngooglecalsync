@@ -32,6 +32,7 @@ public class mainGUI extends javax.swing.JFrame {
     public static void main(String args[]) {
         SwingUtilities.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 new mainGUI().setVisible(true);
             }
@@ -54,6 +55,16 @@ public class mainGUI extends javax.swing.JFrame {
                     statusAppendLine("Automatic sync-on-startup is enabled. Starting sync.");
                 else
                     statusAppendLine("Starting sync");
+                
+                if (jCheckBox_DiagnosticMode.isSelected()) {
+                    statusAppendLineDiag(System.getProperty("os.name") + " " + System.getProperty("os.version"));
+                    statusAppendLineDiag("Java " + System.getProperty("java.version") + " " + System.getProperty("java.vendor"));
+                    statusAppendLineDiag("Lotus Username: " + jTextField_LotusNotesUsername.getText());
+                    statusAppendLineDiag("Local Server: " + jCheckBox_LotusNotesServerIsLocal.isSelected());
+                    statusAppendLineDiag("Server: " + jTextField_LotusNotesServer.getText());
+                    statusAppendLineDiag("Mail File: " + jTextField_LotusNotesMailFile.getText());
+                    statusAppendLineDiag("Google Email: " + jTextField_GoogleUsername.getText());
+                }
 
                 DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
                 statusAppendLine("Date range: " + df.format(minStartDate) + " thru " + df.format(maxEndDate));
@@ -76,6 +87,8 @@ public class mainGUI extends javax.swing.JFrame {
                 List<NotesCalendarEntry> cals = lotusNotesService.getCalendarEntries();
                 statusAppendFinished();
                 statusAppendLine(cals.size() + " entries found within date range");
+                if (jCheckBox_DiagnosticMode.isSelected())
+                    statusAppendLineDiag("Lotus Version: " + lotusNotesService.getNotesVersion());
 //if (true) return null;
                 // === Copy the Lotus Notes data to Google calendar
                 if (jCheckBox_enableProxy.isSelected())
@@ -152,7 +165,7 @@ public class mainGUI extends javax.swing.JFrame {
         jLabel16 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Lotus Notes to Google Calendar Synchronizer v1.0");
+        setTitle("Lotus Notes to Google Calendar Synchronizer v1.1");
         setBackground(new java.awt.Color(254, 254, 254));
         setMaximizedBounds(new java.awt.Rectangle(0, 0, 0, 0));
         setResizable(false);
@@ -421,7 +434,7 @@ public class mainGUI extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Settings", jPanel1);
 
-        jLabel16.setFont(new java.awt.Font("Tahoma", 0, 13));
+        jLabel16.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
         jLabel16.setForeground(new java.awt.Color(51, 51, 255));
         jLabel16.setText("This tool synchronizes your Lotus Notes calendar to your Google calendar.");
 
@@ -615,6 +628,14 @@ public class mainGUI extends javax.swing.JFrame {
      */
     protected void statusAppendLine(String text) {
         jTextArea_Status.append(text + "\n");
+    }
+
+    /**
+     * Adds a line to the status area in diagnostic format.
+     * @param text - The text to add.
+     */
+    protected void statusAppendLineDiag(String text) {
+        jTextArea_Status.append("  " + text + "\n");
     }
 
     protected void statusAppendStart(String text) {

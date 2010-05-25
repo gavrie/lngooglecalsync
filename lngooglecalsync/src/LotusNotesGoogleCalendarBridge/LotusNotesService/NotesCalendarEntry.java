@@ -16,6 +16,7 @@ public class NotesCalendarEntry {
      * Create a "deep copy" of this object.
      * @return The new, cloned object.
      */
+    @Override
     public NotesCalendarEntry clone() {
         NotesCalendarEntry cal = new NotesCalendarEntry();
 
@@ -51,12 +52,12 @@ public class NotesCalendarEntry {
             this.appointmentType = AppointmentType.REMINDER;
     }
 
-    public void setStartDateTime(String startTime) {
-        this.startDateTime = startTime;
+    public void setStartDateTime(Date startDateTime) {
+        this.startDateTime = startDateTime;
     }
 
-    public void setEndDateTime(String endTime) {
-        this.endDateTime = endTime;
+    public void setEndDateTime(Date endDateTime) {
+        this.endDateTime = endDateTime;
     }
 
     public void setSubject(String subject) {
@@ -86,25 +87,25 @@ public class NotesCalendarEntry {
     /**
      * @return Returns the start datetime in Lotus Notes format.
      */
-    public String getStartDateTime() {
+    public Date getStartDateTime() {
         return startDateTime;
     }
 
     public String getStartDateTimeGoogle() throws ParseException {
-        return convertDateTimeFormat(startDateTime);
+        return getGoogleDateTimeString(startDateTime);
     }
 
     // Return the start date without time in Google format.
     public String getStartDateGoogle() throws ParseException {
-        return convertDateFormat(startDateTime);
+        return getGoogleDateString(startDateTime);
     }
 
-    public String getEndDateTime() {
+    public Date getEndDateTime() {
         return endDateTime;
     }
 
     public String getEndDateTimeGoogle() throws ParseException {
-        return convertDateTimeFormat(endDateTime);
+        return getGoogleDateTimeString(endDateTime);
     }
 
     public String getSubject() {
@@ -125,50 +126,29 @@ public class NotesCalendarEntry {
 
     
     /**
-     * Convert from Lotus Notes Document datetime format (MM/DD/YYYY HH:MM:SS PM) to
-     * Google format (YYYY-MM-DDTHH:MM:SS).  Note: Google format is the same as the
-     * XML standard xs:DateTime format.
+     * Convert from Java Date object to Google format (YYYY-MM-DDTHH:MM:SS).
+     * Note: Google format is the same as the XML standard xs:DateTime format.
+     * @param sourceDate The source datetime.
+     * @return The datetiem string in Google format.
      */
-    private String convertDateTimeFormat(String lotusnotesDateTimeFormat) throws ParseException {
-        DateFormat dfLotus = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
-        Date dt = dfLotus.parse(lotusnotesDateTimeFormat);
-
+    private String getGoogleDateTimeString(Date sourceDate) throws ParseException {
         DateFormat dfGoogle = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        String googleDateTimeFormat = dfGoogle.format(dt);
+        String googleDateTimeFormat = dfGoogle.format(sourceDate);
 
         return googleDateTimeFormat;
     }
 
 
     /**
-     * Convert from Lotus Notes Document datetime format (MM/DD/YYYY HH:MM:SS PM) to
-     * a Java Date object.
-     */
-    public Date toDate(String lotusnotesDateTimeFormat) {
-        try {
-            DateFormat dfLotus = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
-            Date dt = dfLotus.parse(lotusnotesDateTimeFormat);
-
-            return dt;
-        } catch (Exception ex) {
-            return null;
-        }
-    }
-
-
-    /**
-     * Convert from Lotus Notes Document datetime format (MM/DD/YYYY HH:MM:SS PM) to
-     * Google format (YYYY-MM-DD) with no time portion.
+     * Convert from Java Date object to Google string format (YYYY-MM-DD) with no
+     * time portion.
      * Note: Google format is the same as the XML standard xs:DateTime format.
-     * @param lotusnotesDateTimeFormat The datetime in Lotus Notes format.
-     * @return The datetime in Google format.
+     * @param sourceDate The source datetime.
+     * @return The date string in Google format.
      */
-    private String convertDateFormat(String lotusnotesDateTimeFormat) throws ParseException {
-        DateFormat dfLotus = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
-        Date dt = dfLotus.parse(lotusnotesDateTimeFormat);
-
+    private String getGoogleDateString(Date sourceDate) throws ParseException {
         DateFormat dfGoogle = new SimpleDateFormat("yyyy-MM-dd");
-        String googleDateFormat = dfGoogle.format(dt);
+        String googleDateFormat = dfGoogle.format(sourceDate);
 
         return googleDateFormat;
     }
@@ -181,7 +161,8 @@ public class NotesCalendarEntry {
     protected EntryType entryType;
     protected AppointmentType appointmentType;
     // DateTime in Lotus Notes format
-    protected String startDateTime, endDateTime;
+    protected Date startDateTime;
+    protected Date endDateTime;
     protected String subject, location;
     protected String body;
     protected String id;

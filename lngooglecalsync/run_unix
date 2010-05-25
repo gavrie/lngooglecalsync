@@ -1,5 +1,17 @@
 #!/bin/bash
+# Run Lotus Notes to Google Calendar Synchronizer under Linux or OS X.
 
+# NOTE: If you come up with enhancments to this script, please post
+# them to the project's Open Discussion forum:
+# https://sourceforge.net/projects/lngooglecalsync/forums  
+
+# This script hasn't been thoroughly tested, but here's some helpful info. 
+# The Lotus Notes client must be installed on your system.
+# Find the directory containing Notes.jar (perhaps in /opt/ibm/lotus/notes/jvm/lib/ext).
+# Replace the existing Windows version of Notes.jar in the application's lib dir with 
+# the Notes.jar you find.
+# Notes.jar calls some native .so files, e.g. liblsxbe.so.
+# Find liblsxbe.so. The below lines add the most common locations for the .so to the library path. 
 OS_TYPE=`uname`
 if [ $OS_TYPE == "Linux" ]; then
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/ibm/lotus/notes

@@ -8,6 +8,7 @@ import java.util.*;
 public class LotusNotesExport {
 
     public LotusNotesExport() {
+        notesVersion = "unknown";
     }
 
     public void setServer(String server) {
@@ -40,6 +41,11 @@ public class LotusNotesExport {
         this.maxEndDate = maxEndDate;
     }
 
+    public String getNotesVersion() {
+        return notesVersion;
+    }
+
+
     /**
      * Retrieve a list of Lotus Notes calendar entries.
      * @param dominoServer The Domino server to retrieve data from, e.g. "IBM-Domino".
@@ -47,6 +53,7 @@ public class LotusNotesExport {
      * @param mailFileName The mail file to read from, e.g. "mail/johnsmith.nsf".
      */
     public List<NotesCalendarEntry> getCalendarEntries() throws Exception {
+        boolean wasNotesThreadInitialized = false;
         List<NotesCalendarEntry> calendarEntries = new ArrayList<NotesCalendarEntry>();
 
         try {
@@ -54,7 +61,11 @@ public class LotusNotesExport {
             // for the Lotus main directory, e.g. "c:\Program Files\Lotus\Notes".
             // This is necessary because the Java classes call native/C dlls in
             // this directory.
+            // If the dlls can't be found, then we will drop directly into
+            // the finally section (no exception is thrown).  That's strange.
+            // So, we set a flag to indicate whether things succeeded or not.
             NotesThread.sinitThread();
+            wasNotesThreadInitialized = true;
 
             // Note: We cast null to a String to avoid overload conflicts
             Session session = NotesFactory.createSession((String)null, (String)null, password);
@@ -64,7 +75,7 @@ public class LotusNotesExport {
                 dominoServerTemp = null;
             Database db = session.getDatabase(dominoServerTemp, mailfile, false);
             if (db == null)
-                throw new Exception("Couldn't create Database object.");
+                throw new Exception("Couldn't create Lotus Notes Database object.");
             
             View lnView;
 
@@ -132,25 +143,26 @@ public class LotusNotesExport {
                     // Handle Lotus Notes repeating entries by creating multiple Google
                     // entries
 
-                    String[] startDates = null;
-                    String[] endDates = null;
+                    Vector startDates = null;
+                    Vector endDates = null;
+
                     lnItem = doc.getFirstItem("StartDateTime");
                     if (lnItem != null)
-                        startDates = lnItem.getText().split(";");
+                        startDates = lnItem.getValueDateTimeArray();
 
                     lnItem = doc.getFirstItem("EndDateTime");
                     if (lnItem != null)
-                        endDates = lnItem.getText().split(";");
+                        endDates = lnItem.getValueDateTimeArray();
 
                     if (startDates != null)
                     {
-                        for (int i = 0 ; i < startDates.length ; i++) {
-                            Date dt = cal.toDate(startDates[i]);
+                        for (int i = 0 ; i < startDates.size() ; i++) {
+                            Date startDate = ((DateTime)startDates.get(i)).toJavaDate();
                             // Only add the entry if it is within our sync date range
-                            if (isDateInRange(dt))
+                            if (isDateInRange(startDate))
                             {
-                                cal.setStartDateTime(startDates[i]);
-                                cal.setEndDateTime(endDates[i]);
+                                cal.setStartDateTime(startDate);
+                                cal.setEndDateTime(((DateTime)endDates.get(i)).toJavaDate());
 
                                 calendarEntries.add(cal.clone());
                             }
@@ -161,14 +173,14 @@ public class LotusNotesExport {
                 {
                     lnItem = doc.getFirstItem("StartDateTime");
                     if (lnItem != null)
-                        cal.setStartDateTime(lnItem.getText());
+                        cal.setStartDateTime(lnItem.getDateTimeValue().toJavaDate());
 
                     lnItem = doc.getFirstItem("EndDateTime");
                     if (lnItem != null)
-                        cal.setEndDateTime(lnItem.getText());
+                        cal.setEndDateTime(lnItem.getDateTimeValue().toJavaDate());
                     
                     // Only add the entry if it is within our sync date range
-                    if (isDateInRange(cal.toDate(cal.getStartDateTime())))
+                    if (isDateInRange(cal.getStartDateTime()))
                         calendarEntries.add(cal);
                 }
 
@@ -178,10 +190,19 @@ public class LotusNotesExport {
             if (diagnosticMode)
                 writeInRangeEntriesToFile(calendarEntries);
 
+            notesVersion = session.getNotesVersion();
+
             return calendarEntries;
         } catch (Exception ex) {
             throw new Exception("There was a problem reading Lotus Notes calendar entries.", ex);
         } finally {
+            // If true, the NotesThread failed to init. The LN dlls probably weren't found.
+            // NOTE: Make sure this check is the first line in the finally block. When the
+            // init fails, some of the finally block may get skipped.
+            if (!wasNotesThreadInitialized) {
+                throw new Exception("There was a problem initializing the Lotus Notes thread.\nMake sure the the Lotus bin directory is in your path.");
+            }
+
             if (lnFoundEntriesWriter != null) {
                 lnFoundEntriesWriter.close();
                 lnFoundEntriesWriter = null;
@@ -270,6 +291,7 @@ public class LotusNotesExport {
     String server, mailfile;
     boolean requiresAuth;
     boolean diagnosticMode = false;
+    String notesVersion;
 
     // Our min and max dates for entries we will process.
     // If the calendar entry is outside this range, it is ignored.
