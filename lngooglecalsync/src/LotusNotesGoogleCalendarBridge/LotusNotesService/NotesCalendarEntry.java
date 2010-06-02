@@ -1,6 +1,6 @@
 package LotusNotesGoogleCalendarBridge.LotusNotesService;
 
-import java.util.Date;
+import java.util.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
@@ -106,6 +106,18 @@ public class NotesCalendarEntry {
 
     public String getEndDateTimeGoogle() throws ParseException {
         return getGoogleDateTimeString(endDateTime);
+    }
+
+    /**
+     * Return the end date (without time) in Google format.
+     * @param addDays Add (or subtract) this many days from the returned value.
+     */
+    public String getEndDateGoogle(int addDays) throws ParseException {
+        Calendar endDateTimeTemp = Calendar.getInstance();
+        endDateTimeTemp.setTime(endDateTime);
+        endDateTimeTemp.add(Calendar.DATE, addDays);
+
+        return getGoogleDateString(endDateTimeTemp.getTime());
     }
 
     public String getSubject() {

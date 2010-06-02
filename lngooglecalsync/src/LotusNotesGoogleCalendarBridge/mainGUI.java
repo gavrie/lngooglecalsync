@@ -57,13 +57,18 @@ public class mainGUI extends javax.swing.JFrame {
                     statusAppendLine("Starting sync");
                 
                 if (jCheckBox_DiagnosticMode.isSelected()) {
-                    statusAppendLineDiag(System.getProperty("os.name") + " " + System.getProperty("os.version"));
-                    statusAppendLineDiag("Java " + System.getProperty("java.version") + " " + System.getProperty("java.vendor"));
+                    statusAppendLineDiag("OS: " + System.getProperty("os.name") + " " + System.getProperty("os.version"));
+                    statusAppendLineDiag("Java: " + System.getProperty("java.version") + " " + System.getProperty("java.vendor"));
                     statusAppendLineDiag("Lotus Username: " + jTextField_LotusNotesUsername.getText());
                     statusAppendLineDiag("Local Server: " + jCheckBox_LotusNotesServerIsLocal.isSelected());
                     statusAppendLineDiag("Server: " + jTextField_LotusNotesServer.getText());
                     statusAppendLineDiag("Mail File: " + jTextField_LotusNotesMailFile.getText());
-                    statusAppendLineDiag("Google Email: " + jTextField_GoogleUsername.getText());
+                    // Don't echo the gmail address for privacy reasons
+                    //statusAppendLineDiag("Google Email: " + jTextField_GoogleUsername.getText());
+                    statusAppendLineDiag("Use Proxy: " + jCheckBox_enableProxy.isSelected());
+                    statusAppendLineDiag("Use SSL: " + jCheckBox_GoogleSSL.isSelected());
+                    statusAppendLineDiag("Java Classpath: " + System.getProperty("java.class.path"));
+                    statusAppendLineDiag("Java Library Path: " + System.getProperty("java.library.path"));
                 }
 
                 DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
@@ -107,7 +112,7 @@ public class mainGUI extends javax.swing.JFrame {
 
                 statusAppendStart("Creating new Google calendar entries");
                 int createdCount = 0;
-                createdCount = googleService.createCalendarEntries(cals, false);
+                createdCount = googleService.createCalendarEntries(cals);
                 statusAppendFinished();
                 statusAppendLine(createdCount + " entries created");
 
@@ -165,7 +170,7 @@ public class mainGUI extends javax.swing.JFrame {
         jLabel16 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Lotus Notes to Google Calendar Synchronizer v1.1");
+        setTitle("Lotus Notes to Google Calendar Synchronizer v1.2");
         setBackground(new java.awt.Color(254, 254, 254));
         setMaximizedBounds(new java.awt.Rectangle(0, 0, 0, 0));
         setResizable(false);
@@ -434,7 +439,7 @@ public class mainGUI extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Settings", jPanel1);
 
-        jLabel16.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
+        jLabel16.setFont(new java.awt.Font("Tahoma", 0, 13));
         jLabel16.setForeground(new java.awt.Color(51, 51, 255));
         jLabel16.setText("This tool synchronizes your Lotus Notes calendar to your Google calendar.");
 

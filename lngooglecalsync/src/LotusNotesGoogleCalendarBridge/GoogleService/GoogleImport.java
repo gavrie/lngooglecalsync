@@ -22,22 +22,24 @@ public class GoogleImport {
 
     public GoogleImport(String accountname, String password, boolean useSSL) throws Exception {
         try {
-            String protocol = "https:";
-            if (!useSSL) {
-                protocol = "http:";
+            String protocol = "http:";
+            if (useSSL) {
+                protocol = "https:";
             }
 
             mainCalendarFeedUrl = new URL(protocol + "//www.google.com/calendar/feeds/" + accountname + "/owncalendars/full");
             privateCalendarFeedUrl = new URL(protocol + "//www.google.com/calendar/feeds/" + accountname + "/private/full");
-            service = new CalendarService("Corporate-LotusNotes-Calendar");
+
+            service = new CalendarService("LotusNotes-Calendar-Sync");
             if (useSSL) {
                 service.useSsl();
             }
+
             service.setUserCredentials(accountname, password);
 
             createCalendar();
         } catch (InvalidCredentialsException ex) {
-            throw new Exception("The username and/or password are invalid for signing into the Google account.", ex);
+            throw new Exception("The username and/or password are invalid for signing into Google.", ex);
         } catch (AuthenticationException ex) {
             throw new Exception("Unable to login to Google. Perhaps you need to use a proxy server.", ex);
         } catch (Exception ex) {
@@ -54,12 +56,25 @@ public class GoogleImport {
      * @return The calendar feed URL for the calendar we want to update.
      */
     protected URL getDestinationCalendarUrl() throws Exception {
+        CalendarFeed calendars = null;
+        int retryCount = 0;
+
         try {
             // If true, we already know our calendar URL
             if (destinationCalendarFeedUrl != null)
                 return destinationCalendarFeedUrl;
 
-            CalendarFeed calendars = service.getFeed(mainCalendarFeedUrl, CalendarFeed.class);
+            do {
+                try {
+                    calendars = service.getFeed(mainCalendarFeedUrl, CalendarFeed.class);
+                } catch (com.google.gdata.util.ServiceException ex) {
+                    calendars = null;
+                    // If there is a network problem while connecting to Google, retry a few times
+                    if (++retryCount > 3)
+                        throw ex;
+                }
+            } while (calendars == null);
+
 
             for (int i = 0; i < calendars.getEntries().size(); i++) {
                 CalendarEntry calendar = calendars.getEntries().get(i);
@@ -138,6 +153,7 @@ public class GoogleImport {
             myQuery.setMaxResults(5000);
             int startIndex = 1;
             int entriesReturned;
+            int retryCount = 0;
 
             List<CalendarEventEntry> allCalEntries = new ArrayList<CalendarEventEntry>();
             CalendarEventFeed resultFeed;
@@ -147,8 +163,16 @@ public class GoogleImport {
             while (true) {
                 myQuery.setStartIndex(startIndex);
 
-                // Execute the query and get the response
-                resultFeed = service.query(myQuery, CalendarEventFeed.class);
+                try {
+                    // Execute the query and get the response
+                    resultFeed = service.query(myQuery, CalendarEventFeed.class);
+                } catch (com.google.gdata.util.ServiceException ex) {
+                    // If there is a network problem while connecting to Google, retry a few times
+                    if (++retryCount > 3)
+                        throw ex;
+                    
+                    continue;
+                }
 
                 entriesReturned = resultFeed.getEntries().size();
                 if (entriesReturned == 0)
@@ -228,12 +252,12 @@ public class GoogleImport {
     /**
      * Create Lotus Notes calendar entries in the Google calendar.
      * @param cals - The list of Lotus Notes calendar entries.
-     * @param inMainCalendar - If true, the entries are created in the main Google calendar.
      * @return The number of Google calendar entries successfully created.
      * @throws ServiceException
      * @throws IOException
      */
-    public int createCalendarEntries(List cals, boolean inMainCalendar) throws Exception, ServiceException, IOException {
+    public int createCalendarEntries(List cals) throws Exception, ServiceException, IOException {
+        int retryCount = 0;
         int createdCount = 0;
 
         for (int i = 0; i < cals.size(); i++) {
@@ -248,12 +272,13 @@ public class GoogleImport {
             DateTime startTime, endTime;
             if (cal.getEntryType() == NotesCalendarEntry.EntryType.TASK ||
                     cal.getAppointmentType() == NotesCalendarEntry.AppointmentType.ALL_DAY_EVENT ||
-                    cal.getAppointmentType() == NotesCalendarEntry.AppointmentType.ANNIVERSARY )
+                    cal.getAppointmentType() == NotesCalendarEntry.AppointmentType.ANNIVERSARY)
             {
-                // Create a Google all-day event. All-day events are created by
-                // setting start/end dates the same and having no time portion.
+                // Create an all-day event by setting start/end dates with no time portion
                 startTime = DateTime.parseDate(cal.getStartDateGoogle());
-                endTime = DateTime.parseDate(cal.getStartDateGoogle());
+                // IMPORTANT: For Google to properly create an all-day event, we must add
+                // one day to the end date
+                endTime = DateTime.parseDate(cal.getEndDateGoogle(1));
             }
             else if (cal.getAppointmentType() == NotesCalendarEntry.AppointmentType.APPOINTMENT ||
                     cal.getAppointmentType() == NotesCalendarEntry.AppointmentType.MEETING)
@@ -280,17 +305,18 @@ public class GoogleImport {
             eventTimes.setEndTime(endTime);
             event.addTime(eventTimes);
 
-            try {
-                if (inMainCalendar) {
-                    service.insert(privateCalendarFeedUrl, event);
-                } else {
+            retryCount = 0;
+            do {
+                try {
                     service.insert(getDestinationCalendarUrl(), event);
+                    createdCount++;
+                    break;
+                } catch (com.google.gdata.util.ServiceException ex) {
+                    // If there is a network problem while connecting to Google, retry a few times
+                    if (++retryCount > 3)
+                        throw ex;
                 }
-
-                createdCount++;
-            } catch (Exception ex) {
-                throw ex;
-            }
+            } while (true);
         }
 
         return createdCount;
@@ -307,6 +333,5 @@ public class GoogleImport {
     URL destinationCalendarFeedUrl = null;
     String destinationCalendarName = "Lotus Notes";
     CalendarService service;
-//    String COLOR = "#2952A3";  //default cal color
     String COLOR = "#F2A640";  //default cal color
 }

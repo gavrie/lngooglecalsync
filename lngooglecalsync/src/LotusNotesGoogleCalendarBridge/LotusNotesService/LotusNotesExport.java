@@ -57,6 +57,18 @@ public class LotusNotesExport {
         List<NotesCalendarEntry> calendarEntries = new ArrayList<NotesCalendarEntry>();
 
         try {
+            // Some users, especially on OS X, have trouble locating Notes.jar (which
+            // needs to be in the classpath) and the supporting dll/so/dylib files (which
+            // need to be in the path/ld_library_path).  Try to load one of the Lotus
+            // classes to make sure we can find Notes.jar.
+            // The next try/catch block (with the sinitThread() call) will check if
+            // the supporing dlls can be found.
+            ClassLoader.getSystemClassLoader().loadClass("lotus.domino.NotesThread");
+        } catch (Exception ex) {
+            throw new Exception("The Lotus Notes Java interface file (Notes.jar) could not be found.\nMake sure Notes.jar is in your classpath.", ex);
+        }
+
+        try {
             // Make sure your Windows PATH statement includes the location
             // for the Lotus main directory, e.g. "c:\Program Files\Lotus\Notes".
             // This is necessary because the Java classes call native/C dlls in
@@ -175,7 +187,10 @@ public class LotusNotesExport {
                     if (lnItem != null)
                         cal.setStartDateTime(lnItem.getDateTimeValue().toJavaDate());
 
+                    // For To Do tasks, the EndDateTime doesn't exist, but there is an EndDate value
                     lnItem = doc.getFirstItem("EndDateTime");
+                    if (lnItem == null)
+                        lnItem = doc.getFirstItem("EndDate");
                     if (lnItem != null)
                         cal.setEndDateTime(lnItem.getDateTimeValue().toJavaDate());
                     
@@ -200,7 +215,7 @@ public class LotusNotesExport {
             // NOTE: Make sure this check is the first line in the finally block. When the
             // init fails, some of the finally block may get skipped.
             if (!wasNotesThreadInitialized) {
-                throw new Exception("There was a problem initializing the Lotus Notes thread.\nMake sure the the Lotus bin directory is in your path.");
+                throw new Exception("There was a problem initializing the Lotus Notes thread.\nMake sure the Lotus dll/so/dylib directory is in your path.");
             }
 
             if (lnFoundEntriesWriter != null) {
