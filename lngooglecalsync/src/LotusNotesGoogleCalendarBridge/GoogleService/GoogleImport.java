@@ -114,7 +114,7 @@ public class GoogleImport {
         
         calendar.setHidden(HiddenProperty.FALSE);
         calendar.setSelected(SelectedProperty.TRUE);
-        calendar.setColor(new ColorProperty(COLOR));
+        calendar.setColor(new ColorProperty(DEST_CALENDAR_COLOR));
 
         CalendarEntry returnedCalendar = service.insert(mainCalendarFeedUrl, calendar);
         returnedCalendar.update();
@@ -265,6 +265,10 @@ public class GoogleImport {
             CalendarEventEntry event = new CalendarEventEntry();
             event.setTitle(new PlainTextConstruct(cal.getSubject()));
 
+
+            if (syncDescription && cal.getBody() != null)
+                event.setContent(new PlainTextConstruct(cal.getBody()));
+
             Where location = new Where();
             location.setValueString(cal.getLocation());
             event.addLocation(location);
@@ -322,16 +326,18 @@ public class GoogleImport {
         return createdCount;
     }
 
-    public void setCalendarColor(String color) {
-        if (color.startsWith("#") && color.length() == 7) {
-            COLOR = color;
-        }
+    public void setSyncDescription(boolean value) {
+        syncDescription = value;
     }
+
 
     URL mainCalendarFeedUrl = null;
     URL privateCalendarFeedUrl = null;
     URL destinationCalendarFeedUrl = null;
-    String destinationCalendarName = "Lotus Notes";
     CalendarService service;
-    String COLOR = "#F2A640";  //default cal color
+
+    boolean syncDescription = false;
+
+    String destinationCalendarName = "Lotus Notes";
+    String DEST_CALENDAR_COLOR = "#F2A640";
 }

@@ -55,6 +55,7 @@ public class LotusNotesExport {
     public List<NotesCalendarEntry> getCalendarEntries() throws Exception {
         boolean wasNotesThreadInitialized = false;
         List<NotesCalendarEntry> calendarEntries = new ArrayList<NotesCalendarEntry>();
+        NotesCalendarEntry cal = null;
 
         try {
             // Some users, especially on OS X, have trouble locating Notes.jar (which
@@ -62,7 +63,7 @@ public class LotusNotesExport {
             // need to be in the path/ld_library_path).  Try to load one of the Lotus
             // classes to make sure we can find Notes.jar.
             // The next try/catch block (with the sinitThread() call) will check if
-            // the supporing dlls can be found.
+            // the supporing libs can be found.
             ClassLoader.getSystemClassLoader().loadClass("lotus.domino.NotesThread");
         } catch (Exception ex) {
             throw new Exception("The Lotus Notes Java interface file (Notes.jar) could not be found.\nMake sure Notes.jar is in your classpath.", ex);
@@ -122,22 +123,28 @@ public class LotusNotesExport {
                     writeEntryToFile(doc);
                 }
 
-                NotesCalendarEntry cal = new NotesCalendarEntry();
+                cal = new NotesCalendarEntry();
 
                 lnItem = doc.getFirstItem("Subject");
                 cal.setSubject(lnItem.getText());
 
+                lnItem = doc.getFirstItem("Body");
+                if (lnItem != null)
+                    cal.setBody(lnItem.getText());
+
                 // Get the type of Lotus calendar entry
                 lnItem = doc.getFirstItem("Form");
                 if (lnItem != null)
-                {
                     cal.setEntryType(lnItem.getText());
-                    if (cal.getEntryType() == NotesCalendarEntry.EntryType.APPOINTMENT)
-                    {
-                        lnItem = doc.getFirstItem("AppointmentType");
-                        if (lnItem != null)
-                            cal.setAppointmentType(lnItem.getText());                    
-                    }
+                else
+                    // Assume we have an appointment
+                    cal.setEntryType(NotesCalendarEntry.EntryType.APPOINTMENT);
+
+                if (cal.getEntryType() == NotesCalendarEntry.EntryType.APPOINTMENT)
+                {
+                    lnItem = doc.getFirstItem("AppointmentType");
+                    if (lnItem != null)
+                        cal.setAppointmentType(lnItem.getText());
                 }
 
                 cal.setLocation("<no location>");
@@ -202,14 +209,17 @@ public class LotusNotesExport {
                 e = vn.getNextDocument();
             }
 
-            if (diagnosticMode)
-                writeInRangeEntriesToFile(calendarEntries);
-
             notesVersion = session.getNotesVersion();
 
             return calendarEntries;
         } catch (Exception ex) {
-            throw new Exception("There was a problem reading Lotus Notes calendar entries.", ex);
+            String exMsg = "There was a problem reading Lotus Notes calendar entries.";
+            if (cal == null && cal.getSubject() != null) {
+                throw new Exception(exMsg, ex);
+            }
+            else {
+                throw new Exception(exMsg + "  Subject of entry being processed: " + cal.getSubject(), ex);
+            }
         } finally {
             // If true, the NotesThread failed to init. The LN dlls probably weren't found.
             // NOTE: Make sure this check is the first line in the finally block. When the
@@ -217,6 +227,9 @@ public class LotusNotesExport {
             if (!wasNotesThreadInitialized) {
                 throw new Exception("There was a problem initializing the Lotus Notes thread.\nMake sure the Lotus dll/so/dylib directory is in your path.");
             }
+
+            if (diagnosticMode)
+                writeInRangeEntriesToFile(calendarEntries);
 
             if (lnFoundEntriesWriter != null) {
                 lnFoundEntriesWriter.close();
@@ -282,15 +295,18 @@ public class LotusNotesExport {
             lnInRangeEntriesFile = new File("LotusNotesInRangeEntries.txt");
             lnInRangeEntriesWriter = new BufferedWriter(new FileWriter(lnInRangeEntriesFile));
 
-            for (NotesCalendarEntry entry : calendarEntries) {
-                lnInRangeEntriesWriter.write("=== " + entry.getSubject() + "\n");
-                lnInRangeEntriesWriter.write("  Start Date: " + entry.getStartDateTime() + "\n");
-                lnInRangeEntriesWriter.write("  End Date: " + entry.getEndDateTime() + "\n");
-                lnInRangeEntriesWriter.write("  Location: " + entry.getLocation() + "\n");
-                lnInRangeEntriesWriter.write("  Appointment Type: " + entry.getAppointmentType() + "\n");
-                lnInRangeEntriesWriter.write("  Entry Type: " + entry.getEntryType() + "\n");
-                lnInRangeEntriesWriter.write("\n");
-            }
+            if (calendarEntries == null)
+                lnInRangeEntriesWriter.write("The calendar entries list is null.\n");
+            else
+                for (NotesCalendarEntry entry : calendarEntries) {
+                    lnInRangeEntriesWriter.write("=== " + entry.getSubject() + "\n");
+                    lnInRangeEntriesWriter.write("  Start Date: " + entry.getStartDateTime() + "\n");
+                    lnInRangeEntriesWriter.write("  End Date: " + entry.getEndDateTime() + "\n");
+                    lnInRangeEntriesWriter.write("  Location: " + entry.getLocation() + "\n");
+                    lnInRangeEntriesWriter.write("  Appointment Type: " + entry.getAppointmentType() + "\n");
+                    lnInRangeEntriesWriter.write("  Entry Type: " + entry.getEntryType() + "\n");
+                    lnInRangeEntriesWriter.write("\n");
+                }
         } catch (Exception e) {
         }
         finally {

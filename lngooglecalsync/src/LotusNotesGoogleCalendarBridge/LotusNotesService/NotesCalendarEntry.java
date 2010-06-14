@@ -39,6 +39,10 @@ public class NotesCalendarEntry {
             this.entryType = EntryType.APPOINTMENT;
     }
 
+    public void setEntryType(EntryType entryType) {
+        this.entryType = entryType;
+    }
+
     public void setAppointmentType(String appointmentType) {
         if (appointmentType.equals("0"))
             this.appointmentType = AppointmentType.APPOINTMENT;
@@ -176,6 +180,6 @@ public class NotesCalendarEntry {
     protected Date startDateTime;
     protected Date endDateTime;
     protected String subject, location;
-    protected String body;
+    protected String body = null;
     protected String id;
 }

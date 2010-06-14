@@ -16,7 +16,6 @@ public class ConfigurationBean {
         config.setProperty("GoogleEnableProxy", new Boolean(getGoogleEnableProxy()).toString());
         config.setProperty("GoogleProxyIP", getGoogleProxyIP());
         config.setProperty("GoogleProxyPort", getGoogleProxyPort());
-        config.setProperty("GoogleUploadToMainCalendar", new Boolean(getGoogleUploadToMainCalendar()).toString());
         config.setProperty("GoogleUseSSL", new Boolean(getGoogleUseSSL()).toString());
 
         config.setProperty(PROP_NAME_LOTUS_NOTES_SERVER, getLotusNotesServer());
@@ -27,6 +26,7 @@ public class ConfigurationBean {
 
         config.setProperty("SyncOnStartup", new Boolean(getSyncOnStartup()).toString());
         config.setProperty(PROP_NAME_DIAGNOSTIC_MODE, new Boolean(getDiagnosticMode()).toString());
+        config.setProperty(PROP_SYNC_DESCRIPTION, new Boolean(getSyncDescription()).toString());
 
         // Write properties file.
         try {
@@ -43,10 +43,6 @@ public class ConfigurationBean {
         } catch (Exception e) {
         }
 
-    }
-
-    public void setLotusMailFileURL(String lotusMailFileURL) {
-        config.setProperty("LotusNotesMailURL", lotusMailFileURL);
     }
 
     public void setLotusNotesServer(String value) {
@@ -81,10 +77,6 @@ public class ConfigurationBean {
         setBooleanProperty("GoogleEnableProxy", googleEnableProxy);
     }
 
-    public void setGoogleUploadToMainCalendar(boolean googleUploadToMainCalendar) {
-        setBooleanProperty("GoogleUploadToMainCalendar", googleUploadToMainCalendar);
-    }
-
     public void setGoogleUseSSL(boolean googleUseSSL) {
         setBooleanProperty("GoogleUseSSL", googleUseSSL);
     }
@@ -93,8 +85,12 @@ public class ConfigurationBean {
         setBooleanProperty("SyncOnStartup", syncOnStartup);
     }
 
-    public void setDiagnosticMode(boolean diagnosticMode) {
-        setBooleanProperty(PROP_NAME_DIAGNOSTIC_MODE, diagnosticMode);
+    public void setDiagnosticMode(boolean value) {
+        setBooleanProperty(PROP_NAME_DIAGNOSTIC_MODE, value);
+    }
+
+    public void setSyncDescription(boolean value) {
+        setBooleanProperty(PROP_SYNC_DESCRIPTION, value);
     }
 
     public void setLotusNotesUsername(String LotusNotesUsername) {
@@ -189,10 +185,6 @@ public class ConfigurationBean {
         return getBooleanProperty("GoogleEnableProxy");
     }
 
-    public boolean getGoogleUploadToMainCalendar() {
-        return getBooleanProperty("GoogleUploadToMainCalendar");
-    }
-
     public boolean getGoogleUseSSL() {
         return getBooleanProperty("GoogleUseSSL");
     }
@@ -227,6 +219,10 @@ public class ConfigurationBean {
         return getBooleanProperty(PROP_NAME_DIAGNOSTIC_MODE);
     }
 
+    public boolean getSyncDescription() {
+        return getBooleanProperty(PROP_SYNC_DESCRIPTION);
+    }
+
     protected boolean getBooleanProperty(String propertyName) {
         boolean property = true;
 
@@ -242,6 +238,7 @@ public class ConfigurationBean {
     protected static final String PROP_NAME_LOTUS_NOTES_SERVER_IS_LOCAL = "LotusNotesServerIsLocal";
     protected static final String PROP_NAME_LOTUS_NOTES_MAIL_FILE = "LotusNotesMailFile";
     protected static final String PROP_NAME_DIAGNOSTIC_MODE = "DiagnosticMode";
+    protected static final String PROP_SYNC_DESCRIPTION = "SyncDescription";
 
     protected Properties config;
     protected String configurationFile = "lngooglecalsync.properties";

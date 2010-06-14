@@ -6,12 +6,20 @@ dim lotusPath, classpath, winpath
 
 set oShell = WScript.CreateObject("WScript.Shell")
 
+' Read the Lotus Notes install path from the Registry. If the Registry
+' read fails, the default path is used.
+On Error Resume Next
 lotusPath = "c:\Program Files\Lotus\Notes"
+lotusPath = oShell.RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Lotus\Notes\Path")
+' Cancel previous 'On Error' statement
+On Error GoTo 0
+
 
 ' Get the environment for this running process
 set oEnv = oShell.Environment("Process")
 ' Notes.jar uses some Lotus Notes dlls.  Add the Lotus path to the PATH env
 ' so the dlls can be found.
+' In particular, make sure the dir containing nlsxbe.dll is in the path.
 winpath = oShell.Environment.Item("PATH") & ";" & lotusPath
 oEnv("PATH") = winpath
 
