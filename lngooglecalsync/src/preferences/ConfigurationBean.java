@@ -24,9 +24,10 @@ public class ConfigurationBean {
         config.setProperty("LotusNotesUsername", getLotusNotesUsername());
         config.setProperty("LotusNotesPassword", getLotusNotesPassword());
 
-        config.setProperty("SyncOnStartup", new Boolean(getSyncOnStartup()).toString());
+        config.setProperty(PROP_SYNC_ON_STARTUP, new Boolean(getSyncOnStartup()).toString());
         config.setProperty(PROP_NAME_DIAGNOSTIC_MODE, new Boolean(getDiagnosticMode()).toString());
         config.setProperty(PROP_SYNC_DESCRIPTION, new Boolean(getSyncDescription()).toString());
+        config.setProperty(PROP_SYNC_ALARMS, new Boolean(getSyncAlarms()).toString());
 
         // Write properties file.
         try {
@@ -81,8 +82,8 @@ public class ConfigurationBean {
         setBooleanProperty("GoogleUseSSL", googleUseSSL);
     }
 
-    public void setSyncOnStartup(boolean syncOnStartup) {
-        setBooleanProperty("SyncOnStartup", syncOnStartup);
+    public void setSyncOnStartup(boolean value) {
+        setBooleanProperty(PROP_SYNC_ON_STARTUP, value);
     }
 
     public void setDiagnosticMode(boolean value) {
@@ -91,6 +92,10 @@ public class ConfigurationBean {
 
     public void setSyncDescription(boolean value) {
         setBooleanProperty(PROP_SYNC_DESCRIPTION, value);
+    }
+
+    public void setSyncAlarms(boolean value) {
+        setBooleanProperty(PROP_SYNC_ALARMS, value);
     }
 
     public void setLotusNotesUsername(String LotusNotesUsername) {
@@ -212,7 +217,7 @@ public class ConfigurationBean {
     }
 
     public boolean getSyncOnStartup() {
-        return getBooleanProperty("SyncOnStartup");
+        return getBooleanProperty(PROP_SYNC_ON_STARTUP);
     }
     
     public boolean getDiagnosticMode() {
@@ -221,6 +226,10 @@ public class ConfigurationBean {
 
     public boolean getSyncDescription() {
         return getBooleanProperty(PROP_SYNC_DESCRIPTION);
+    }
+
+    public boolean getSyncAlarms() {
+        return getBooleanProperty(PROP_SYNC_ALARMS);
     }
 
     protected boolean getBooleanProperty(String propertyName) {
@@ -238,7 +247,9 @@ public class ConfigurationBean {
     protected static final String PROP_NAME_LOTUS_NOTES_SERVER_IS_LOCAL = "LotusNotesServerIsLocal";
     protected static final String PROP_NAME_LOTUS_NOTES_MAIL_FILE = "LotusNotesMailFile";
     protected static final String PROP_NAME_DIAGNOSTIC_MODE = "DiagnosticMode";
+    protected static final String PROP_SYNC_ON_STARTUP = "SyncOnStartup";
     protected static final String PROP_SYNC_DESCRIPTION = "SyncDescription";
+    protected static final String PROP_SYNC_ALARMS = "SyncAlarms";
 
     protected Properties config;
     protected String configurationFile = "lngooglecalsync.properties";

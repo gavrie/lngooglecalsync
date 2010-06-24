@@ -27,6 +27,8 @@ public class NotesCalendarEntry {
         cal.subject = this.subject;
         cal.location = this.location;
         cal.body = this.body;
+        cal.alarm = this.alarm;
+        cal.alarmOffsetMins = this.alarmOffsetMins;
         cal.id = this.id;
 
         return cal;
@@ -72,8 +74,16 @@ public class NotesCalendarEntry {
         this.location = location;
     }
 
-    public void setBody(String body) {
-        this.body = body;
+    public void setBody(String value) {
+        this.body = value;
+    }
+
+    public void setAlarm(boolean value) {
+        this.alarm = value;
+    }
+
+    public void setAlarmOffsetMins(int value) {
+        this.alarmOffsetMins = value;
     }
 
     public void setID(String id) {
@@ -136,6 +146,14 @@ public class NotesCalendarEntry {
         return body;
     }
 
+    public boolean getAlarm() {
+        return alarm;
+    }
+
+    public int getAlarmOffsetMins() {
+        return alarmOffsetMins;
+    }
+
     public String getID() {
         return id;
     }
@@ -177,9 +195,17 @@ public class NotesCalendarEntry {
     protected EntryType entryType;
     protected AppointmentType appointmentType;
     // DateTime in Lotus Notes format
-    protected Date startDateTime;
-    protected Date endDateTime;
-    protected String subject, location;
+    protected Date startDateTime = null;
+    protected Date endDateTime = null;
+    protected String subject = null;
+    protected String location = null;
+    // Body is the description for the calendar entry
     protected String body = null;
-    protected String id;
+    // True if the entry has an alarm set
+    protected boolean alarm = false;
+    // The number of minutes until the alarm goes off. Lotus can set alarms to notify
+    // before (default) or after the date.  "Before" offsets are negative values and
+    // "after" offsets are positive.  So, -15 means notify 15 minutes before the event.
+    protected int alarmOffsetMins = 0;
+    protected String id = null;
 }

@@ -61,6 +61,7 @@ public class ProxyConfigBean {
         if (enableProxyAuthentication) {
             Authenticator.setDefault(new DefaultProxyAuthenticator(getProxyUser(), getProxyPassword()));
         }
+
         System.getProperties().put("proxySet", "true");
         System.getProperties().put("proxyHost", proxyHost);
         System.getProperties().put("proxyPort", proxyPort);
@@ -71,9 +72,11 @@ public class ProxyConfigBean {
         if (enableProxyAuthentication) {
             Authenticator.setDefault(null);
         }
+
         System.getProperties().put("proxySet", "false");
         System.getProperties().put("proxyHost", "");
         System.getProperties().put("proxyPort", "");
+        enableProxyAuthentication = false;
         debug ("proxy has been deactivated");
     }
 
@@ -82,6 +85,7 @@ public class ProxyConfigBean {
             System.out.println("DEBUG: " + message);
         }
     }
+    
     String proxyHost, proxyPort, proxyUser, proxyPassword;
     boolean enabled;
     // enable or disable debug messages concerning the proxy configuration process

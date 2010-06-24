@@ -321,10 +321,11 @@ xmlns="http://www.w3.org/TR/REC-html40">
  @font-face
 	{font-family:"Cambria Math";
 	panose-1:2 4 5 3 5 4 6 3 2 4;
-	mso-font-charset:0;
+	mso-font-charset:1;
 	mso-generic-font-family:roman;
+	mso-font-format:other;
 	mso-font-pitch:variable;
-	mso-font-signature:-1610611985 1107304683 0 0 159 0;}
+	mso-font-signature:0 0 0 0 0 0;}
 @font-face
 	{font-family:Tahoma;
 	panose-1:2 11 6 4 3 5 4 4 2 4;
@@ -1164,7 +1165,7 @@ table.MsoTableGrid
 	font-family:"Times New Roman","serif";}
 </style>
 <![endif]--><!--[if gte mso 9]><xml>
- <o:shapedefaults v:ext="edit" spidmax="22530"/>
+ <o:shapedefaults v:ext="edit" spidmax="27650"/>
 </xml><![endif]--><!--[if gte mso 9]><xml>
  <o:shapelayout v:ext="edit">
   <o:idmap v:ext="edit" data="1"/>
@@ -1196,11 +1197,33 @@ be found.</p>
 <p class=MsoNormal>This application currently pushes data only one direction:
 from Lotus Notes to Google. There is no syncing from Google to Lotus Notes.</p>
 
-<p class=MsoNormal>&nbsp;</p>
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>By default, the application runs in GUI mode.</p>
+
+<p class=MsoNormal>Pass the “-silent” parameter to run in command-line mode. In
+this mode, these exit codes can be returned:</p>
+
+<p class=MsoNormal style='text-indent:.5in'>0 = Success</p>
+
+<p class=MsoNormal style='text-indent:.5in'>1 = <span class=GramE>An</span>
+invalid parameter was specified</p>
+
+<p class=MsoNormal style='text-indent:.5in'>2 = <span class=GramE>An</span>
+exception occurred</p>
+
+<p class=MsoNormal>In command-line mode, an output file named icalbridge.log is
+created.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
 <p class=MsoNormal><b>Running Under Windows</b></p>
 
-<p class=MsoNormal>Double click run_windows.vbs to run the application.</p>
+<p class=MsoNormal>Double click run_windows.vbs to run the application in GUI
+mode.</p>
+
+<p class=MsoNormal><span class=GramE>Use “run_windows.vbs -silent” to run from
+a command line.</span></p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
@@ -1209,8 +1232,12 @@ class=GramE><span style='mso-bookmark:_Hlk262207466'><b>Under</b></span></span><
 style='mso-bookmark:_Hlk262207466'><b> Linux and </b></span><b>OS X</b></p>
 
 <p class=MsoNormal>Use the script <span class=SpellE>run_unix</span> to run the
-application under Linux and OS X. There are some notes in the script to help
-you diagnose problems.</p>
+application under Linux and OS X in GUI mode. There are some notes in the
+script to help you diagnose problems.</p>
+
+<p class=MsoNormal>To run in command-line mode, create your own script that uses
+the “-silent” switch. If you enhance the <span class=SpellE>run_unix</span>
+script, please post it in the forum.</p>
 
 <p class=MsoNormal>&nbsp;</p>
 
@@ -1249,10 +1276,23 @@ calendar entries that are in the date range.</p>
 
 <p class=MsoNormal><b>Data <span class=GramE>To</span> Sync</b></p>
 
-<p class=MsoNormal>Description — Check this box to sync the Lotus Notes
+<p class=MsoNormal><a name="_Hlk264971702">Descriptions — </a><span
+class=GramE><span style='mso-bookmark:_Hlk264971702'>Check</span></span><span
+style='mso-bookmark:_Hlk264971702'> this box to sync the Lotus Notes
 description to Google. <a name="_Hlk264294268">Lotus descriptions can contain
 formatting like colored text and underlining. However, Google descriptions can
-only contain plain text, so all formatting is removed.</a></p>
+only contain plain text, so all formatting is removed.</a></span></p>
+
+<span style='mso-bookmark:_Hlk264971702'></span>
+
+<p class=MsoNormal>Alarms Become Google Reminders — <span class=GramE>Check</span>
+this box to have Lotus Notes alarms become Google reminders. Only a Google
+Pop-up reminder is created (not an SMS or Email reminder). If the Google
+calendar is <span class=SpellE>sync’d</span> with a phone, Pop-up reminders
+should pop-up on the phone in a way you’d expect. Note: Lotus Notes alarms can
+go off before (default) or after the event. It is unlikely anyone uses the
+“after” option. Since Google only supports alarms before the event, any “after”
+events are created with an offset of 0 minutes in Google.</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
@@ -1310,8 +1350,8 @@ Server and Mail File names:</p>
 
 <span style='mso-bookmark:_Hlk262980531'></span>
 
-<p class=MsoNormal>Email Address — Your Gmail address, e.g. johnsmith@gmail.com.
-</p>
+<p class=MsoNormal>Email Address — Your Gmail address, e.g.
+johnsmith@gmail.com. </p>
 
 <p class=MsoNormal>Password — <span class=GramE>The</span> password you use to
 login to Gmail/Google.</p>
@@ -1434,10 +1474,10 @@ Google calendar events:</p>
 
 <p class=MsoNormal>&nbsp;</p>
 
-<p class=MsoNormal>Only a certain date range of Lotus Notes entries are
-synchronized to Google.&nbsp; The Lotus Notes entry must be between (today - 7 days)
-and (today + 60 days).&nbsp; <span class=GramE>Entries before or after this
-range won't be copied to Google.</span></p>
+<p class=MsoNormal>Only a certain date range of Lotus Notes entries are synchronized
+to Google.&nbsp; The Lotus Notes entry must be between (today - 7 days) and
+(today + 60 days).&nbsp; <span class=GramE>Entries before or after this range
+won't be copied to Google.</span></p>
 
 <p class=MsoNormal>&nbsp;</p>
 
@@ -1510,10 +1550,43 @@ class=SpellE>tz</span> of your local machine.<o:p></o:p></span></p>
 <h1><span style='mso-fareast-font-family:"Times New Roman"'>History Log<o:p></o:p></span></h1>
 
 <p class=MsoNormal><a name="_Hlk262980546"></a><a name="_Hlk263671647"><span
-style='mso-bookmark:_Hlk262980546'>1.3</span></a><span class=GramE><span
+style='mso-bookmark:_Hlk262980546'>1.4</span></a><span class=GramE><span
 style='mso-bookmark:_Hlk263671647'><span style='mso-bookmark:_Hlk262980546'>&nbsp;
 2010</span></span></span><span style='mso-bookmark:_Hlk263671647'><span
-style='mso-bookmark:_Hlk262980546'>/6/14 &nbsp;Dean Hill</span></span></p>
+style='mso-bookmark:_Hlk262980546'>/6/23 &nbsp;Dean Hill</span></span></p>
+
+<p class=MsoNormal><span style='mso-bookmark:_Hlk263671647'><span
+style='mso-bookmark:_Hlk262980546'>Both the USA and England advanced out of the
+World Cup group stage. Sweet!</span></span></p>
+
+<p class=MsoListParagraphCxSpFirst style='text-indent:-.25in;mso-list:l4 level1 lfo3'><span
+style='mso-bookmark:_Hlk263671647'><span style='mso-bookmark:_Hlk262980546'><![if !supportLists]><span
+style='font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:
+Symbol'><span style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>Fix: Resolved several <span class=SpellE>NullPointerException</span>
+bugs.</span></span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in;mso-list:l4 level1 lfo3'><span
+style='mso-bookmark:_Hlk263671647'><span style='mso-bookmark:_Hlk262980546'><![if !supportLists]><span
+style='font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:
+Symbol'><span style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>Enhancement: The application can now be run in
+command-line (non-GUI) mode. See the beginning of the Help file for more info.<br>
+Many thanks to Jonathan Marshall for making this enhancement.</span></span></p>
+
+<p class=MsoListParagraphCxSpLast style='text-indent:-.25in;mso-list:l4 level1 lfo3'><span
+style='mso-bookmark:_Hlk263671647'><span style='mso-bookmark:_Hlk262980546'><![if !supportLists]><span
+style='font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:
+Symbol'><span style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>Enhancement: Alarms can now be <span
+class=SpellE>sync’d</span> to as Google calendar reminders.</span></span></p>
+
+<p class=MsoNormal><span style='mso-bookmark:_Hlk263671647'><span
+style='mso-bookmark:_Hlk262980546'><o:p>&nbsp;</o:p></span></span></p>
+
+<p class=MsoNormal><span style='mso-bookmark:_Hlk263671647'><span
+style='mso-bookmark:_Hlk262980546'>1.3<span class=GramE>&nbsp; 2010</span>/6/14
+&nbsp;Dean Hill</span></span></p>
 
 <p class=MsoListParagraphCxSpFirst style='text-indent:-.25in;mso-list:l4 level1 lfo3'><span
 style='mso-bookmark:_Hlk263671647'><span style='mso-bookmark:_Hlk262980546'><![if !supportLists]><span

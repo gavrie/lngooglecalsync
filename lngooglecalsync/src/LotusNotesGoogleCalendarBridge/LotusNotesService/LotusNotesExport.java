@@ -56,7 +56,7 @@ public class LotusNotesExport {
         boolean wasNotesThreadInitialized = false;
         List<NotesCalendarEntry> calendarEntries = new ArrayList<NotesCalendarEntry>();
         NotesCalendarEntry cal = null;
-
+//javax.swing.JOptionPane.showMessageDialog(null, "location 1");
         try {
             // Some users, especially on OS X, have trouble locating Notes.jar (which
             // needs to be in the classpath) and the supporting dll/so/dylib files (which
@@ -68,6 +68,7 @@ public class LotusNotesExport {
         } catch (Exception ex) {
             throw new Exception("The Lotus Notes Java interface file (Notes.jar) could not be found.\nMake sure Notes.jar is in your classpath.", ex);
         }
+//javax.swing.JOptionPane.showMessageDialog(null, "location 2");
 
         try {
             // Make sure your Windows PATH statement includes the location
@@ -79,9 +80,11 @@ public class LotusNotesExport {
             // So, we set a flag to indicate whether things succeeded or not.
             NotesThread.sinitThread();
             wasNotesThreadInitialized = true;
+//javax.swing.JOptionPane.showMessageDialog(null, "location 3");
 
             // Note: We cast null to a String to avoid overload conflicts
             Session session = NotesFactory.createSession((String)null, (String)null, password);
+//javax.swing.JOptionPane.showMessageDialog(null, "location 4");
 
             String dominoServerTemp = server;
             if (server.equals(""))
@@ -89,6 +92,7 @@ public class LotusNotesExport {
             Database db = session.getDatabase(dominoServerTemp, mailfile, false);
             if (db == null)
                 throw new Exception("Couldn't create Lotus Notes Database object.");
+//javax.swing.JOptionPane.showMessageDialog(null, "location 5");
             
             View lnView;
 
@@ -108,12 +112,16 @@ public class LotusNotesExport {
                 lnView = db.createView(calendarViewName,
                         "SELECT (@IsAvailable(CalendarDateTime) & (@Explode(CalendarDateTime) *= @Explode(@TextToTime(@Text(@Adjust(@Today;0;0;-7;0;0;0)) + \"-\" + @Text(@Adjust(@Today;0;0;60;0;0;0))))))");
             }
+//javax.swing.JOptionPane.showMessageDialog(null, "location 6");
 
             ViewNavigator vn = lnView.createViewNav();
             ViewEntry e = vn.getFirstDocument();
+            if (e == null) throw new Exception("No documents were found in the Lotus Notes view.");
+//javax.swing.JOptionPane.showMessageDialog(null, "location 6a");
             // Loop through all entries in the View
             while (e != null)
             {
+//javax.swing.JOptionPane.showMessageDialog(null, "location 6b");
                 Item lnItem;
 
                 lotus.domino.Document doc = e.getDocument();
@@ -124,17 +132,19 @@ public class LotusNotesExport {
                 }
 
                 cal = new NotesCalendarEntry();
+//javax.swing.JOptionPane.showMessageDialog(null, "location 6c");
 
                 lnItem = doc.getFirstItem("Subject");
                 cal.setSubject(lnItem.getText());
 
                 lnItem = doc.getFirstItem("Body");
-                if (lnItem != null)
+                if (!isItemEmpty(lnItem))
                     cal.setBody(lnItem.getText());
+//javax.swing.JOptionPane.showMessageDialog(null, "location 6d");
 
                 // Get the type of Lotus calendar entry
                 lnItem = doc.getFirstItem("Form");
-                if (lnItem != null)
+                if (!isItemEmpty(lnItem))
                     cal.setEntryType(lnItem.getText());
                 else
                     // Assume we have an appointment
@@ -143,21 +153,30 @@ public class LotusNotesExport {
                 if (cal.getEntryType() == NotesCalendarEntry.EntryType.APPOINTMENT)
                 {
                     lnItem = doc.getFirstItem("AppointmentType");
-                    if (lnItem != null)
+                    if (!isItemEmpty(lnItem))
                         cal.setAppointmentType(lnItem.getText());
                 }
+//javax.swing.JOptionPane.showMessageDialog(null, "location 6e");
 
-                cal.setLocation("<no location>");
                 lnItem = doc.getFirstItem("Room");
-                if (lnItem != null)
+                if (!isItemEmpty(lnItem))
                     cal.setLocation(lnItem.getText());
                 lnItem = doc.getFirstItem("Location");
-                if (lnItem != null)
+                if (!isItemEmpty(lnItem))
                     cal.setLocation(lnItem.getText());
 
+                lnItem = doc.getFirstItem("$Alarm");
+                if (!isItemEmpty(lnItem)) {
+                    cal.setAlarm(true);
+                    lnItem = doc.getFirstItem("$AlarmOffset");
+                    if (!isItemEmpty(lnItem))
+                        cal.setAlarmOffsetMins(Integer.parseInt(lnItem.getText()));
+                }
+
                 lnItem = doc.getFirstItem("OrgRepeat");
+//javax.swing.JOptionPane.showMessageDialog(null, "location 6f");
                 // If true, this is a repeating calendar entry
-                if (lnItem != null)
+                if (!isItemEmpty(lnItem))
                 {
                     // Handle Lotus Notes repeating entries by creating multiple Google
                     // entries
@@ -166,22 +185,27 @@ public class LotusNotesExport {
                     Vector endDates = null;
 
                     lnItem = doc.getFirstItem("StartDateTime");
-                    if (lnItem != null)
+                    if (!isItemEmpty(lnItem))
                         startDates = lnItem.getValueDateTimeArray();
 
                     lnItem = doc.getFirstItem("EndDateTime");
-                    if (lnItem != null)
+                    if (!isItemEmpty(lnItem))
                         endDates = lnItem.getValueDateTimeArray();
 
                     if (startDates != null)
                     {
                         for (int i = 0 ; i < startDates.size() ; i++) {
-                            Date startDate = ((DateTime)startDates.get(i)).toJavaDate();
+                            DateTime notesDate = (DateTime)startDates.get(i);
+                            Date startDate = notesDate.toJavaDate();
                             // Only add the entry if it is within our sync date range
                             if (isDateInRange(startDate))
                             {
                                 cal.setStartDateTime(startDate);
-                                cal.setEndDateTime(((DateTime)endDates.get(i)).toJavaDate());
+
+                                if (endDates != null) {
+                                    notesDate = (DateTime)endDates.get(i);
+                                    cal.setEndDateTime(notesDate.toJavaDate());
+                                }
 
                                 calendarEntries.add(cal.clone());
                             }
@@ -191,36 +215,43 @@ public class LotusNotesExport {
                 else
                 {
                     lnItem = doc.getFirstItem("StartDateTime");
-                    if (lnItem != null)
+                    if (!isItemEmpty(lnItem))
                         cal.setStartDateTime(lnItem.getDateTimeValue().toJavaDate());
 
                     // For To Do tasks, the EndDateTime doesn't exist, but there is an EndDate value
                     lnItem = doc.getFirstItem("EndDateTime");
-                    if (lnItem == null)
+                    if (isItemEmpty(lnItem))
                         lnItem = doc.getFirstItem("EndDate");
-                    if (lnItem != null)
+                    if (!isItemEmpty(lnItem))
                         cal.setEndDateTime(lnItem.getDateTimeValue().toJavaDate());
                     
                     // Only add the entry if it is within our sync date range
                     if (isDateInRange(cal.getStartDateTime()))
                         calendarEntries.add(cal);
                 }
+//javax.swing.JOptionPane.showMessageDialog(null, "location 6g");
 
                 e = vn.getNextDocument();
             }
+//javax.swing.JOptionPane.showMessageDialog(null, "location 7");
 
             notesVersion = session.getNotesVersion();
 
             return calendarEntries;
         } catch (Exception ex) {
             String exMsg = "There was a problem reading Lotus Notes calendar entries.";
-            if (cal == null && cal.getSubject() != null) {
-                throw new Exception(exMsg, ex);
+            if (ex instanceof NotesException) {
+                exMsg = exMsg + "\nNotesException ID: " + ((NotesException)ex).id;
+            }
+
+            if (cal != null && cal.getSubject() != null) {
+                throw new Exception(exMsg + "\nThe subject of the entry being processed: " + cal.getSubject(), ex);
             }
             else {
-                throw new Exception(exMsg + "  Subject of entry being processed: " + cal.getSubject(), ex);
+                throw new Exception(exMsg, ex);
             }
         } finally {
+//javax.swing.JOptionPane.showMessageDialog(null, "location 8");
             // If true, the NotesThread failed to init. The LN dlls probably weren't found.
             // NOTE: Make sure this check is the first line in the finally block. When the
             // init fails, some of the finally block may get skipped.
@@ -237,6 +268,7 @@ public class LotusNotesExport {
             }
 
             NotesThread.stermThread();
+//javax.swing.JOptionPane.showMessageDialog(null, "location 9");
         }
     }
 
@@ -303,6 +335,8 @@ public class LotusNotesExport {
                     lnInRangeEntriesWriter.write("  Start Date: " + entry.getStartDateTime() + "\n");
                     lnInRangeEntriesWriter.write("  End Date: " + entry.getEndDateTime() + "\n");
                     lnInRangeEntriesWriter.write("  Location: " + entry.getLocation() + "\n");
+                    lnInRangeEntriesWriter.write("  Alarm: " + entry.getAlarm() + "\n");
+                    lnInRangeEntriesWriter.write("  Alarm Offset Mins: " + entry.getAlarmOffsetMins() + "\n");
                     lnInRangeEntriesWriter.write("  Appointment Type: " + entry.getAppointmentType() + "\n");
                     lnInRangeEntriesWriter.write("  Entry Type: " + entry.getEntryType() + "\n");
                     lnInRangeEntriesWriter.write("\n");
@@ -316,6 +350,28 @@ public class LotusNotesExport {
             }
         }
     }
+
+ 
+    /**
+     * Returns true if the Lotus Notes Item object is empty or null.
+     * @param lnItem The object to inspect.
+     */
+    protected boolean isItemEmpty(Item lnItem) {
+        try {
+            // Lotus Notes Item objects are usually read by name, e.g. lnItem = doc.getFirstItem("Subject").
+            // If the name doesn't exist at all then null is returned.
+            // If the name does exist, but doesn't have a value, then lnItem.getText() returns "".
+            // Check for both conditions.
+            if (lnItem == null || (lnItem != null && lnItem.getText().isEmpty()))
+                return true;            
+        } catch (Exception ex) {
+            // An error means we couldn't read the Item, so consider it empty
+            return true;
+        }
+        
+        return false;
+    }
+
 
     String calendarViewName = "Google Calendar Sync";
     String username, password;

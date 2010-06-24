@@ -37,6 +37,27 @@ public class mainGUI extends javax.swing.JFrame {
     public mainGUI() {
         preInitComponents();
         initComponents();
+
+//!@!
+        jLabel18.setVisible(false);
+        jLabel19.setVisible(false);
+        jTextField_proxyUsername.setVisible(false);
+        jPasswordField_proxyPassword.setVisible(false);
+
+        // Initialize proxy bean
+        proxy = new ProxyConfigBean();
+
+        // Load configuration bean
+        confBean = new ConfigurationBean();
+        confBean.readConfig();
+
+        loadSettings();
+
+        validate();
+        // Check whether the loaded configuration meets our requirements to sync.
+        validateSettings();
+
+        setDateRange();
     }
 
     private void preInitComponents() {
@@ -48,100 +69,140 @@ public class mainGUI extends javax.swing.JFrame {
     }
 
     public static void main(String args[]) {
-        SwingUtilities.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                new mainGUI().setVisible(true);
-            }
-        });
+        if (args.length == 0) {
+              SwingUtilities.invokeLater(new Runnable() {
+                  public void run() {
+                      new mainGUI().setVisible(true);
+                  }
+              });
+        } else if (args[0].equals("-silent")) {
+            // Run in "silent" command-line mode
+            // Use all configuration settings from the property file
+            new mainGUI().runCommandLine();
+            System.exit(exitCode);
+        } else {
+            System.out.println("Usage: mainGUI <options>\n\tIf no options are specified, then the application starts in GUI mode.\n\t-silent  Performs synchronization with existing settings in non-GUI mode.");
+            System.exit(EXIT_INVALID_PARM);
+        }
+    }
+    
+    /**
+     * Runs the synchronization in silent mode using existing configuration settings.
+     */
+    public void runCommandLine(){
+        try {
+            isSilentMode = true;
+            doSync();
+        } catch (Exception ex) {
+            exitCode = EXIT_EXCEPTION;
+            System.out.println("General problem: " + ex.getMessage());
+            ex.printStackTrace();
+        }
     }
 
-    class SyncWorker extends SwingWorker<Void, Void>
+
+    /**
+     * Perform synchronization independent of GUI or non-GUI mode.
+     */
+    public void doSync() throws Exception {
+        long startTime = System.currentTimeMillis();
+
+        proxy.deactivateNow();
+
+        statusClear();
+        if (confBean.getSyncOnStartup() && jButton_Synchronize.isEnabled())
+            statusAppendLine("Automatic sync-on-startup is enabled. Starting sync.");
+        else
+            statusAppendLine("Starting sync");
+        
+        if (jCheckBox_DiagnosticMode.isSelected()) {
+            statusAppendLineDiag("Application Version: " + appVersion);
+            statusAppendLineDiag("OS: " + System.getProperty("os.name") + " " + System.getProperty("os.version"));
+            statusAppendLineDiag("Java: " + System.getProperty("java.version") + " " + System.getProperty("java.vendor"));
+            statusAppendLineDiag("Lotus Username: " + jTextField_LotusNotesUsername.getText());
+            statusAppendLineDiag("Local Server: " + jCheckBox_LotusNotesServerIsLocal.isSelected());
+            statusAppendLineDiag("Server: " + jTextField_LotusNotesServer.getText());
+            statusAppendLineDiag("Mail File: " + jTextField_LotusNotesMailFile.getText());
+            // Don't echo the gmail address for privacy reasons
+            //statusAppendLineDiag("Google Email: " + jTextField_GoogleUsername.getText());
+            statusAppendLineDiag("Use Proxy: " + jCheckBox_enableProxy.isSelected());
+            statusAppendLineDiag("Use SSL: " + jCheckBox_GoogleSSL.isSelected());
+            statusAppendLineDiag("Java Classpath: " + System.getProperty("java.class.path"));
+            statusAppendLineDiag("Java Library Path: " + System.getProperty("java.library.path"));
+        }
+
+        DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+        statusAppendLine("Date range: " + df.format(minStartDate) + " thru " + df.format(maxEndDate));
+
+        // === Get the Lotus Notes calendar data
+        statusAppendStart("Getting Lotus Notes calendar entries");
+        LotusNotesExport lotusNotesService = new LotusNotesExport();
+
+        lotusNotesService.setRequiresAuth(true);
+        lotusNotesService.setCredentials(jTextField_LotusNotesUsername.getText(), new String(jPasswordField_LotusNotesPassword.getPassword()));
+        String lnServer = jTextField_LotusNotesServer.getText();
+        if (jCheckBox_LotusNotesServerIsLocal.isSelected())
+            lnServer = "";
+        lotusNotesService.setServer(lnServer);
+        lotusNotesService.setMailFile(jTextField_LotusNotesMailFile.getText());
+        lotusNotesService.setMinStartDate(minStartDate);
+        lotusNotesService.setMaxEndDate(maxEndDate);
+        lotusNotesService.setDiagnosticMode(jCheckBox_DiagnosticMode.isSelected());
+        
+        List<NotesCalendarEntry> cals = lotusNotesService.getCalendarEntries();
+        statusAppendFinished();
+        statusAppendLine(cals.size() + " entries found within date range");
+        if (jCheckBox_DiagnosticMode.isSelected())
+            statusAppendLineDiag("Lotus Version: " + lotusNotesService.getNotesVersion());
+
+//if (true) {statusAppendLineDiag("DEBUG: Lotus Notes tasks finished. Stopping sync."); return;}
+
+        // === Copy the Lotus Notes data to Google calendar
+
+        if (jCheckBox_enableProxy.isSelected()) {
+            if (! jTextField_proxyUsername.getText().isEmpty()) {
+                proxy.enableProxyAuthentication(true);
+                proxy.setProxyUser(jTextField_proxyUsername.getText());
+                proxy.setProxyPassword(new String(jPasswordField_proxyPassword.getPassword()));
+            }
+            
+            proxy.activateNow();
+        }
+
+        // check whether the user has deselected to use SSL when connecting to google (this is not recommended)
+        boolean GoogleConnectUsingSSL = jCheckBox_GoogleSSL.isSelected();
+        statusAppendStart("Logging into Google");
+        GoogleImport googleService = new GoogleImport(jTextField_GoogleUsername.getText(), new String(jPasswordField_GooglePassword.getPassword()), GoogleConnectUsingSSL);
+        statusAppendFinished();
+//if (true) return;
+        googleService.setSyncDescription(jCheckBox_SyncDescription.isSelected());
+        googleService.setSyncAlarms(jCheckBox_SyncAlarms.isSelected());
+
+        statusAppendStart("Deleting old Google calendar entries");
+        int deleteCount = googleService.deleteCalendarEntries();
+        statusAppendFinished();
+        statusAppendLine(deleteCount + " entries deleted");
+
+        statusAppendStart("Creating new Google calendar entries");
+        int createdCount = 0;
+        createdCount = googleService.createCalendarEntries(cals);
+        statusAppendFinished();
+        statusAppendLine(createdCount + " entries created");
+
+        long elapsedMillis = System.currentTimeMillis() - startTime;    
+        BigDecimal elapsedSecs = new BigDecimal(elapsedMillis / 1000.0).setScale(1, BigDecimal.ROUND_HALF_UP);
+        statusAppendLine("Finished sync (" + elapsedSecs + " s total)");            	
+    }
+   
+
+    class SyncSwingWorker extends SwingWorker<Void, Void>
     {
         @Override
-        protected Void doInBackground() throws Exception
+        protected Void doInBackground()
         {
             try {
                 setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                long startTime = System.currentTimeMillis();
-
-                proxy.deactivateNow();
-
-                statusClear();
-                if (confBean.getSyncOnStartup() && jButton_Synchronize.isEnabled())
-                    statusAppendLine("Automatic sync-on-startup is enabled. Starting sync.");
-                else
-                    statusAppendLine("Starting sync");
-                
-                if (jCheckBox_DiagnosticMode.isSelected()) {
-                    statusAppendLineDiag("Application Version: " + appVersion);
-                    statusAppendLineDiag("OS: " + System.getProperty("os.name") + " " + System.getProperty("os.version"));
-                    statusAppendLineDiag("Java: " + System.getProperty("java.version") + " " + System.getProperty("java.vendor"));
-                    statusAppendLineDiag("Lotus Username: " + jTextField_LotusNotesUsername.getText());
-                    statusAppendLineDiag("Local Server: " + jCheckBox_LotusNotesServerIsLocal.isSelected());
-                    statusAppendLineDiag("Server: " + jTextField_LotusNotesServer.getText());
-                    statusAppendLineDiag("Mail File: " + jTextField_LotusNotesMailFile.getText());
-                    // Don't echo the gmail address for privacy reasons
-                    //statusAppendLineDiag("Google Email: " + jTextField_GoogleUsername.getText());
-                    statusAppendLineDiag("Use Proxy: " + jCheckBox_enableProxy.isSelected());
-                    statusAppendLineDiag("Use SSL: " + jCheckBox_GoogleSSL.isSelected());
-                    statusAppendLineDiag("Java Classpath: " + System.getProperty("java.class.path"));
-                    statusAppendLineDiag("Java Library Path: " + System.getProperty("java.library.path"));
-                }
-
-                DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-                statusAppendLine("Date range: " + df.format(minStartDate) + " thru " + df.format(maxEndDate));
-
-                // === Get the Lotus Notes calendar data
-                statusAppendStart("Getting Lotus Notes calendar entries");
-                LotusNotesExport lotusNotesService = new LotusNotesExport();
-
-                lotusNotesService.setRequiresAuth(true);
-                lotusNotesService.setCredentials(jTextField_LotusNotesUsername.getText(), new String(jPasswordField_LotusNotesPassword.getPassword()));
-                String lnServer = jTextField_LotusNotesServer.getText();
-                if (jCheckBox_LotusNotesServerIsLocal.isSelected())
-                    lnServer = "";
-                lotusNotesService.setServer(lnServer);
-                lotusNotesService.setMailFile(jTextField_LotusNotesMailFile.getText());
-                lotusNotesService.setMinStartDate(minStartDate);
-                lotusNotesService.setMaxEndDate(maxEndDate);
-                lotusNotesService.setDiagnosticMode(jCheckBox_DiagnosticMode.isSelected());
-                
-                List<NotesCalendarEntry> cals = lotusNotesService.getCalendarEntries();
-                statusAppendFinished();
-                statusAppendLine(cals.size() + " entries found within date range");
-                if (jCheckBox_DiagnosticMode.isSelected())
-                    statusAppendLineDiag("Lotus Version: " + lotusNotesService.getNotesVersion());
-
-//if (true) {statusAppendLineDiag("DEBUG: Lotus Notes tasks finished. Stopping sync."); return null;}
-
-                // === Copy the Lotus Notes data to Google calendar
-                if (jCheckBox_enableProxy.isSelected())
-                    proxy.activateNow();
-
-                // check whether the user has deselected to use SSL when connecting to google (this is not recommended)
-                boolean GoogleConnectUsingSSL = jCheckBox_GoogleSSL.isSelected();
-                statusAppendStart("Logging into Google");
-                GoogleImport googleService = new GoogleImport(jTextField_GoogleUsername.getText(), new String(jPasswordField_GooglePassword.getPassword()), GoogleConnectUsingSSL);
-                statusAppendFinished();
-
-                googleService.setSyncDescription(jCheckBox_SyncDescription.isSelected());
-
-                statusAppendStart("Deleting old Google calendar entries");
-                int deleteCount = googleService.deleteCalendarEntries();
-                statusAppendFinished();
-                statusAppendLine(deleteCount + " entries deleted");
-
-                statusAppendStart("Creating new Google calendar entries");
-                int createdCount = 0;
-                createdCount = googleService.createCalendarEntries(cals);
-                statusAppendFinished();
-                statusAppendLine(createdCount + " entries created");
-
-                long elapsedMillis = System.currentTimeMillis() - startTime;    
-                BigDecimal elapsedSecs = new BigDecimal(elapsedMillis / 1000.0).setScale(1, BigDecimal.ROUND_HALF_UP);
-                statusAppendLine("Finished sync (" + elapsedSecs + " s total)");
+                doSync();
             } catch (Exception ex) {
                 statusAppendException("There was an error synchronizing the calendars.", ex);
             }
@@ -170,6 +231,7 @@ public class mainGUI extends javax.swing.JFrame {
         jCheckBox_DiagnosticMode = new javax.swing.JCheckBox();
         jLabel17 = new javax.swing.JLabel();
         jCheckBox_SyncDescription = new javax.swing.JCheckBox();
+        jCheckBox_SyncAlarms = new javax.swing.JCheckBox();
         jPanel1 = new javax.swing.JPanel();
         jCheckBox_GoogleSSL = new javax.swing.JCheckBox();
         jPasswordField_GooglePassword = new javax.swing.JPasswordField();
@@ -193,6 +255,11 @@ public class mainGUI extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         jTextField_proxyPort = new javax.swing.JTextField();
         jCheckBox_LotusNotesServerIsLocal = new javax.swing.JCheckBox();
+        jLabel18 = new javax.swing.JLabel();
+        jTextField_proxyUsername = new javax.swing.JTextField();
+        jLabel19 = new javax.swing.JLabel();
+        jPasswordField_GooglePassword1 = new javax.swing.JPasswordField();
+        jPasswordField_proxyPassword = new javax.swing.JPasswordField();
         jLabel16 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -279,10 +346,15 @@ public class mainGUI extends javax.swing.JFrame {
         jLabel17.setForeground(new java.awt.Color(51, 51, 255));
         jLabel17.setText("Data To Sync");
 
-        jCheckBox_SyncDescription.setText("Description");
+        jCheckBox_SyncDescription.setText("Descriptions");
         jCheckBox_SyncDescription.setMaximumSize(new java.awt.Dimension(100, 23));
         jCheckBox_SyncDescription.setMinimumSize(new java.awt.Dimension(40, 23));
         jCheckBox_SyncDescription.setPreferredSize(new java.awt.Dimension(100, 23));
+
+        jCheckBox_SyncAlarms.setText("Alarms Become Google Reminders");
+        jCheckBox_SyncAlarms.setMaximumSize(new java.awt.Dimension(100, 23));
+        jCheckBox_SyncAlarms.setMinimumSize(new java.awt.Dimension(40, 23));
+        jCheckBox_SyncAlarms.setPreferredSize(new java.awt.Dimension(100, 23));
 
         org.jdesktop.layout.GroupLayout jPanel3Layout = new org.jdesktop.layout.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -293,15 +365,17 @@ public class mainGUI extends javax.swing.JFrame {
                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel3Layout.createSequentialGroup()
                         .add(10, 10, 10)
-                        .add(jCheckBox_SyncDescription, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(jPanel3Layout.createSequentialGroup()
-                        .add(10, 10, 10)
                         .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jCheckBox_DiagnosticMode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jCheckBox_SyncOnStart, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                     .add(jLabel17, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 76, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel11, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 105, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(336, Short.MAX_VALUE))
+                    .add(jLabel11, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 105, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jPanel3Layout.createSequentialGroup()
+                        .add(10, 10, 10)
+                        .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jCheckBox_SyncAlarms, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 194, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jCheckBox_SyncDescription, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(282, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -316,7 +390,9 @@ public class mainGUI extends javax.swing.JFrame {
                 .add(jLabel17, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jCheckBox_SyncDescription, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(316, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jCheckBox_SyncAlarms, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(293, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Sync Settings", jPanel3);
@@ -376,6 +452,11 @@ public class mainGUI extends javax.swing.JFrame {
             }
         });
 
+        jLabel18.setText("Username (optional)");
+
+        jLabel19.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jLabel19.setText("Password (optional)");
+
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -425,15 +506,32 @@ public class mainGUI extends javax.swing.JFrame {
                                 .add(21, 21, 21)
                                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                     .add(jPanel1Layout.createSequentialGroup()
-                                        .add(jLabel7)
-                                        .add(38, 38, 38)
-                                        .add(jTextField_proxyPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 40, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                    .add(jPanel1Layout.createSequentialGroup()
                                         .add(jLabel8)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                        .add(jTextField_proxyIP, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 143, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                                        .add(18, 18, 18)
+                                        .add(jTextField_proxyIP, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 143, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                    .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                                        .add(jPanel1Layout.createSequentialGroup()
+                                            .add(jLabel19)
+                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                                            .add(jPasswordField_proxyPassword, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 143, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                        .add(jPanel1Layout.createSequentialGroup()
+                                            .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                                .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
+                                                    .add(jLabel18)
+                                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED))
+                                                .add(jPanel1Layout.createSequentialGroup()
+                                                    .add(jLabel7)
+                                                    .add(47, 47, 47)))
+                                            .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                                .add(jTextField_proxyPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 40, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                .add(jTextField_proxyUsername, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 143, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))))
                             .add(jCheckBox_GoogleSSL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 453, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
+                    .addContainerGap(839, Short.MAX_VALUE)
+                    .add(jPasswordField_GooglePassword1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 104, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(8, 8, 8)))
         );
 
         jPanel1Layout.linkSize(new java.awt.Component[] {jLabel12, jLabel13, jLabel14, jLabel15, jLabel3}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
@@ -488,7 +586,20 @@ public class mainGUI extends javax.swing.JFrame {
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel7)
                     .add(jTextField_proxyPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(81, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel18)
+                    .add(jTextField_proxyUsername, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel19)
+                    .add(jPasswordField_proxyPassword, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(29, Short.MAX_VALUE))
+            .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(jPanel1Layout.createSequentialGroup()
+                    .add(213, 213, 213)
+                    .add(jPasswordField_GooglePassword1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(212, Short.MAX_VALUE)))
         );
 
         jTabbedPane1.addTab("Connection Settings", jPanel1);
@@ -533,7 +644,7 @@ public class mainGUI extends javax.swing.JFrame {
 }//GEN-LAST:event_jButton_CancelActionPerformed
 
     private void jButton_SynchronizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_SynchronizeActionPerformed
-        syncNow();
+        new SyncSwingWorker().execute();
 }//GEN-LAST:event_jButton_SynchronizeActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
@@ -543,23 +654,8 @@ public class mainGUI extends javax.swing.JFrame {
 
         this.setTitle(this.getTitle() + " v" + appVersion);
 
-        // Initialize proxy bean
-        proxy = new ProxyConfigBean();
-
-        // Load configuration bean
-        confBean = new ConfigurationBean();
-        confBean.readConfig();
-
-        loadSettings();
-
-        validate();
-        // Check whether the loaded configuration meets our requirements to sync.
-        validateSettings();
-
-        setDateRange();
-
         if (confBean.getSyncOnStartup() && jButton_Synchronize.isEnabled()) {
-            syncNow();
+            new SyncSwingWorker().execute();
         }
     }//GEN-LAST:event_formWindowOpened
 
@@ -613,6 +709,7 @@ public class mainGUI extends javax.swing.JFrame {
         confBean.setSyncOnStartup(jCheckBox_SyncOnStart.isSelected());
         confBean.setDiagnosticMode(jCheckBox_DiagnosticMode.isSelected());
         confBean.setSyncDescription(jCheckBox_SyncDescription.isSelected());
+        confBean.setSyncAlarms(jCheckBox_SyncAlarms.isSelected());
 
         //save configuration to file
         confBean.writeConfig();
@@ -635,6 +732,7 @@ public class mainGUI extends javax.swing.JFrame {
             jCheckBox_SyncOnStart.setSelected(confBean.getSyncOnStartup());
             jCheckBox_DiagnosticMode.setSelected(confBean.getDiagnosticMode());
             jCheckBox_SyncDescription.setSelected(confBean.getSyncDescription());
+            jCheckBox_SyncAlarms.setSelected(confBean.getSyncAlarms());
 
             //configure proxy settings from the configuration
             proxy.setProxyHost(confBean.getGoogleProxyIP());
@@ -642,18 +740,6 @@ public class mainGUI extends javax.swing.JFrame {
             proxy.setEnabled(confBean.getGoogleEnableProxy());
         } catch (Exception ex) {
             statusAppendException("Unable to read settings from the config file.", ex);
-        }
-    }
-
-
-    /**
-     * Synchronize the Lotus Notes calendar with the Google calendar.
-     */
-    public void syncNow() {
-        try {
-            new SyncWorker().execute();
-        } catch (Exception ex) {
-            statusAppendException("There was a problem starting the sync worker thread.", ex);
         }
     }
 
@@ -682,7 +768,7 @@ public class mainGUI extends javax.swing.JFrame {
      * Clears the status text area.
      */
     protected void statusClear() {
-        jTextArea_Status.setText("");
+    	if (!isSilentMode) jTextArea_Status.setText("");
     }
             
     /**
@@ -690,7 +776,10 @@ public class mainGUI extends javax.swing.JFrame {
      * @param text - The text to add.
      */
     protected void statusAppendLine(String text) {
-        jTextArea_Status.append(text + "\n");
+    	if (isSilentMode) 
+    		System.out.println(text);
+    	else 
+    		jTextArea_Status.append(text + "\n");
     }
 
     /**
@@ -698,20 +787,22 @@ public class mainGUI extends javax.swing.JFrame {
      * @param text - The text to add.
      */
     protected void statusAppendLineDiag(String text) {
-        jTextArea_Status.append("  " + text + "\n");
+    	statusAppendLine("  " + text);
     }
 
     protected void statusAppendStart(String text) {
         statusStartTime = System.currentTimeMillis();
-
-        jTextArea_Status.append(text);
+        if (isSilentMode) 
+        	System.out.print(text);
+        else
+        	jTextArea_Status.append(text);
     }
 
     protected void statusAppendFinished() {
         // Convert milliseonds to seconds and round to the tenths place
         long elapsedMillis = System.currentTimeMillis() - statusStartTime;
         BigDecimal elapsedSecs = new BigDecimal(elapsedMillis / 1000.0).setScale(1, BigDecimal.ROUND_HALF_UP);
-        jTextArea_Status.append(" (" + elapsedSecs.toString() + " s)\n");
+        statusAppendLine(" (" + elapsedSecs.toString() + " s)");
     }
 
     protected void statusAppendException(String msg, Exception ex) {
@@ -729,12 +820,19 @@ public class mainGUI extends javax.swing.JFrame {
     ConfigurationBean confBean;
     private boolean isUrlValid = false;
     long statusStartTime = 0;
-    String appVersion = "1.3";
+    // An exit code of 0 is success. All other values are failure.
+    String appVersion = "1.4";
+    private boolean isSilentMode = false;
 
     // Our min and max dates for entries we will process.
     // If the calendar entry is outside this range, it is ignored.
     Date minStartDate = null;
     Date maxEndDate = null;
+
+    static final int EXIT_SUCCESS = 0;
+    static final int EXIT_INVALID_PARM = 1;
+    static final int EXIT_EXCEPTION = 2;
+    static int exitCode = EXIT_SUCCESS;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton_Cancel;
@@ -742,6 +840,7 @@ public class mainGUI extends javax.swing.JFrame {
     private javax.swing.JCheckBox jCheckBox_DiagnosticMode;
     private javax.swing.JCheckBox jCheckBox_GoogleSSL;
     private javax.swing.JCheckBox jCheckBox_LotusNotesServerIsLocal;
+    private javax.swing.JCheckBox jCheckBox_SyncAlarms;
     private javax.swing.JCheckBox jCheckBox_SyncDescription;
     private javax.swing.JCheckBox jCheckBox_SyncOnStart;
     private javax.swing.JCheckBox jCheckBox_enableProxy;
@@ -753,6 +852,8 @@ public class mainGUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
+    private javax.swing.JLabel jLabel18;
+    private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -764,7 +865,9 @@ public class mainGUI extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPasswordField jPasswordField_GooglePassword;
+    private javax.swing.JPasswordField jPasswordField_GooglePassword1;
     private javax.swing.JPasswordField jPasswordField_LotusNotesPassword;
+    private javax.swing.JPasswordField jPasswordField_proxyPassword;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextArea jTextArea_Status;
@@ -774,5 +877,6 @@ public class mainGUI extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField_LotusNotesUsername;
     private javax.swing.JTextField jTextField_proxyIP;
     private javax.swing.JTextField jTextField_proxyPort;
+    private javax.swing.JTextField jTextField_proxyUsername;
     // End of variables declaration//GEN-END:variables
 }

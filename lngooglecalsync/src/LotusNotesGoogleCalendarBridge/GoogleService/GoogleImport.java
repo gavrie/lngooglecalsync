@@ -9,6 +9,8 @@ import com.google.gdata.data.batch.BatchUtils;
 import com.google.gdata.data.batch.BatchStatus;
 import com.google.gdata.data.calendar.*;
 import com.google.gdata.data.calendar.CalendarEventEntry;
+import com.google.gdata.data.extensions.Reminder;
+import com.google.gdata.data.extensions.Reminder.Method;
 import com.google.gdata.data.extensions.*;
 import com.google.gdata.util.*;
 import java.io.*;
@@ -269,9 +271,12 @@ public class GoogleImport {
             if (syncDescription && cal.getBody() != null)
                 event.setContent(new PlainTextConstruct(cal.getBody()));
 
-            Where location = new Where();
-            location.setValueString(cal.getLocation());
-            event.addLocation(location);
+            String locationStr = cal.getLocation();
+            if (locationStr != null && !locationStr.isEmpty()) {
+                Where location = new Where();
+                location.setValueString(locationStr);
+                event.addLocation(location);
+            }
 
             DateTime startTime, endTime;
             if (cal.getEntryType() == NotesCalendarEntry.EntryType.TASK ||
@@ -309,6 +314,23 @@ public class GoogleImport {
             eventTimes.setEndTime(endTime);
             event.addTime(eventTimes);
 
+            if (syncAlarms && cal.getAlarm()) {
+                Reminder reminder = new Reminder();
+
+                // Lotus Notes alarms can be before (negative value) or after (positive value)
+                // the event.  Google only supports alarms before the event and the number
+                // is then positive.
+                // So, convert to Google as follows: alarms after (positive) are made 0,
+                // alarms before (negative) are made positive.
+                int alarmMins = 0;
+                if (cal.getAlarmOffsetMins() < 0)
+                    alarmMins = Math.abs(cal.getAlarmOffsetMins());
+
+                reminder.setMinutes(alarmMins);
+                reminder.setMethod(Method.ALERT);
+                event.getReminder().add(reminder);
+            }
+
             retryCount = 0;
             do {
                 try {
@@ -330,6 +352,10 @@ public class GoogleImport {
         syncDescription = value;
     }
 
+    public void setSyncAlarms(boolean value) {
+        syncAlarms = value;
+    }
+
 
     URL mainCalendarFeedUrl = null;
     URL privateCalendarFeedUrl = null;
@@ -337,6 +363,7 @@ public class GoogleImport {
     CalendarService service;
 
     boolean syncDescription = false;
+    boolean syncAlarms = false;
 
     String destinationCalendarName = "Lotus Notes";
     String DEST_CALENDAR_COLOR = "#F2A640";
