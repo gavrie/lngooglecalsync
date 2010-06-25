@@ -114,6 +114,14 @@ public class NotesCalendarEntry {
         return getGoogleDateString(startDateTime);
     }
 
+    /**
+     * Return the start date (without time) in Google format.
+     * @param addDays Add (or subtract) this many days from the returned value.
+     */
+    public String getStartDateGoogle(int addDays) throws ParseException {
+        return getGoogleDateString(startDateTime, addDays);
+    }
+
     public Date getEndDateTime() {
         return endDateTime;
     }
@@ -127,11 +135,7 @@ public class NotesCalendarEntry {
      * @param addDays Add (or subtract) this many days from the returned value.
      */
     public String getEndDateGoogle(int addDays) throws ParseException {
-        Calendar endDateTimeTemp = Calendar.getInstance();
-        endDateTimeTemp.setTime(endDateTime);
-        endDateTimeTemp.add(Calendar.DATE, addDays);
-
-        return getGoogleDateString(endDateTimeTemp.getTime());
+        return getGoogleDateString(endDateTime, addDays);
     }
 
     public String getSubject() {
@@ -174,18 +178,34 @@ public class NotesCalendarEntry {
 
 
     /**
+     * This method calls the overloaded version of this method, and passes
+     * zero in for addDays.
+     */
+    private String getGoogleDateString(Date sourceDate) throws ParseException {
+        return getGoogleDateString(sourceDate, 0);
+    }
+
+    /**
      * Convert from Java Date object to Google string format (YYYY-MM-DD) with no
      * time portion.
      * Note: Google format is the same as the XML standard xs:DateTime format.
      * @param sourceDate The source datetime.
+     * @param addDays Add (or subtract) this many days from the returned value.
      * @return The date string in Google format.
      */
-    private String getGoogleDateString(Date sourceDate) throws ParseException {
+    private String getGoogleDateString(Date sourceDate, int addDays) throws ParseException {
+        // Add days to the date
+        Calendar dateTimeTemp = Calendar.getInstance();
+        dateTimeTemp.setTime(sourceDate);
+        dateTimeTemp.add(Calendar.DATE, addDays);
+
+        // Convert to Google format
         DateFormat dfGoogle = new SimpleDateFormat("yyyy-MM-dd");
-        String googleDateFormat = dfGoogle.format(sourceDate);
+        String googleDateFormat = dfGoogle.format(dateTimeTemp.getTime());
 
         return googleDateFormat;
     }
+
 
     // The Lotus Notes type for this calendar entry
     public enum EntryType { NONE, APPOINTMENT, TASK };

@@ -41,19 +41,24 @@ Do While oJavawExec.Status = 0
 	WScript.Sleep 100 
 Loop 
 
+Dim oFileSystem, oOutputFile
+Set oFileSystem = CreateObject("Scripting.fileSystemObject")
+Set oOutputFile = oFileSystem.CreateTextFile("icalbridge.log", TRUE)
+
+if silentMode then
+	' Write stdout and stderr to the log file
+	oOutputFile.WriteLine(oJavawExec.StdOut.ReadAll)
+	oOutputFile.WriteLine(oJavawExec.StdErr.ReadAll)
+else
+	oOutputFile.WriteLine("Finished running in GUI mode.")
+end if
+oOutputFile.Close	
+
 if oJavawExec.ExitCode > 0 then
 	if silentMode then
-		Dim oFileSystem, oOutputFile
-
-		Set oFileSystem = CreateObject("Scripting.fileSystemObject")
-		Set oOutputFile = oFileSystem.CreateTextFile("icalbridge.log", TRUE)
-
-		' Write stdout and stderr to a log file
-		oOutputFile.WriteLine(oJavawExec.StdOut.ReadAll)
-		oOutputFile.WriteLine(oJavawExec.StdErr.ReadAll)
-		oOutputFile.Close
-
-		Set oFileSystem = Nothing
+		MsgBox "There was an error running Lotus Notes Google Calender Sync in silent mode.  " & _
+			"To get more information, run the application in GUI mode or see icalbridge.log.", _
+			vbExclamation, "Lotus Notes Google Calender Sync Error"
 	else 
 		set oJavaExec = oShell.Exec("javaw -version")
 		Do While oJavaExec.Status = 0 
@@ -64,6 +69,6 @@ if oJavawExec.ExitCode > 0 then
 			"If no error is shown, then an invalid command-line parameter was probably specified." & _
 			vbCrLf & vbCrLf & oJavawExec.StdErr.ReadAll & vbCrLf & vbCrLf & vbCrLf & _
 			"Below is the version of Java being used. Make sure the version is 1.6 or greater:" & vbCrLf & oJavaExec.StdErr.ReadAll, _
-			vbExclamation, "Startup Error"
+			vbExclamation, "Lotus Notes Google Calender Sync Startup Error"
 	end if
 end if

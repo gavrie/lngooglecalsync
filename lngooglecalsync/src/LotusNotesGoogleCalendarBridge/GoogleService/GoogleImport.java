@@ -287,14 +287,22 @@ public class GoogleImport {
                 startTime = DateTime.parseDate(cal.getStartDateGoogle());
                 // IMPORTANT: For Google to properly create an all-day event, we must add
                 // one day to the end date
-                endTime = DateTime.parseDate(cal.getEndDateGoogle(1));
+                if (cal.getEndDateTime() == null)
+                    // Use start date since the end date is null
+                    endTime = DateTime.parseDate(cal.getStartDateGoogle(1));
+                else
+                    endTime = DateTime.parseDate(cal.getEndDateGoogle(1));
             }
             else if (cal.getAppointmentType() == NotesCalendarEntry.AppointmentType.APPOINTMENT ||
                     cal.getAppointmentType() == NotesCalendarEntry.AppointmentType.MEETING)
             {
                 // Create a standard event
                 startTime = DateTime.parseDateTime(cal.getStartDateTimeGoogle());
-                endTime = DateTime.parseDateTime(cal.getEndDateTimeGoogle());
+                if (cal.getEndDateTime() == null)
+                    // Use start date since the end date is null
+                    endTime = DateTime.parseDateTime(cal.getStartDateTimeGoogle());
+                else
+                    endTime = DateTime.parseDateTime(cal.getEndDateTimeGoogle());
             }
             else if (cal.getAppointmentType() == NotesCalendarEntry.AppointmentType.REMINDER)
             {

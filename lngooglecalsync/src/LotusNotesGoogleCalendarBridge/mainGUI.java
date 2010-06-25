@@ -116,17 +116,19 @@ public class mainGUI extends javax.swing.JFrame {
             statusAppendLine("Starting sync");
         
         if (jCheckBox_DiagnosticMode.isSelected()) {
+            // Don't echo the commented out values for privacy reasons
             statusAppendLineDiag("Application Version: " + appVersion);
             statusAppendLineDiag("OS: " + System.getProperty("os.name") + " " + System.getProperty("os.version"));
             statusAppendLineDiag("Java: " + System.getProperty("java.version") + " " + System.getProperty("java.vendor"));
-            statusAppendLineDiag("Lotus Username: " + jTextField_LotusNotesUsername.getText());
+            //statusAppendLineDiag("Lotus Username: " + jTextField_LotusNotesUsername.getText());
             statusAppendLineDiag("Local Server: " + jCheckBox_LotusNotesServerIsLocal.isSelected());
-            statusAppendLineDiag("Server: " + jTextField_LotusNotesServer.getText());
-            statusAppendLineDiag("Mail File: " + jTextField_LotusNotesMailFile.getText());
-            // Don't echo the gmail address for privacy reasons
+            //statusAppendLineDiag("Server: " + jTextField_LotusNotesServer.getText());
+            //statusAppendLineDiag("Mail File: " + jTextField_LotusNotesMailFile.getText());
             //statusAppendLineDiag("Google Email: " + jTextField_GoogleUsername.getText());
             statusAppendLineDiag("Use Proxy: " + jCheckBox_enableProxy.isSelected());
             statusAppendLineDiag("Use SSL: " + jCheckBox_GoogleSSL.isSelected());
+            statusAppendLineDiag("Sync Description: " + jCheckBox_SyncDescription.isSelected());
+            statusAppendLineDiag("Sync Alarms: " + jCheckBox_SyncAlarms.isSelected());
             statusAppendLineDiag("Java Classpath: " + System.getProperty("java.class.path"));
             statusAppendLineDiag("Java Library Path: " + System.getProperty("java.library.path"));
         }
@@ -821,7 +823,7 @@ public class mainGUI extends javax.swing.JFrame {
     private boolean isUrlValid = false;
     long statusStartTime = 0;
     // An exit code of 0 is success. All other values are failure.
-    String appVersion = "1.4";
+    final String appVersion = "1.4.1";
     private boolean isSilentMode = false;
 
     // Our min and max dates for entries we will process.
