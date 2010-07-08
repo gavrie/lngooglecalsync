@@ -16,6 +16,8 @@ xmlns="http://www.w3.org/TR/REC-html40">
  <w:WordDocument>
   <w:View>Normal</w:View>
   <w:Zoom>BestFit</w:Zoom>
+  <w:SpellingState>Clean</w:SpellingState>
+  <w:GrammarState>Clean</w:GrammarState>
   <w:TrackMoves>false</w:TrackMoves>
   <w:TrackFormatting/>
   <w:ValidateAgainstSchemas/>
@@ -575,7 +577,8 @@ p.MsoCaption, li.MsoCaption, div.MsoCaption
 	mso-fareast-theme-font:minor-fareast;
 	font-weight:bold;}
 a:link, span.MsoHyperlink
-	{mso-style-priority:99;
+	{mso-style-noshow:yes;
+	mso-style-priority:99;
 	color:blue;
 	text-decoration:underline;
 	text-underline:single;}
@@ -888,6 +891,12 @@ span.emailstyle35
 span.btx
 	{mso-style-name:btx;
 	mso-style-unhide:no;}
+span.SpellE
+	{mso-style-name:"";
+	mso-spl-e:yes;}
+span.GramE
+	{mso-style-name:"";
+	mso-gram-e:yes;}
 .MsoChpDefault
 	{mso-style-type:export-only;
 	mso-default-props:yes;
@@ -1194,7 +1203,7 @@ table.MsoTableGrid
 	font-family:"Times New Roman","serif";}
 </style>
 <![endif]--><!--[if gte mso 9]><xml>
- <o:shapedefaults v:ext="edit" spidmax="33794"/>
+ <o:shapedefaults v:ext="edit" spidmax="35842"/>
 </xml><![endif]--><!--[if gte mso 9]><xml>
  <o:shapelayout v:ext="edit">
   <o:idmap v:ext="edit" data="1"/>
@@ -1235,10 +1244,11 @@ this mode, these exit codes can be returned:</p>
 
 <p class=MsoNormal style='text-indent:.5in'>0 = Success</p>
 
-<p class=MsoNormal style='text-indent:.5in'>1 = An invalid parameter was
-specified</p>
+<p class=MsoNormal style='text-indent:.5in'>1 = <span class=GramE>An</span>
+invalid parameter was specified</p>
 
-<p class=MsoNormal style='text-indent:.5in'>2 = An exception occurred</p>
+<p class=MsoNormal style='text-indent:.5in'>2 = <span class=GramE>An</span>
+exception occurred</p>
 
 <p class=MsoNormal>In command-line mode, an output file named icalbridge.log is
 created.</p>
@@ -1250,22 +1260,23 @@ created.</p>
 <p class=MsoNormal>Double click run_windows.vbs to run the application in GUI
 mode.</p>
 
-<p class=MsoNormal>Use “run_windows.vbs -silent” to run from a command line.
-See the Troubleshooting section for how to setup a scheduled task to run the
-sync every hour.</p>
+<p class=MsoNormal><span class=GramE>Use “run_windows.vbs -silent” to run from
+a command line.</span> See the Troubleshooting section for how to setup a
+scheduled task to run the sync every hour.</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
-<p class=MsoNormal><a name="_Hlk262207466"><b>Running Under Linux and </b></a><b>OS
-X</b></p>
+<p class=MsoNormal><a name="_Hlk262207466"><b>Running </b></a><span
+class=GramE><span style='mso-bookmark:_Hlk262207466'><b>Under</b></span></span><span
+style='mso-bookmark:_Hlk262207466'><b> Linux and </b></span><b>OS X</b></p>
 
-<p class=MsoNormal>Use the script run_unix to run the application under Linux
-and OS X in GUI mode. There are some notes in the script to help you diagnose
-problems.</p>
+<p class=MsoNormal>Use the script <span class=SpellE>run_unix</span> to run the
+application under Linux and OS X in GUI mode. There are some notes in the
+script to help you diagnose problems.</p>
 
 <p class=MsoNormal>To run in command-line mode, create your own script that
-uses the “-silent” switch. If you enhance the run_unix script, please post it
-in the forum.</p>
+uses the “-silent” switch. If you enhance the <span class=SpellE>run_unix</span>
+script, please post it in the forum.</p>
 
 <p class=MsoNormal>&nbsp;</p>
 
@@ -1287,39 +1298,41 @@ the Sync Settings tab.</a></p>
 
 <p class=MsoNormal><a name="_Hlk263943050"><b>General Settings</b></a></p>
 
-<p class=MsoNormal><span style='mso-bookmark:_Hlk263943050'>Synchronize On
-Startup — Check this box to start a sync when the application opens.</span></p>
+<p class=MsoNormal><span style='mso-bookmark:_Hlk263943050'>Synchronize <span
+class=GramE>On</span> Startup — Check this box to start a sync when the
+application opens.</span></p>
 
 <span style='mso-bookmark:_Hlk263943050'></span>
 
-<p class=MsoNormal>Diagnostic Mode — When checked, the OS version, Java
-version, Lotus Notes version, and some settings are echoed in the status area.
-Also, two diagnostic files will be created in the same directory as the jar.
-LotusNotesFoundEntries.txt lists info on all the Lotus Notes calendar entries
-found. LotusNotesInRangeEntries.txt lists all the calendar entries that are in
-the date range.</p>
+<p class=MsoNormal>Diagnostic Mode — <span class=GramE>When</span> checked, the
+OS version, Java version, Lotus Notes version, and some settings are echoed in
+the status area. Also, two diagnostic files will be created in the same
+directory as the jar. LotusNotesFoundEntries.txt lists info on all the Lotus
+Notes calendar entries found. LotusNotesInRangeEntries.txt lists all the
+calendar entries that are in the date range.</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
-<p class=MsoNormal><b>Data To Sync</b></p>
+<p class=MsoNormal><b>Data <span class=GramE>To</span> Sync</b></p>
 
-<p class=MsoNormal><a name="_Hlk264971702">Descriptions — Check this box to
-sync the Lotus Notes description to Google. </a><a name="_Hlk264294268"><span
-style='mso-bookmark:_Hlk264971702'>Lotus descriptions can contain formatting
-like colored text and underlining. However, Google descriptions can only
-contain plain text, so all formatting is removed.</span></a><span
-style='mso-bookmark:_Hlk264971702'></span></p>
+<p class=MsoNormal><a name="_Hlk264971702">Descriptions — </a><span
+class=GramE><span style='mso-bookmark:_Hlk264971702'>Check</span></span><span
+style='mso-bookmark:_Hlk264971702'> this box to sync the Lotus Notes
+description to Google. <a name="_Hlk264294268">Lotus descriptions can contain
+formatting like colored text and underlining. However, Google descriptions can
+only contain plain text, so all formatting is removed.</a></span></p>
 
 <span style='mso-bookmark:_Hlk264971702'></span>
 
-<p class=MsoNormal>Alarms Become Google Reminders — Check this box to have
-Lotus Notes alarms become Google reminders. Only Lotus entries have alarms set
-will get Google reminders. Only a Google Pop-up reminder is created (not an SMS
-or Email reminder). If the Google calendar is sync’d with a phone, Pop-up
-reminders should pop-up on the phone in a way you’d expect. Note: Lotus Notes
-alarms can go off before (default) or after the event. It is unlikely anyone
-uses the “after” option. Since Google only supports alarms before the event,
-any “after” events are created with an offset of 0 minutes in Google.</p>
+<p class=MsoNormal>Alarms Become Google Reminders — <span class=GramE>Check</span>
+this box to have Lotus Notes alarms become Google reminders. Only Lotus entries
+have alarms set will get Google reminders. Only a Google Pop-up reminder is
+created (not an SMS or Email reminder). If the Google calendar is <span
+class=SpellE>sync’d</span> with a phone, Pop-up reminders should pop-up on the
+phone in a way you’d expect. Note: Lotus Notes alarms can go off before
+(default) or after the event. It is unlikely anyone uses the “after” option.
+Since Google only supports alarms before the event, any “after” events are
+created with an offset of 0 minutes in Google.</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
@@ -1332,19 +1345,19 @@ tab.</p>
 
 <p class=MsoNormal><b>Lotus Notes Settings</b></p>
 
-<p class=MsoNormal>Server — The name of the Domino server to access, e.g.
-Acme/MailServer.</p>
+<p class=MsoNormal>Server — <span class=GramE>The</span> name of the Domino
+server to access, e.g. Acme/<span class=SpellE>MailServer</span>.</p>
 
 <p class=MsoNormal>Local Server — Check this box to access a local mail file. </p>
 
-<p class=MsoNormal>Mail File — The name of the mail file to open, e.g.
-mail/johnsmith.nsf.</p>
+<p class=MsoNormal>Mail File — <span class=GramE>The</span> name of the mail
+file to open, e.g. mail/johnsmith.nsf.</p>
 
-<p class=MsoNormal>Username — The name you use to login to the Lotus Notes
-client.</p>
+<p class=MsoNormal>Username — <span class=GramE>The</span> name you use to login
+to the Lotus Notes client.</p>
 
-<p class=MsoNormal>Password — The password you use to login to the Lotus Notes
-client.</p>
+<p class=MsoNormal>Password — <span class=GramE>The</span> password you use to
+login to the Lotus Notes client.</p>
 
 <p class=MsoNormal>&nbsp;</p>
 
@@ -1380,7 +1393,8 @@ Server and Mail File names:</p>
 <p class=MsoNormal>Email Address — Your Gmail address, e.g.
 johnsmith@gmail.com. </p>
 
-<p class=MsoNormal>Password — The password you use to login to Gmail/Google.</p>
+<p class=MsoNormal>Password — <span class=GramE>The</span> password you use to
+login to Gmail/Google.</p>
 
 <p class=MsoNormal>&nbsp;</p>
 
@@ -1418,9 +1432,10 @@ href="http://www.gnu.org/licenses/gpl.html">http://www.gnu.org/licenses/gpl.html
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
 <p class=MsoNormal>The application uses Notes.jar, the Java interface file
-installed with the Lotus Notes client. Notes.jar references some .dll files
-under Windows, .so files under Linux, and .dylib files under OS X. The
-run_windows.vbs and run_unix scripts try to make sure Notes.jar and the
+installed with the Lotus Notes client. Notes.jar references some .<span
+class=SpellE>dll</span> files under Windows, .so files under Linux, and .<span
+class=SpellE>dylib</span> files under OS X. The run_windows.vbs and <span
+class=SpellE>run_unix</span> scripts try to make sure Notes.jar and the
 supporting libraries can be found.</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
@@ -1518,8 +1533,8 @@ checkbox is selected)</p>
 
 <p class=MsoNormal>Only a certain date range of Lotus Notes entries are
 synchronized to Google.&nbsp; The Lotus Notes entry must be between (today - 7
-days) and (today + 60 days).&nbsp; Entries before or after this range won't be
-copied to Google.</p>
+days) and (today + 60 days).&nbsp; <span class=GramE>Entries before or after
+this range won't be copied to Google.</span></p>
 
 <p class=MsoNormal>&nbsp;</p>
 
@@ -1592,7 +1607,8 @@ Next.</p>
 <p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in;mso-list:l2 level1 lfo3;
 tab-stops:list .5in'><![if !supportLists]><span style='mso-fareast-font-family:
 Arial'><span style='mso-list:Ignore'>7.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]>Enter a name for the task, like LNCalendarSync.</p>
+</span></span></span><![endif]>Enter a name for the task, like <span
+class=SpellE>LNCalendarSync</span>.</p>
 
 <p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in;mso-list:l2 level1 lfo3;
 tab-stops:list .5in'><![if !supportLists]><span style='mso-fareast-font-family:
@@ -1607,8 +1623,8 @@ Arial'><span style='mso-list:Ignore'>9.<span style='font:7.0pt "Times New Roman"
 <p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in;mso-list:l2 level1 lfo3;
 tab-stops:list .5in'><![if !supportLists]><span style='mso-fareast-font-family:
 Arial'><span style='mso-list:Ignore'>10.<span style='font:7.0pt "Times New Roman"'>&nbsp;
-</span></span></span><![endif]>Check Monday, Tuesday, Wednesday, Thursday,
-Friday. Click Next.</p>
+</span></span></span><![endif]>Check Monday, Tuesday, Wednesday, Thursday, <span
+class=GramE>Friday</span>. Click Next.</p>
 
 <p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in;mso-list:l2 level1 lfo3;
 tab-stops:list .5in'><![if !supportLists]><span style='mso-fareast-font-family:
@@ -1625,9 +1641,11 @@ Finish.</p>
 <p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in;mso-list:l2 level1 lfo3;
 tab-stops:list .5in'><![if !supportLists]><span style='mso-fareast-font-family:
 Arial'><span style='mso-list:Ignore'>13.<span style='font:7.0pt "Times New Roman"'>&nbsp;
-</span></span></span><![endif]>In the Run box, add “wscript” to the front and
-“-silent” to the end. So, the line will look something like this:<br>
-wscript “C:\Program Files\LNCalSync\run_windows.vbs” -silent</p>
+</span></span></span><![endif]>In the Run box, add “<span class=SpellE>wscript</span>”
+to the front and “-silent” to the end. So, the line will look something like
+this:<br>
+<span class=SpellE>wscript</span> “C:\Program Files\<span class=SpellE>LNCalSync</span>\run_windows.vbs”
+-silent</p>
 
 <p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in;mso-list:l2 level1 lfo3;
 tab-stops:list .5in'><![if !supportLists]><span style='mso-fareast-font-family:
@@ -1647,7 +1665,8 @@ Arial'><span style='mso-list:Ignore'>16.<span style='font:7.0pt "Times New Roman
 <p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in;mso-list:l2 level1 lfo3;
 tab-stops:list .5in'><![if !supportLists]><span style='mso-fareast-font-family:
 Arial'><span style='mso-list:Ignore'>17.<span style='font:7.0pt "Times New Roman"'>&nbsp;
-</span></span></span><![endif]>Set Every to be 1 hours.</p>
+</span></span></span><![endif]>Set <span class=GramE>Every</span> to be 1
+hours.</p>
 
 <p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in;mso-list:l2 level1 lfo3;
 tab-stops:list .5in'><![if !supportLists]><span style='mso-fareast-font-family:
@@ -1681,12 +1700,18 @@ same directory as run_windows.vbs.</p>
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
 <p class=MsoNormal><a name="_Hlk266305084"><b style='mso-bidi-font-weight:normal'>I
-get the error “NotesException: Could not open the ID file”.<o:p></o:p></b></a></p>
+get the error “</b></a><span class=SpellE><span style='mso-bookmark:_Hlk266305084'><b
+style='mso-bidi-font-weight:normal'>NotesException</b></span></span><span
+style='mso-bookmark:_Hlk266305084'><b style='mso-bidi-font-weight:normal'>:
+Could not open the ID file”.<o:p></o:p></b></span></p>
 
 <span style='mso-bookmark:_Hlk266305084'></span>
 
 <p class=MsoNormal><a name="_Hlk266305133"><b style='mso-bidi-font-weight:normal'>I
-get a “dll/so/dylib” error.<o:p></o:p></b></a></p>
+get a “</b></a><span class=SpellE><span style='mso-bookmark:_Hlk266305133'><b
+style='mso-bidi-font-weight:normal'>dll</b></span></span><span
+style='mso-bookmark:_Hlk266305133'><b style='mso-bidi-font-weight:normal'>/so/<span
+class=SpellE>dylib</span>” error.<o:p></o:p></b></span></p>
 
 <p class=MsoNormal><span style='mso-bookmark:_Hlk266305133'>One user found the
 ID file problem occurred because they had more than one Notes.ini file. Once
@@ -1694,8 +1719,8 @@ they remove the incorrect Notes.ini, the application starting working.</span></p
 
 <span style='mso-bookmark:_Hlk266305133'></span>
 
-<p class=MsoNormal>Run the separate utility named LNConnectivityTest to help
-diagnose any of these problems. Download LNConnectivityTest.zip from:</p>
+<p class=MsoNormal>Run the separate utility named <span class=SpellE>LNConnectivityTest</span>
+to help diagnose any of these problems. Download LNConnectivityTest.zip from:</p>
 
 <p class=MsoNormal><a
 href="http://lngooglecalsync.svn.sourceforge.net/viewvc/lngooglecalsync/lngooglecalsync">http://lngooglecalsync.svn.sourceforge.net/viewvc/lngooglecalsync/lngooglecalsync</a>
@@ -1712,17 +1737,45 @@ the wrong time.</b></a></p>
 the Lotus Notes entry has a start time of 1pm, but the Google calendar entry
 shows up at a different time, e.g. 3pm, then make sure all your Google time
 zones are consistent. There are multiple time zones in Google calendar: your
-user tz and a tz for each calendar. If you get into Calendar Settings, click
-the General tab to see your user tz. On the Calendars tab, click the “Lotus
-Notes” calendar link to see the calendar's tz. The application should have
-created the “Lotus Notes” calendar with the tz of your local machine.<o:p></o:p></span></p>
+user <span class=SpellE>tz</span> and a <span class=SpellE>tz</span> for each
+calendar. If you get into Calendar Settings, click the General tab to see your
+user <span class=SpellE>tz</span>. On the Calendars tab, click the “Lotus
+Notes” calendar link to see the calendar's <span class=SpellE>tz</span>. The
+application should have created the “Lotus Notes” calendar with the <span
+class=SpellE>tz</span> of your local machine.<o:p></o:p></span></p>
 
 <p class=MsoNormal><span style='mso-fareast-font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
 
 <h1><span style='mso-fareast-font-family:"Times New Roman"'>History Log<o:p></o:p></span></h1>
 
 <p class=MsoNormal><a name="_Hlk262980546"></a><a name="_Hlk263671647"><span
-style='mso-bookmark:_Hlk262980546'>1.5&nbsp; 2010/7/7 &nbsp;Dean Hill</span></a></p>
+style='mso-bookmark:_Hlk262980546'>1.5.1</span></a><span class=GramE><span
+style='mso-bookmark:_Hlk263671647'><span style='mso-bookmark:_Hlk262980546'>&nbsp;
+2010</span></span></span><span style='mso-bookmark:_Hlk263671647'><span
+style='mso-bookmark:_Hlk262980546'>/7/8 &nbsp;Dean Hill</span></span></p>
+
+<p class=MsoListParagraphCxSpFirst style='text-indent:-.25in;mso-list:l5 level1 lfo4'><span
+style='mso-bookmark:_Hlk263671647'><span style='mso-bookmark:_Hlk262980546'><![if !supportLists]><span
+style='font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:
+Symbol'><span style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>Fix: Version 1.5 had some debug code enabled
+that caused only some entries to be synced. This is now fixed.</span></span></p>
+
+<p class=MsoListParagraphCxSpLast style='text-indent:-.25in;mso-list:l5 level1 lfo4'><span
+style='mso-bookmark:_Hlk263671647'><span style='mso-bookmark:_Hlk262980546'><![if !supportLists]><span
+style='font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:
+Symbol'><span style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>Enhancement: If there is a network error
+connecting to Google, the retry logic now retries 10 times with a pause of 200 <span
+class=SpellE>msecs</span> between tries. Previously there were only 3 retries
+with no delay. </span></span></p>
+
+<p class=MsoNormal><span style='mso-bookmark:_Hlk263671647'><span
+style='mso-bookmark:_Hlk262980546'><o:p>&nbsp;</o:p></span></span></p>
+
+<p class=MsoNormal><span style='mso-bookmark:_Hlk263671647'><span
+style='mso-bookmark:_Hlk262980546'>1.5<span class=GramE>&nbsp; 2010</span>/7/7
+&nbsp;Dean Hill</span></span></p>
 
 <p class=MsoListParagraphCxSpFirst style='text-indent:-.25in;mso-list:l5 level1 lfo4'><span
 style='mso-bookmark:_Hlk263671647'><span style='mso-bookmark:_Hlk262980546'><![if !supportLists]><span
@@ -1745,30 +1798,33 @@ style='mso-bookmark:_Hlk263671647'><span style='mso-bookmark:_Hlk262980546'><![i
 style='font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:
 Symbol'><span style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span></span><![endif]>Enhancement: In the Help file’s Troubleshooting
-section, added info about the LNConnectivityTest tool to help diagnose Lotus connection
-problems.</span></span></p>
+section, added info about the <span class=SpellE>LNConnectivityTest</span> tool
+to help diagnose Lotus connection problems.</span></span></p>
 
 <p class=MsoListParagraphCxSpLast style='text-indent:-.25in;mso-list:l5 level1 lfo4'><span
 style='mso-bookmark:_Hlk263671647'><span style='mso-bookmark:_Hlk262980546'><![if !supportLists]><span
 style='font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:
 Symbol'><span style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span></span><![endif]>Enhancement: There is a new setting in the
-settings file named ConfigVersion. This will be used to track what version/format
-of the config file is being read.</span></span></p>
+settings file named <span class=SpellE>ConfigVersion</span>. This will be used
+to track what version/format of the <span class=SpellE>config</span> file is
+being read.</span></span></p>
 
 <p class=MsoNormal><span style='mso-bookmark:_Hlk263671647'><span
 style='mso-bookmark:_Hlk262980546'><o:p>&nbsp;</o:p></span></span></p>
 
 <p class=MsoNormal><span style='mso-bookmark:_Hlk263671647'><span
-style='mso-bookmark:_Hlk262980546'>1.4.1&nbsp; 2010/6/25 &nbsp;Dean Hill</span></span></p>
+style='mso-bookmark:_Hlk262980546'>1.4.1<span class=GramE>&nbsp; 2010</span>/6/25
+&nbsp;Dean Hill</span></span></p>
 
 <p class=MsoListParagraphCxSpFirst style='text-indent:-.25in;mso-list:l5 level1 lfo4'><span
 style='mso-bookmark:_Hlk263671647'><span style='mso-bookmark:_Hlk262980546'><a
 name="_Hlk266304846"><![if !supportLists]><span style='font-family:Symbol;
 mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
 style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]>Fix: Resolved another NullPointerException bug.</a>
-</span></span></p>
+</span></span></span><![endif]>Fix: Resolved another </a><span class=SpellE><span
+style='mso-bookmark:_Hlk266304846'>NullPointerException</span></span><span
+style='mso-bookmark:_Hlk266304846'> bug.</span> </span></span></p>
 
 <p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in;mso-list:l5 level1 lfo4'><span
 style='mso-bookmark:_Hlk263671647'><span style='mso-bookmark:_Hlk262980546'><a
@@ -1776,11 +1832,12 @@ name="_Hlk265239669"><![if !supportLists]><span style='font-family:Symbol;
 mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
 style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span></span><![endif]>Enhancement: If run_windows.vbs is run in silent
-(non-GUI) mode, it will pop-up a message box if there was an error. As always,
-running in silent mode always creates icalbrdige.log. Also, icalbridge.log is
-now created even if running in GUI mode; the file doesn’t have much useful info
-written to it in GUI mode, but the timestamp on the file indicates when GUI
-mode was last ran.</a></span></span></p>
+(non-GUI) mode, it </a><span class=GramE><span style='mso-bookmark:_Hlk265239669'>will</span></span><span
+style='mso-bookmark:_Hlk265239669'> pop-up a message box if there was an error.
+As always, running in silent mode always creates icalbrdige.log. Also,
+icalbridge.log is now created even if running in GUI mode; the file doesn’t
+have much useful info written to it in GUI mode, but the timestamp on the file
+indicates when GUI mode was last ran.</span></span></span></p>
 
 <p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in;mso-list:l5 level1 lfo4'><span
 style='mso-bookmark:_Hlk263671647'><span style='mso-bookmark:_Hlk262980546'><span
@@ -1805,7 +1862,8 @@ server, and mail file are no longer echoed for privacy reasons.</span></span></p
 style='mso-bookmark:_Hlk262980546'><o:p>&nbsp;</o:p></span></span></p>
 
 <p class=MsoNormal><span style='mso-bookmark:_Hlk263671647'><span
-style='mso-bookmark:_Hlk262980546'>1.4&nbsp; 2010/6/23 &nbsp;Dean Hill</span></span></p>
+style='mso-bookmark:_Hlk262980546'>1.4<span class=GramE>&nbsp; 2010</span>/6/23
+&nbsp;Dean Hill</span></span></p>
 
 <p class=MsoNormal><span style='mso-bookmark:_Hlk263671647'><span
 style='mso-bookmark:_Hlk262980546'>Both the USA and England advanced out of the
@@ -1815,7 +1873,8 @@ World Cup group stage. Sweet!</span></span></p>
 style='mso-bookmark:_Hlk263671647'><span style='mso-bookmark:_Hlk262980546'><![if !supportLists]><span
 style='font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:
 Symbol'><span style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]>Fix: Resolved several NullPointerException bugs.</span></span></p>
+</span></span></span><![endif]>Fix: Resolved several <span class=SpellE>NullPointerException</span>
+bugs.</span></span></p>
 
 <p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in;mso-list:l5 level1 lfo4'><span
 style='mso-bookmark:_Hlk263671647'><span style='mso-bookmark:_Hlk262980546'><![if !supportLists]><span
@@ -1830,14 +1889,15 @@ enhancement.</a></span></span></p>
 style='mso-bookmark:_Hlk263671647'><span style='mso-bookmark:_Hlk262980546'><![if !supportLists]><span
 style='font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:
 Symbol'><span style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]>Enhancement: Alarms can now be sync’d to as
-Google calendar reminders.</span></span></p>
+</span></span></span><![endif]>Enhancement: Alarms can now be <span
+class=SpellE>sync’d</span> to as Google calendar reminders.</span></span></p>
 
 <p class=MsoNormal><span style='mso-bookmark:_Hlk263671647'><span
 style='mso-bookmark:_Hlk262980546'><o:p>&nbsp;</o:p></span></span></p>
 
 <p class=MsoNormal><span style='mso-bookmark:_Hlk263671647'><span
-style='mso-bookmark:_Hlk262980546'>1.3&nbsp; 2010/6/14 &nbsp;Dean Hill</span></span></p>
+style='mso-bookmark:_Hlk262980546'>1.3<span class=GramE>&nbsp; 2010</span>/6/14
+&nbsp;Dean Hill</span></span></p>
 
 <p class=MsoListParagraphCxSpFirst style='text-indent:-.25in;mso-list:l5 level1 lfo4'><span
 style='mso-bookmark:_Hlk263671647'><span style='mso-bookmark:_Hlk262980546'><![if !supportLists]><span
@@ -1868,8 +1928,8 @@ style='font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:
 Symbol'><span style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span></span><![endif]>Enhancement: There is a Lotus Notes tool named
 Absence Manager that creates calendar entries without a “Form” property. The
-code now assumes entries without a Form are Appointments, so Absence Manager
-entries are handled properly now.</span></span></p>
+code now assumes entries without a Form are Appointments, so Absence Manager <span
+class=GramE>entries</span> are handled properly now.</span></span></p>
 
 <p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in;mso-list:l5 level1 lfo4'><span
 style='mso-bookmark:_Hlk263671647'><span style='mso-bookmark:_Hlk262980546'><![if !supportLists]><span
@@ -1892,7 +1952,8 @@ output files should now be created even when an error occurs.<o:p></o:p></span><
 style='mso-bookmark:_Hlk262980546'><o:p>&nbsp;</o:p></span></span></p>
 
 <p class=MsoNormal><span style='mso-bookmark:_Hlk263671647'><span
-style='mso-bookmark:_Hlk262980546'>1.2&nbsp; 2010/6/2 &nbsp;Dean Hill</span></span></p>
+style='mso-bookmark:_Hlk262980546'>1.2<span class=GramE>&nbsp; 2010</span>/6/2
+&nbsp;Dean Hill</span></span></p>
 
 <p class=MsoListParagraphCxSpFirst style='text-indent:-.25in;mso-list:l5 level1 lfo4'><span
 style='mso-bookmark:_Hlk263671647'><span style='mso-bookmark:_Hlk262980546'><![if !supportLists]><span
@@ -1907,9 +1968,11 @@ are now created in Google correctly.</span></span></p>
 style='mso-bookmark:_Hlk262980546'><a name="_Hlk263247742"><![if !supportLists]><span
 style='font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:
 Symbol'><span style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]>Enhancement: The run_unix script was changed to
-look for Notes.jar and the supporting library files in their default locations.
-Thanks Jon Marshall.</a></span></p>
+</span></span></span><![endif]>Enhancement: The </a><span class=SpellE><span
+style='mso-bookmark:_Hlk263247742'>run_unix</span></span><span
+style='mso-bookmark:_Hlk263247742'> script was changed to look for Notes.jar
+and the supporting library files in their default locations. Thanks Jon
+Marshall.</span></span></p>
 
 <span style='mso-bookmark:_Hlk263247742'></span>
 
@@ -1917,10 +1980,11 @@ Thanks Jon Marshall.</a></span></p>
 style='mso-bookmark:_Hlk262980546'><![if !supportLists]><span style='font-family:
 Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
 style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]>Enhancement: <a name="_Hlk264294079">The
-run_windows.cmd<span style='mso-spacerun:yes'>  </span>script was replaced with
-run_windows.vbs. The VBS script does more error handling and doesn’t need to
-display a command-line window</a>.</span></p>
+</span></span></span><![endif]>Enhancement: <a name="_Hlk264294079">The run_</a><span
+class=GramE><span style='mso-bookmark:_Hlk264294079'>windows.cmd<span
+style='mso-spacerun:yes'>  </span>script</span></span><span style='mso-bookmark:
+_Hlk264294079'> was replaced with run_windows.vbs. The VBS script does more
+error handling and doesn’t need to display a command-line window</span>.</span></p>
 
 <p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in;mso-list:l5 level1 lfo4'><span
 style='mso-bookmark:_Hlk262980546'><![if !supportLists]><span style='font-family:
@@ -1934,66 +1998,70 @@ style='mso-bookmark:_Hlk262980546'><![if !supportLists]><span style='font-family
 Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
 style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span></span><![endif]>Enhancement: The application now makes separate
-checks to find Notes.jar and the supporting dll/so/dylib files that Notes.jar
-requires. This way the error messages can be more precise.</span></p>
+checks to find Notes.jar and the supporting <span class=SpellE>dll</span>/so/<span
+class=SpellE>dylib</span> files that Notes.jar requires. This way the error
+messages can be more precise.</span></p>
 
 <p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in;mso-list:l5 level1 lfo4'><span
 style='mso-bookmark:_Hlk262980546'><a name="_Hlk265180129"><![if !supportLists]><span
 style='font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:
 Symbol'><span style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]>Enhancement: In Diagnostic Mode, the Java
-classpath (location for jar/class files) and Java library path (location for
-dll/so/dylib files) are now echoed. The use-proxy and use-SSL values are now
-echoed. The Google email address is no longer echoed because it was too easy
-for people to accidentally post their email address to the forum.</a></span></p>
+</span></span></span><![endif]>Enhancement: In Diagnostic Mode, the Java </a><span
+class=SpellE><span style='mso-bookmark:_Hlk265180129'>classpath</span></span><span
+style='mso-bookmark:_Hlk265180129'> (location for jar/class files) and Java
+library path (location for <span class=SpellE>dll</span>/so/<span class=SpellE>dylib</span>
+files) are now echoed. The use-proxy and use-SSL values are now echoed. The
+Google email address is no longer echoed because it was too easy for people to
+accidentally post their email address to the forum.</span></span></p>
 
 <span style='mso-bookmark:_Hlk265180129'></span>
 
 <p class=MsoListParagraphCxSpLast style='text-indent:-.25in;mso-list:l5 level1 lfo4'><span
-style='mso-bookmark:_Hlk262980546'><![if !supportLists]><span style='font-family:
-Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+style='mso-bookmark:_Hlk262980546'><a name="_Hlk266349418"><![if !supportLists]><span
+style='font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:
+Symbol'><span style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span></span><![endif]>Enhancement: Added code to retry connecting to
-Google if there is a network error.</span></p>
+Google if there is a network error.</a></span></p>
 
 <p class=MsoNormal><span style='mso-bookmark:_Hlk262980546'><o:p>&nbsp;</o:p></span></p>
 
-<p class=MsoNormal><span style='mso-bookmark:_Hlk262980546'>1.1&nbsp; 2010/5/24
-&nbsp;Dean Hill</span></p>
+<p class=MsoNormal><span style='mso-bookmark:_Hlk262980546'>1.1<span
+class=GramE>&nbsp; 2010</span>/5/24 &nbsp;Dean Hill</span></p>
 
 <span style='mso-bookmark:_Hlk262980546'></span>
 
 <ul style='margin-top:0in' type=disc>
  <li class=MsoNormal style='mso-list:l3 level1 lfo5;tab-stops:list .5in'><span
      style='mso-fareast-font-family:"Times New Roman"'>Fix: Previously Lotus
-     Notes dates were being read as strings. This created locale problems because
-     users in Denmark and the UK format dates differently than how the
+     Notes dates were being read as strings. This created locale problems
+     because users in Denmark and the UK format dates differently than how the
      application expected. The application now reads dates as Lotus Notes date
      objects.<o:p></o:p></span></li>
  <li class=MsoNormal style='mso-list:l3 level1 lfo5;tab-stops:list .5in'><span
      style='mso-fareast-font-family:"Times New Roman"'>Enhancement: Previously,
-     if the Lotus Notes dll’s/so’s couldn’t be found in the path, then there was
-     no error message. Now a message should be shown in the status area.<o:p></o:p></span></li>
+     if the Lotus Notes <span class=SpellE>dll’s</span>/<span class=SpellE>so’s</span>
+     couldn’t be found in the path, then there was no error message. Now a
+     message should be shown in the status area.<o:p></o:p></span></li>
  <li class=MsoNormal style='mso-list:l3 level1 lfo5;tab-stops:list .5in'><span
      style='mso-fareast-font-family:"Times New Roman"'>Enhancement: <a
      name="_Hlk262558504">In Diagnostic Mode, the OS/Java/Lotus versions and
      some settings are echoed in the status area.</a><o:p></o:p></span></li>
  <li class=MsoNormal style='mso-list:l3 level1 lfo5;tab-stops:list .5in'><span
      style='mso-fareast-font-family:"Times New Roman"'>Enhancement: Added some
-     comments to the run_unix script to help people diagnose problems. If
-     anyone would like to make this script smarter/better, post updates on the
-     forum.<o:p></o:p></span></li>
+     comments to the <span class=SpellE>run_unix</span> script to help people
+     diagnose problems. If anyone would like to make this script
+     smarter/better, post updates on the forum.<o:p></o:p></span></li>
 </ul>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
-<p class=MsoNormal>1.0&nbsp; 2010/5/21 &nbsp;Dean Hill</p>
+<p class=MsoNormal>1.0<span class=GramE>&nbsp; 2010</span>/5/21 &nbsp;Dean Hill</p>
 
 <ul style='margin-top:0in' type=disc>
  <li class=MsoNormal style='mso-list:l3 level1 lfo5;tab-stops:list .5in'><a
      name="_Hlk262473140"><span style='mso-fareast-font-family:"Times New Roman"'>Fix:
-     If a proxy server IP/name was specified (even if the Use Proxy Server checkbox
-     was unchecked), then the proxy information was being used.<o:p></o:p></span></a></li>
+     If a proxy server IP/name was specified (even if the Use Proxy Server
+     checkbox was unchecked), then the proxy information was being used.<o:p></o:p></span></a></li>
  <li class=MsoNormal style='mso-list:l3 level1 lfo5;tab-stops:list .5in'><span
      style='mso-bookmark:_Hlk262473140'><span style='mso-fareast-font-family:
      "Times New Roman"'>Fix: Fixed several bugs related to determining which
@@ -2005,8 +2073,8 @@ Google if there is a network error.</span></p>
  <span style='mso-bookmark:_Hlk262473140'></span>
  <li class=MsoNormal style='mso-list:l3 level1 lfo5;tab-stops:list .5in'><span
      style='mso-fareast-font-family:"Times New Roman"'>Enhancement: There is
-     now a run_unix script which can be used to start the application under
-     Linux or Mac.<o:p></o:p></span></li>
+     now a <span class=SpellE>run_unix</span> script which can be used to start
+     the application under Linux or Mac.<o:p></o:p></span></li>
  <li class=MsoNormal style='mso-list:l3 level1 lfo5;tab-stops:list .5in'><span
      style='mso-fareast-font-family:"Times New Roman"'>Enhancement: Diagnostic
      Mode was added to help troubleshoot problems.<o:p></o:p></span></li>
@@ -2014,7 +2082,7 @@ Google if there is a network error.</span></p>
 
 <p class=MsoNormal>&nbsp;</p>
 
-<p class=MsoNormal>0.4 &nbsp;2010/4/26 &nbsp;Dean Hill</p>
+<p class=MsoNormal><span class=GramE>0.4 &nbsp;2010</span>/4/26 &nbsp;Dean Hill</p>
 
 <p class=MsoNormal>A large number of changes were made. Including:</p>
 

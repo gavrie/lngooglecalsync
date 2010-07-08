@@ -71,8 +71,9 @@ public class GoogleImport {
                 } catch (com.google.gdata.util.ServiceException ex) {
                     calendars = null;
                     // If there is a network problem while connecting to Google, retry a few times
-                    if (++retryCount > 3)
+                    if (++retryCount > 10)
                         throw ex;
+                    Thread.sleep(200);
                 }
             } while (calendars == null);
 
@@ -169,8 +170,9 @@ public class GoogleImport {
                     resultFeed = service.query(myQuery, CalendarEventFeed.class);
                 } catch (com.google.gdata.util.ServiceException ex) {
                     // If there is a network problem while connecting to Google, retry a few times
-                    if (++retryCount > 3)
+                    if (++retryCount > 10)
                         throw ex;
+                    Thread.sleep(200);
                     
                     continue;
                 }
@@ -260,7 +262,6 @@ public class GoogleImport {
     public int createCalendarEntries(List cals) throws Exception, ServiceException, IOException {
         int retryCount = 0;
         int createdCount = 0;
-boolean f = false;
 
         for (int i = 0; i < cals.size(); i++) {
             NotesCalendarEntry cal = (NotesCalendarEntry) cals.get(i);
@@ -296,7 +297,6 @@ boolean f = false;
             else if (cal.getAppointmentType() == NotesCalendarEntry.AppointmentType.APPOINTMENT ||
                     cal.getAppointmentType() == NotesCalendarEntry.AppointmentType.MEETING)
             {
-f = true;
                 // Create a standard event
                 startTime = DateTime.parseDateTime(cal.getStartDateTimeGoogle());
                 if (cal.getEndDateTime() == null)
@@ -340,36 +340,6 @@ f = true;
                 event.getReminder().add(reminder);
             }
 
-if (f)            {
-            EventWho ew = new EventWho();
-            // Marks them as attending the event
-            ew.setAttendeeStatus(Who.AttendeeStatus.EVENT_INVITED);
-            // Doesn't seem to do much
-            ew.setAttendeeType(Who.AttendeeType.EVENT_REQUIRED);
-            // Shows up on my calendar
-            ew.setEmail("joe1@mail.com");
-            // Didn't seem to do anything
-            ew.setRel(Who.Rel.EVENT_ORGANIZER);
-            // Shows up when inviting other people
-            event.addParticipant(ew);
-
-            ew = new EventWho();
-            ew.setAttendeeStatus(Who.AttendeeStatus.EVENT_INVITED);
-            ew.setAttendeeType(Who.AttendeeType.EVENT_OPTIONAL);
-            ew.setEmail("joe2@mail.com");
-            ew.setRel(Who.Rel.EVENT_ATTENDEE);
-            ew.setValueString("I'm Joe 2");
-            event.addParticipant(ew);
-
-            ew = new EventWho();
-            ew.setAttendeeStatus(Who.AttendeeStatus.EVENT_INVITED);
-            ew.setAttendeeType(Who.AttendeeType.EVENT_REQUIRED);
-            ew.setEmail("joe3@mail.com");
-            ew.setRel(Who.Rel.EVENT_ATTENDEE);
-            ew.setValueString("I'm Joe 3");
-            event.addParticipant(ew);
-}
-
             retryCount = 0;
             do {
                 try {
@@ -378,11 +348,11 @@ if (f)            {
                     break;
                 } catch (com.google.gdata.util.ServiceException ex) {
                     // If there is a network problem while connecting to Google, retry a few times
-                    if (++retryCount > 3)
+                    if (++retryCount > 10)
                         throw ex;
+                    Thread.sleep(200);
                 }
             } while (true);
-if (f) break;
         }
 
         return createdCount;

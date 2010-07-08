@@ -736,6 +736,7 @@ public class mainGUI extends javax.swing.JFrame {
             jCheckBox_LotusNotesServerIsLocal.setSelected(confBean.getLotusNotesServerIsLocal());
             jTextField_LotusNotesMailFile.setText(confBean.getLotusNotesMailFile());
             jTextField_LotusNotesUsername.setText(confBean.getLotusNotesUsername());
+            String s = confBean.getLotusNotesPassword();
             jPasswordField_LotusNotesPassword.setText(confBean.getLotusNotesPassword());
 
             jTextField_GoogleUsername.setText(confBean.getGoogleUserName());
@@ -838,7 +839,7 @@ public class mainGUI extends javax.swing.JFrame {
     private boolean isUrlValid = false;
     long statusStartTime = 0;
     // An exit code of 0 is success. All other values are failure.
-    final String appVersion = "1.5";
+    final String appVersion = "1.5.1";
     private boolean isSilentMode = false;
     private boolean saveSettingsOnExit = true;
 

@@ -23,20 +23,20 @@ public class ConfigurationBean {
         config.setProperty("GoogleProxyPort", getGoogleProxyPort());
         config.setProperty(PROP_PROXY_USERNAME, getGoogleProxyUsername());
         config.setProperty(PROP_PROXY_PASSWORD, encodePassword(getGoogleProxyPassword()));
-        config.setProperty("GoogleUseSSL", new Boolean(getGoogleUseSSL()).toString());
+        config.setProperty(PROP_USE_SSL, new Boolean(getGoogleUseSSL()).toString());
 
         config.setProperty(PROP_LOTUS_NOTES_SERVER, getLotusNotesServer());
         config.setProperty(PROP_LOTUS_NOTES_SERVER_IS_LOCAL, new Boolean(getLotusNotesServerIsLocal()).toString());
         config.setProperty(PROP_LOTUS_NOTES_MAIL_FILE, getLotusNotesMailFile());
-        config.setProperty("LotusNotesUsername", getLotusNotesUsername());
-        config.setProperty("LotusNotesPassword", encodePassword(getLotusNotesPassword()));
+        config.setProperty(PROP_LOTUS_NOTES_USERNAME, getLotusNotesUsername());
+        config.setProperty(PROP_LOTUS_NOTES_PASSWORD, encodePassword(getLotusNotesPassword()));
 
         config.setProperty(PROP_SYNC_ON_STARTUP, new Boolean(getSyncOnStartup()).toString());
         config.setProperty(PROP_DIAGNOSTIC_MODE, new Boolean(getDiagnosticMode()).toString());
         config.setProperty(PROP_SYNC_DESCRIPTION, new Boolean(getSyncDescription()).toString());
         config.setProperty(PROP_SYNC_ALARMS, new Boolean(getSyncAlarms()).toString());
 
-        if (getConfigVersion() == 0) {
+        if (getConfigVersion() < currConfigVersion) {
             config.setProperty(PROP_CONFIG_VERSION, Integer.toString(currConfigVersion));
         }
         else {
@@ -105,7 +105,7 @@ public class ConfigurationBean {
     }
 
     public void setGoogleUseSSL(boolean googleUseSSL) {
-        setBooleanProperty("GoogleUseSSL", googleUseSSL);
+        setBooleanProperty(PROP_USE_SSL, googleUseSSL);
     }
 
     public void setSyncOnStartup(boolean value) {
@@ -125,11 +125,11 @@ public class ConfigurationBean {
     }
 
     public void setLotusNotesUsername(String LotusNotesUsername) {
-        config.setProperty("LotusNotesUsername", LotusNotesUsername);
+        config.setProperty(PROP_LOTUS_NOTES_USERNAME, LotusNotesUsername);
     }
 
     public void setLotusNotesPassword(String value) {
-        config.setProperty("LotusNotesPassword", encodePassword(value));
+        config.setProperty(PROP_LOTUS_NOTES_PASSWORD, encodePassword(value));
     }
 
     protected void setBooleanProperty(String propertyName, boolean propertyValue) {
@@ -187,15 +187,15 @@ public class ConfigurationBean {
     }
 
     public boolean getGoogleUseSSL() {
-        return getBooleanProperty("GoogleUseSSL");
+        return getBooleanProperty(PROP_USE_SSL);
     }
 
     public String getLotusNotesUsername() {
-        return getStringProperty("LotusNotesUsername");
+        return getStringProperty(PROP_LOTUS_NOTES_USERNAME);
     }
 
     public String getLotusNotesPassword() throws Exception {
-        return getPasswordProperty("LotusNotesPassword");
+        return getPasswordProperty(PROP_LOTUS_NOTES_PASSWORD);
     }
 
     public boolean getSyncOnStartup() {
@@ -280,12 +280,15 @@ public class ConfigurationBean {
     protected static final String PROP_LOTUS_NOTES_SERVER = "LotusNotesServer";
     protected static final String PROP_LOTUS_NOTES_SERVER_IS_LOCAL = "LotusNotesServerIsLocal";
     protected static final String PROP_LOTUS_NOTES_MAIL_FILE = "LotusNotesMailFile";
+    protected static final String PROP_LOTUS_NOTES_PASSWORD = "LotusNotesPassword";
+    protected static final String PROP_LOTUS_NOTES_USERNAME = "LotusNotesUsername";
     protected static final String PROP_DIAGNOSTIC_MODE = "DiagnosticMode";
     protected static final String PROP_SYNC_ON_STARTUP = "SyncOnStartup";
     protected static final String PROP_SYNC_DESCRIPTION = "SyncDescription";
     protected static final String PROP_SYNC_ALARMS = "SyncAlarms";
     protected static final String PROP_PROXY_USERNAME = "GoogleProxyUsername";
     protected static final String PROP_PROXY_PASSWORD = "GoogleProxyPassword";
+    protected static final String PROP_USE_SSL = "GoogleUseSSL";
 
     protected Properties config;
     protected String configurationFile = "lngooglecalsync.properties";
