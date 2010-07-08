@@ -38,12 +38,6 @@ public class mainGUI extends javax.swing.JFrame {
         preInitComponents();
         initComponents();
 
-//!@!
-        jLabel18.setVisible(false);
-        jLabel19.setVisible(false);
-        jTextField_proxyUsername.setVisible(false);
-        jPasswordField_proxyPassword.setVisible(false);
-
         // Initialize proxy bean
         proxy = new ProxyConfigBean();
 
@@ -118,7 +112,7 @@ public class mainGUI extends javax.swing.JFrame {
         if (jCheckBox_DiagnosticMode.isSelected()) {
             // Don't echo the commented out values for privacy reasons
             statusAppendLineDiag("Application Version: " + appVersion);
-            statusAppendLineDiag("OS: " + System.getProperty("os.name") + " " + System.getProperty("os.version"));
+            statusAppendLineDiag("OS: " + System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch"));
             statusAppendLineDiag("Java: " + System.getProperty("java.version") + " " + System.getProperty("java.vendor"));
             //statusAppendLineDiag("Lotus Username: " + jTextField_LotusNotesUsername.getText());
             statusAppendLineDiag("Local Server: " + jCheckBox_LotusNotesServerIsLocal.isSelected());
@@ -437,10 +431,12 @@ public class mainGUI extends javax.swing.JFrame {
         });
 
         jLabel8.setText("Server IP or Name");
+        jLabel8.setPreferredSize(new java.awt.Dimension(97, 14));
 
         jTextField_proxyIP.setEnabled(false);
 
         jLabel7.setText("Port Number");
+        jLabel7.setPreferredSize(new java.awt.Dimension(97, 14));
 
         jTextField_proxyPort.setEnabled(false);
 
@@ -456,8 +452,13 @@ public class mainGUI extends javax.swing.JFrame {
 
         jLabel18.setText("Username (optional)");
 
+        jTextField_proxyUsername.setEnabled(false);
+
         jLabel19.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel19.setText("Password (optional)");
+        jLabel19.setPreferredSize(new java.awt.Dimension(97, 14));
+
+        jPasswordField_proxyPassword.setEnabled(false);
 
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -508,25 +509,23 @@ public class mainGUI extends javax.swing.JFrame {
                                 .add(21, 21, 21)
                                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                     .add(jPanel1Layout.createSequentialGroup()
-                                        .add(jLabel8)
-                                        .add(18, 18, 18)
+                                        .add(jLabel8, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                                         .add(jTextField_proxyIP, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 143, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                                     .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                                        .add(jPanel1Layout.createSequentialGroup()
-                                            .add(jLabel19)
+                                        .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel1Layout.createSequentialGroup()
+                                            .add(jLabel19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                             .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                                             .add(jPasswordField_proxyPassword, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 143, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                                         .add(jPanel1Layout.createSequentialGroup()
                                             .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                                .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
-                                                    .add(jLabel18)
-                                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED))
-                                                .add(jPanel1Layout.createSequentialGroup()
-                                                    .add(jLabel7)
-                                                    .add(47, 47, 47)))
+                                                .add(jLabel7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                .add(jLabel18))
+                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                                             .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                                .add(jTextField_proxyPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 40, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                                .add(jTextField_proxyUsername, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 143, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))))
+                                                .add(jTextField_proxyUsername, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 143, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                .add(jTextField_proxyPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 40, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                            .add(66, 66, 66)))))
                             .add(jCheckBox_GoogleSSL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 453, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -582,11 +581,11 @@ public class mainGUI extends javax.swing.JFrame {
                 .add(jCheckBox_enableProxy)
                 .add(1, 1, 1)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel8)
+                    .add(jLabel8, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jTextField_proxyIP, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel7)
+                    .add(jLabel7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jTextField_proxyPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
@@ -594,7 +593,7 @@ public class mainGUI extends javax.swing.JFrame {
                     .add(jTextField_proxyUsername, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel19)
+                    .add(jLabel19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jPasswordField_proxyPassword, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(29, Short.MAX_VALUE))
             .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -662,13 +661,25 @@ public class mainGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowOpened
 
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
-        saveSettings();
-        System.exit(0);
+        try {
+            if (saveSettingsOnExit)
+                saveSettings();
+        }
+        catch (Exception ex) {
+            statusAppendException("There was an error saving settings.", ex);
+            // The next time the user clicks Exit, we will exit without saving.
+            saveSettingsOnExit = false;
+            return;
+        }
+
+        System.exit(EXIT_SUCCESS);
     }//GEN-LAST:event_formWindowClosed
 
     private void jCheckBox_enableProxyStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jCheckBox_enableProxyStateChanged
         jTextField_proxyIP.setEnabled(jCheckBox_enableProxy.isSelected());
         jTextField_proxyPort.setEnabled(jCheckBox_enableProxy.isSelected());
+        jTextField_proxyUsername.setEnabled(jCheckBox_enableProxy.isSelected());
+        jPasswordField_proxyPassword.setEnabled(jCheckBox_enableProxy.isSelected());
     }//GEN-LAST:event_jCheckBox_enableProxyStateChanged
 
     private void jCheckBox_LotusNotesServerIsLocalStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jCheckBox_LotusNotesServerIsLocalStateChanged
@@ -693,7 +704,7 @@ public class mainGUI extends javax.swing.JFrame {
     }
 
     @SuppressWarnings("static-access")
-    private void saveSettings() {
+    private void saveSettings() throws Exception {
         confBean.setLotusNotesServer(jTextField_LotusNotesServer.getText());
         confBean.setLotusNotesServerIsLocal(jCheckBox_LotusNotesServerIsLocal.isSelected());
         confBean.setLotusNotesMailFile(jTextField_LotusNotesMailFile.getText());
@@ -706,6 +717,8 @@ public class mainGUI extends javax.swing.JFrame {
         confBean.setGoogleEnableProxy(jCheckBox_enableProxy.isSelected());
         confBean.setGoogleProxyPort(jTextField_proxyPort.getText());
         confBean.setGoogleProxyIP(jTextField_proxyIP.getText());
+        confBean.setGoogleProxyUsername(jTextField_proxyUsername.getText());
+        confBean.setGoogleProxyPassword(new String(jPasswordField_proxyPassword.getPassword()));
 
         confBean.setGoogleUseSSL(jCheckBox_GoogleSSL.isSelected());
         confBean.setSyncOnStartup(jCheckBox_SyncOnStart.isSelected());
@@ -723,20 +736,22 @@ public class mainGUI extends javax.swing.JFrame {
             jCheckBox_LotusNotesServerIsLocal.setSelected(confBean.getLotusNotesServerIsLocal());
             jTextField_LotusNotesMailFile.setText(confBean.getLotusNotesMailFile());
             jTextField_LotusNotesUsername.setText(confBean.getLotusNotesUsername());
-            jPasswordField_LotusNotesPassword.setText(new String(confBean.getLotusNotesPassword()));
+            jPasswordField_LotusNotesPassword.setText(confBean.getLotusNotesPassword());
 
             jTextField_GoogleUsername.setText(confBean.getGoogleUserName());
-            jPasswordField_GooglePassword.setText(new String(confBean.getGooglePassword().toCharArray()));
+            jPasswordField_GooglePassword.setText(confBean.getGooglePassword());
             jCheckBox_GoogleSSL.setSelected(confBean.getGoogleUseSSL());
             jCheckBox_enableProxy.setSelected(confBean.getGoogleEnableProxy());
             jTextField_proxyIP.setText(confBean.getGoogleProxyIP());
             jTextField_proxyPort.setText(confBean.getGoogleProxyPort());
+            jTextField_proxyUsername.setText(confBean.getGoogleProxyUsername());
+            jPasswordField_proxyPassword.setText(confBean.getGoogleProxyPassword());
             jCheckBox_SyncOnStart.setSelected(confBean.getSyncOnStartup());
             jCheckBox_DiagnosticMode.setSelected(confBean.getDiagnosticMode());
             jCheckBox_SyncDescription.setSelected(confBean.getSyncDescription());
             jCheckBox_SyncAlarms.setSelected(confBean.getSyncAlarms());
 
-            //configure proxy settings from the configuration
+            // Configure proxy settings
             proxy.setProxyHost(confBean.getGoogleProxyIP());
             proxy.setProxyPort(confBean.getGoogleProxyPort());
             proxy.setEnabled(confBean.getGoogleEnableProxy());
@@ -823,8 +838,9 @@ public class mainGUI extends javax.swing.JFrame {
     private boolean isUrlValid = false;
     long statusStartTime = 0;
     // An exit code of 0 is success. All other values are failure.
-    final String appVersion = "1.4.1";
+    final String appVersion = "1.5";
     private boolean isSilentMode = false;
+    private boolean saveSettingsOnExit = true;
 
     // Our min and max dates for entries we will process.
     // If the calendar entry is outside this range, it is ignored.

@@ -84,6 +84,8 @@ public class LotusNotesExport {
 
             // Note: We cast null to a String to avoid overload conflicts
             Session session = NotesFactory.createSession((String)null, (String)null, password);
+            notesVersion = session.getNotesVersion();
+            
 //javax.swing.JOptionPane.showMessageDialog(null, "location 4");
 
             String dominoServerTemp = server;
@@ -234,8 +236,6 @@ public class LotusNotesExport {
                 e = vn.getNextDocument();
             }
 //javax.swing.JOptionPane.showMessageDialog(null, "location 7");
-
-            notesVersion = session.getNotesVersion();
 
             return calendarEntries;
         } catch (Exception ex) {

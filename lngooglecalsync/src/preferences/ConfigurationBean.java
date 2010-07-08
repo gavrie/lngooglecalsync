@@ -4,30 +4,44 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Properties;
 
+import com.google.gdata.util.common.util.Base64;
+
+//import sun.misc.BASE64Decoder;
+//import sun.misc.BASE64Encoder;
+
 public class ConfigurationBean {
 
     public ConfigurationBean() {
         config = new Properties();
     }
 
-    public void writeConfig() {
+    public void writeConfig() throws Exception {
         config.setProperty("GoogleUsername", getGoogleUserName());
-        config.setProperty("GooglePassword", getGooglePassword());
+        config.setProperty("GooglePassword", encodePassword(getGooglePassword()));
         config.setProperty("GoogleEnableProxy", new Boolean(getGoogleEnableProxy()).toString());
         config.setProperty("GoogleProxyIP", getGoogleProxyIP());
         config.setProperty("GoogleProxyPort", getGoogleProxyPort());
+        config.setProperty(PROP_PROXY_USERNAME, getGoogleProxyUsername());
+        config.setProperty(PROP_PROXY_PASSWORD, encodePassword(getGoogleProxyPassword()));
         config.setProperty("GoogleUseSSL", new Boolean(getGoogleUseSSL()).toString());
 
-        config.setProperty(PROP_NAME_LOTUS_NOTES_SERVER, getLotusNotesServer());
-        config.setProperty(PROP_NAME_LOTUS_NOTES_SERVER_IS_LOCAL, new Boolean(getLotusNotesServerIsLocal()).toString());
-        config.setProperty(PROP_NAME_LOTUS_NOTES_MAIL_FILE, getLotusNotesMailFile());
+        config.setProperty(PROP_LOTUS_NOTES_SERVER, getLotusNotesServer());
+        config.setProperty(PROP_LOTUS_NOTES_SERVER_IS_LOCAL, new Boolean(getLotusNotesServerIsLocal()).toString());
+        config.setProperty(PROP_LOTUS_NOTES_MAIL_FILE, getLotusNotesMailFile());
         config.setProperty("LotusNotesUsername", getLotusNotesUsername());
-        config.setProperty("LotusNotesPassword", getLotusNotesPassword());
+        config.setProperty("LotusNotesPassword", encodePassword(getLotusNotesPassword()));
 
         config.setProperty(PROP_SYNC_ON_STARTUP, new Boolean(getSyncOnStartup()).toString());
-        config.setProperty(PROP_NAME_DIAGNOSTIC_MODE, new Boolean(getDiagnosticMode()).toString());
+        config.setProperty(PROP_DIAGNOSTIC_MODE, new Boolean(getDiagnosticMode()).toString());
         config.setProperty(PROP_SYNC_DESCRIPTION, new Boolean(getSyncDescription()).toString());
         config.setProperty(PROP_SYNC_ALARMS, new Boolean(getSyncAlarms()).toString());
+
+        if (getConfigVersion() == 0) {
+            config.setProperty(PROP_CONFIG_VERSION, Integer.toString(currConfigVersion));
+        }
+        else {
+            config.setProperty(PROP_CONFIG_VERSION, Integer.toString(getConfigVersion()));
+        }
 
         // Write properties file.
         try {
@@ -46,16 +60,20 @@ public class ConfigurationBean {
 
     }
 
+    public void setConfigVersion(int value) {
+        config.setProperty(PROP_CONFIG_VERSION, Integer.toString(value));
+    }
+
     public void setLotusNotesServer(String value) {
-        config.setProperty(PROP_NAME_LOTUS_NOTES_SERVER, value);
+        config.setProperty(PROP_LOTUS_NOTES_SERVER, value);
     }
 
     public void setLotusNotesServerIsLocal(boolean value) {
-        setBooleanProperty(PROP_NAME_LOTUS_NOTES_SERVER_IS_LOCAL, value);
+        setBooleanProperty(PROP_LOTUS_NOTES_SERVER_IS_LOCAL, value);
     }
 
     public void setLotusNotesMailFile(String value) {
-        config.setProperty(PROP_NAME_LOTUS_NOTES_MAIL_FILE, value);
+        config.setProperty(PROP_LOTUS_NOTES_MAIL_FILE, value);
     }
 
     public void setGoogleUserName(String googleUserName) {
@@ -63,7 +81,7 @@ public class ConfigurationBean {
     }
 
     public void setGooglePassword(String googlePassword) {
-        config.setProperty("GooglePassword", googlePassword);
+        config.setProperty("GooglePassword", encodePassword(googlePassword));
     }
 
     public void setGoogleProxyIP(String googleProxyIP) {
@@ -72,6 +90,14 @@ public class ConfigurationBean {
 
     public void setGoogleProxyPort(String googleProxyPort) {
         config.setProperty("GoogleProxyPort", googleProxyPort);
+    }
+
+    public void setGoogleProxyUsername(String value) {
+        config.setProperty(PROP_PROXY_USERNAME, value);
+    }
+
+    public void setGoogleProxyPassword(String value) {
+        config.setProperty(PROP_PROXY_PASSWORD, encodePassword(value));
     }
 
     public void setGoogleEnableProxy(boolean googleEnableProxy) {
@@ -87,7 +113,7 @@ public class ConfigurationBean {
     }
 
     public void setDiagnosticMode(boolean value) {
-        setBooleanProperty(PROP_NAME_DIAGNOSTIC_MODE, value);
+        setBooleanProperty(PROP_DIAGNOSTIC_MODE, value);
     }
 
     public void setSyncDescription(boolean value) {
@@ -102,8 +128,8 @@ public class ConfigurationBean {
         config.setProperty("LotusNotesUsername", LotusNotesUsername);
     }
 
-    public void setLotusNotesPassword(String LotusNotesPassword) {
-        config.setProperty("LotusNotesPassword", LotusNotesPassword);
+    public void setLotusNotesPassword(String value) {
+        config.setProperty("LotusNotesPassword", encodePassword(value));
     }
 
     protected void setBooleanProperty(String propertyName, boolean propertyValue) {
@@ -116,74 +142,44 @@ public class ConfigurationBean {
     }
 
 
+    public int getConfigVersion() {
+        return getIntegerProperty(PROP_CONFIG_VERSION);
+    }
+
     public String getLotusNotesServer() {
-        String property;
-
-        property = config.getProperty(PROP_NAME_LOTUS_NOTES_SERVER);
-        if (property == null) {
-            property = "";
-        }
-
-        return property;
+        return getStringProperty(PROP_LOTUS_NOTES_SERVER);
     }
 
     public boolean getLotusNotesServerIsLocal() {
-        return getBooleanProperty(PROP_NAME_LOTUS_NOTES_SERVER_IS_LOCAL);
+        return getBooleanProperty(PROP_LOTUS_NOTES_SERVER_IS_LOCAL);
     }
 
     public String getLotusNotesMailFile() {
-        String property;
-
-        property = config.getProperty(PROP_NAME_LOTUS_NOTES_MAIL_FILE);
-        if (property == null) {
-            property = "";
-        }
-
-        return property;
+        return getStringProperty(PROP_LOTUS_NOTES_MAIL_FILE);
     }
 
     public String getGoogleUserName() {
-        String property;
-
-        property = config.getProperty("GoogleUsername");
-        if (property == null) {
-            property = "";
-        }
-
-        return property;
+        return getStringProperty("GoogleUsername");
     }
 
-    public String getGooglePassword() {
-        String property = null;
-
-        property = config.getProperty("GooglePassword");
-        if (property == null) {
-            property = "";
-        }
-
-        return property;
+    public String getGooglePassword() throws Exception {
+        return getPasswordProperty("GooglePassword");
     }
 
     public String getGoogleProxyIP() {
-        String property = null;
-
-        property = config.getProperty("GoogleProxyIP");
-        if (property == null) {
-            property = "";
-        }
-
-        return property;
+        return getStringProperty("GoogleProxyIP");
     }
 
     public String getGoogleProxyPort() {
-        String property = null;
+        return getStringProperty("GoogleProxyPort");
+    }
 
-        property = config.getProperty("GoogleProxyPort");
-        if (property == null) {
-            property = "";
-        }
+    public String getGoogleProxyUsername() {
+        return getStringProperty(PROP_PROXY_USERNAME);
+    }
 
-        return property;
+    public String getGoogleProxyPassword() throws Exception {
+        return getPasswordProperty(PROP_PROXY_PASSWORD);
     }
 
     public boolean getGoogleEnableProxy() {
@@ -195,25 +191,11 @@ public class ConfigurationBean {
     }
 
     public String getLotusNotesUsername() {
-        String property = null;
-
-        property = config.getProperty("LotusNotesUsername");
-        if (property == null) {
-            property = "";
-        }
-
-        return property;
+        return getStringProperty("LotusNotesUsername");
     }
 
-    public String getLotusNotesPassword() {
-        String property = null;
-
-        property = config.getProperty("LotusNotesPassword");
-        if (property == null) {
-            property = "";
-        }
-
-        return property;
+    public String getLotusNotesPassword() throws Exception {
+        return getPasswordProperty("LotusNotesPassword");
     }
 
     public boolean getSyncOnStartup() {
@@ -221,7 +203,7 @@ public class ConfigurationBean {
     }
     
     public boolean getDiagnosticMode() {
-        return getBooleanProperty(PROP_NAME_DIAGNOSTIC_MODE);
+        return getBooleanProperty(PROP_DIAGNOSTIC_MODE);
     }
 
     public boolean getSyncDescription() {
@@ -230,6 +212,31 @@ public class ConfigurationBean {
 
     public boolean getSyncAlarms() {
         return getBooleanProperty(PROP_SYNC_ALARMS);
+    }
+
+    protected String getStringProperty(String propertyName) {
+        String property;
+
+        property = config.getProperty(propertyName);
+        if (property == null) {
+            property = "";
+        }
+
+        return property;
+    }
+
+    protected String getPasswordProperty(String propertyName) throws Exception {
+        String property;
+
+        property = config.getProperty(propertyName);
+        if (property == null)
+            property = "";
+        // In version 2 and later of the config file, passwords are encoded.
+        // Before that version, they were stored as plain text.
+        else if (getConfigVersion() >= 2)
+        	property = decodePassword(property);
+
+        return property;
     }
 
     protected boolean getBooleanProperty(String propertyName) {
@@ -243,13 +250,42 @@ public class ConfigurationBean {
         return property;
     }
 
-    protected static final String PROP_NAME_LOTUS_NOTES_SERVER = "LotusNotesServer";
-    protected static final String PROP_NAME_LOTUS_NOTES_SERVER_IS_LOCAL = "LotusNotesServerIsLocal";
-    protected static final String PROP_NAME_LOTUS_NOTES_MAIL_FILE = "LotusNotesMailFile";
-    protected static final String PROP_NAME_DIAGNOSTIC_MODE = "DiagnosticMode";
+    protected int getIntegerProperty(String propertyName) {
+        int property = 0;
+
+        String propertyStr = config.getProperty(propertyName);
+        if (propertyStr != null) {
+            property = Integer.parseInt(config.getProperty(propertyName));
+        }
+
+        return property;
+    }
+
+    protected String encodePassword(String password) {
+    	return Base64.encode(password.getBytes());
+    }
+    
+    protected String decodePassword(String encodedPassword ) throws Exception {
+        try {
+            byte[] data = Base64.decode(encodedPassword);
+            return new String(data);
+        } catch (Exception ex) {
+            throw ex;
+        }
+    }
+    
+    
+    protected static final int currConfigVersion = 2;
+    protected static final String PROP_CONFIG_VERSION = "ConfigVersion";
+    protected static final String PROP_LOTUS_NOTES_SERVER = "LotusNotesServer";
+    protected static final String PROP_LOTUS_NOTES_SERVER_IS_LOCAL = "LotusNotesServerIsLocal";
+    protected static final String PROP_LOTUS_NOTES_MAIL_FILE = "LotusNotesMailFile";
+    protected static final String PROP_DIAGNOSTIC_MODE = "DiagnosticMode";
     protected static final String PROP_SYNC_ON_STARTUP = "SyncOnStartup";
     protected static final String PROP_SYNC_DESCRIPTION = "SyncDescription";
     protected static final String PROP_SYNC_ALARMS = "SyncAlarms";
+    protected static final String PROP_PROXY_USERNAME = "GoogleProxyUsername";
+    protected static final String PROP_PROXY_PASSWORD = "GoogleProxyPassword";
 
     protected Properties config;
     protected String configurationFile = "lngooglecalsync.properties";
