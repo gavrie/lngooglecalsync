@@ -12,29 +12,23 @@ import com.google.gdata.util.common.util.Base64;
 public class ConfigurationBean {
 
     public ConfigurationBean() {
+        // Get the absolute path to this app
+        configFullFilename = new java.io.File("").getAbsolutePath() + System.getProperty("file.separator") + configFilename;
+
         config = new Properties();
     }
 
+    /**
+     * Write configuration file.
+     * Important: after a writeConfig, the in-memory configuration is not valid anymore until
+     * a subsequent readConfig() is performed ...
+     * @throws Exception due to I/O
+     */
     public void writeConfig() throws Exception {
-        config.setProperty("GoogleUsername", getGoogleUserName());
-        config.setProperty("GooglePassword", encodePassword(getGooglePassword()));
-        config.setProperty("GoogleEnableProxy", new Boolean(getGoogleEnableProxy()).toString());
-        config.setProperty("GoogleProxyIP", getGoogleProxyIP());
-        config.setProperty("GoogleProxyPort", getGoogleProxyPort());
-        config.setProperty(PROP_PROXY_USERNAME, getGoogleProxyUsername());
+        // Starting with v2 of the properties file, we "encrypt" passwords but keep them plain in memory
+        config.setProperty(PROP_GOOGLE_PASSWORD, encodePassword(getGooglePassword()));
         config.setProperty(PROP_PROXY_PASSWORD, encodePassword(getGoogleProxyPassword()));
-        config.setProperty(PROP_USE_SSL, new Boolean(getGoogleUseSSL()).toString());
-
-        config.setProperty(PROP_LOTUS_NOTES_SERVER, getLotusNotesServer());
-        config.setProperty(PROP_LOTUS_NOTES_SERVER_IS_LOCAL, new Boolean(getLotusNotesServerIsLocal()).toString());
-        config.setProperty(PROP_LOTUS_NOTES_MAIL_FILE, getLotusNotesMailFile());
-        config.setProperty(PROP_LOTUS_NOTES_USERNAME, getLotusNotesUsername());
         config.setProperty(PROP_LOTUS_NOTES_PASSWORD, encodePassword(getLotusNotesPassword()));
-
-        config.setProperty(PROP_SYNC_ON_STARTUP, new Boolean(getSyncOnStartup()).toString());
-        config.setProperty(PROP_DIAGNOSTIC_MODE, new Boolean(getDiagnosticMode()).toString());
-        config.setProperty(PROP_SYNC_DESCRIPTION, new Boolean(getSyncDescription()).toString());
-        config.setProperty(PROP_SYNC_ALARMS, new Boolean(getSyncAlarms()).toString());
 
         if (getConfigVersion() < currConfigVersion) {
             config.setProperty(PROP_CONFIG_VERSION, Integer.toString(currConfigVersion));
@@ -45,7 +39,7 @@ public class ConfigurationBean {
 
         // Write properties file.
         try {
-            config.store(new FileOutputStream(configurationFile), null);
+            config.store(new FileOutputStream(configFilename), null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -54,7 +48,15 @@ public class ConfigurationBean {
 
     public void readConfig() {
         try {
-            config.load(new FileInputStream(configurationFile));
+            config.load(new FileInputStream(configFilename));
+            if (getConfigVersion() >= 2) {
+                // Starting with v2 of the properties file, we "encrypt" passwords but keep them plain in memory
+                config.setProperty(PROP_GOOGLE_PASSWORD, decodePassword(getGooglePassword()));
+                config.setProperty(PROP_PROXY_PASSWORD, decodePassword(getGoogleProxyPassword()));
+                config.setProperty(PROP_LOTUS_NOTES_PASSWORD, decodePassword(getLotusNotesPassword()));
+
+            }
+
         } catch (Exception e) {
         }
 
@@ -81,7 +83,7 @@ public class ConfigurationBean {
     }
 
     public void setGooglePassword(String googlePassword) {
-        config.setProperty("GooglePassword", encodePassword(googlePassword));
+        config.setProperty(PROP_GOOGLE_PASSWORD, googlePassword);
     }
 
     public void setGoogleProxyIP(String googleProxyIP) {
@@ -97,7 +99,7 @@ public class ConfigurationBean {
     }
 
     public void setGoogleProxyPassword(String value) {
-        config.setProperty(PROP_PROXY_PASSWORD, encodePassword(value));
+        config.setProperty(PROP_PROXY_PASSWORD, value);
     }
 
     public void setGoogleEnableProxy(boolean googleEnableProxy) {
@@ -129,7 +131,7 @@ public class ConfigurationBean {
     }
 
     public void setLotusNotesPassword(String value) {
-        config.setProperty(PROP_LOTUS_NOTES_PASSWORD, encodePassword(value));
+        config.setProperty(PROP_LOTUS_NOTES_PASSWORD, value);
     }
 
     protected void setBooleanProperty(String propertyName, boolean propertyValue) {
@@ -163,7 +165,7 @@ public class ConfigurationBean {
     }
 
     public String getGooglePassword() throws Exception {
-        return getPasswordProperty("GooglePassword");
+        return getStringProperty("GooglePassword");
     }
 
     public String getGoogleProxyIP() {
@@ -179,7 +181,7 @@ public class ConfigurationBean {
     }
 
     public String getGoogleProxyPassword() throws Exception {
-        return getPasswordProperty(PROP_PROXY_PASSWORD);
+        return getStringProperty(PROP_PROXY_PASSWORD);
     }
 
     public boolean getGoogleEnableProxy() {
@@ -195,13 +197,13 @@ public class ConfigurationBean {
     }
 
     public String getLotusNotesPassword() throws Exception {
-        return getPasswordProperty(PROP_LOTUS_NOTES_PASSWORD);
+        return getStringProperty(PROP_LOTUS_NOTES_PASSWORD);
     }
 
     public boolean getSyncOnStartup() {
         return getBooleanProperty(PROP_SYNC_ON_STARTUP);
     }
-    
+
     public boolean getDiagnosticMode() {
         return getBooleanProperty(PROP_DIAGNOSTIC_MODE);
     }
@@ -221,20 +223,6 @@ public class ConfigurationBean {
         if (property == null) {
             property = "";
         }
-
-        return property;
-    }
-
-    protected String getPasswordProperty(String propertyName) throws Exception {
-        String property;
-
-        property = config.getProperty(propertyName);
-        if (property == null)
-            property = "";
-        // In version 2 and later of the config file, passwords are encoded.
-        // Before that version, they were stored as plain text.
-        else if (getConfigVersion() >= 2)
-        	property = decodePassword(property);
 
         return property;
     }
@@ -264,7 +252,7 @@ public class ConfigurationBean {
     protected String encodePassword(String password) {
     	return Base64.encode(password.getBytes());
     }
-    
+
     protected String decodePassword(String encodedPassword ) throws Exception {
         try {
             byte[] data = Base64.decode(encodedPassword);
@@ -273,8 +261,9 @@ public class ConfigurationBean {
             throw ex;
         }
     }
-    
-    
+
+
+    // Version stamp for the config-file format
     protected static final int currConfigVersion = 2;
     protected static final String PROP_CONFIG_VERSION = "ConfigVersion";
     protected static final String PROP_LOTUS_NOTES_SERVER = "LotusNotesServer";
@@ -289,7 +278,10 @@ public class ConfigurationBean {
     protected static final String PROP_PROXY_USERNAME = "GoogleProxyUsername";
     protected static final String PROP_PROXY_PASSWORD = "GoogleProxyPassword";
     protected static final String PROP_USE_SSL = "GoogleUseSSL";
+    protected static final String PROP_GOOGLE_PASSWORD = "GooglePassword";
 
     protected Properties config;
-    protected String configurationFile = "lngooglecalsync.properties";
+    protected final String configFilename = "lngooglecalsync.properties";
+    // Filename with full path
+    protected String configFullFilename;
 }

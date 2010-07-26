@@ -22,6 +22,9 @@ import LotusNotesGoogleCalendarBridge.ProxyModule.ProxyConfigBean;
 import LotusNotesGoogleCalendarBridge.LotusNotesService.LotusNotesExport;
 import LotusNotesGoogleCalendarBridge.LotusNotesService.NotesCalendarEntry;
 import LotusNotesGoogleCalendarBridge.GoogleService.GoogleImport;
+
+import com.google.gdata.data.calendar.CalendarEventEntry;
+
 import java.io.*;
 import java.text.*;
 import java.util.*;
@@ -85,6 +88,8 @@ public class mainGUI extends javax.swing.JFrame {
      */
     public void runCommandLine(){
         try {
+            // Make sure the GUI is hidden
+            this.setVisible(false);
             isSilentMode = true;
             doSync();
         } catch (Exception ex) {
@@ -145,9 +150,9 @@ public class mainGUI extends javax.swing.JFrame {
         lotusNotesService.setMaxEndDate(maxEndDate);
         lotusNotesService.setDiagnosticMode(jCheckBox_DiagnosticMode.isSelected());
         
-        List<NotesCalendarEntry> cals = lotusNotesService.getCalendarEntries();
+        ArrayList<NotesCalendarEntry> lotusCalEntries = lotusNotesService.getCalendarEntries();
         statusAppendFinished();
-        statusAppendLine(cals.size() + " entries found within date range");
+        statusAppendLine("  " + lotusCalEntries.size() + " entries found within date range");
         if (jCheckBox_DiagnosticMode.isSelected())
             statusAppendLineDiag("Lotus Version: " + lotusNotesService.getNotesVersion());
 
@@ -170,20 +175,40 @@ public class mainGUI extends javax.swing.JFrame {
         statusAppendStart("Logging into Google");
         GoogleImport googleService = new GoogleImport(jTextField_GoogleUsername.getText(), new String(jPasswordField_GooglePassword.getPassword()), GoogleConnectUsingSSL);
         statusAppendFinished();
-//if (true) return;
+//if (true) {statusAppendLineDiag("DEBUG: Done logging into Google. Stopping sync."); return;}
+
+        googleService.setDiagnosticMode(jCheckBox_DiagnosticMode.isSelected());
         googleService.setSyncDescription(jCheckBox_SyncDescription.isSelected());
         googleService.setSyncAlarms(jCheckBox_SyncAlarms.isSelected());
 
-        statusAppendStart("Deleting old Google calendar entries");
-        int deleteCount = googleService.deleteCalendarEntries();
+        statusAppendStart("Getting Google calendar entries");
+        ArrayList<CalendarEventEntry> googleCalEntries = googleService.getCalendarEntries();
         statusAppendFinished();
-        statusAppendLine(deleteCount + " entries deleted");
+        statusAppendLine("  " + googleCalEntries.size() + " entries found within date range");
 
-        statusAppendStart("Creating new Google calendar entries");
-        int createdCount = 0;
-        createdCount = googleService.createCalendarEntries(cals);
+        statusAppendStart("Comparing Lotus Notes and Google calendar entries");
+        googleService.compareCalendarEntries(lotusCalEntries, googleCalEntries);
         statusAppendFinished();
-        statusAppendLine(createdCount + " entries created");
+        statusAppendLine("  " + lotusCalEntries.size() + " entries to create. " + googleCalEntries.size() + " entries to delete.");
+
+
+//googleService.createSampleGEntry();
+//if (true) {statusAppendLineDiag("DEBUG: Done comparing entries. Stopping sync."); return;}
+
+        if (googleCalEntries.size() > 0) {
+            statusAppendStart("Deleting old Google calendar entries");
+            int deleteCount = googleService.deleteCalendarEntries(googleCalEntries);
+            statusAppendFinished();
+            statusAppendLine("  " + deleteCount + " entries deleted");
+        }
+
+        if (lotusCalEntries.size() > 0) {
+            statusAppendStart("Creating new Google calendar entries");
+            int createdCount = 0;
+            createdCount = googleService.createCalendarEntries(lotusCalEntries);
+            statusAppendFinished();
+            statusAppendLine(createdCount + " entries created");
+        }
 
         long elapsedMillis = System.currentTimeMillis() - startTime;    
         BigDecimal elapsedSecs = new BigDecimal(elapsedMillis / 1000.0).setScale(1, BigDecimal.ROUND_HALF_UP);
@@ -259,7 +284,7 @@ public class mainGUI extends javax.swing.JFrame {
         jLabel16 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Lotus Notes to Google Calendar Synchronizer");
+        setTitle("Lotus Notes to Google Calendar Synchronizer (LNGS)");
         setBackground(new java.awt.Color(254, 254, 254));
         setMaximizedBounds(new java.awt.Rectangle(0, 0, 0, 0));
         setResizable(false);
@@ -805,7 +830,7 @@ public class mainGUI extends javax.swing.JFrame {
      * @param text - The text to add.
      */
     protected void statusAppendLineDiag(String text) {
-    	statusAppendLine("  " + text);
+    	statusAppendLine("    " + text);
     }
 
     protected void statusAppendStart(String text) {
@@ -839,7 +864,7 @@ public class mainGUI extends javax.swing.JFrame {
     private boolean isUrlValid = false;
     long statusStartTime = 0;
     // An exit code of 0 is success. All other values are failure.
-    final String appVersion = "1.5.1";
+    final String appVersion = "1.6";
     private boolean isSilentMode = false;
     private boolean saveSettingsOnExit = true;
 

@@ -24,12 +24,13 @@ public class NotesCalendarEntry {
         cal.entryType = this.entryType;
         cal.startDateTime = this.startDateTime;
         cal.endDateTime = this.endDateTime;
+        cal.modifiedDateTime = this.modifiedDateTime;
         cal.subject = this.subject;
         cal.location = this.location;
         cal.body = this.body;
         cal.alarm = this.alarm;
         cal.alarmOffsetMins = this.alarmOffsetMins;
-        cal.id = this.id;
+        cal.uid = this.uid;
 
         return cal;
     }
@@ -66,6 +67,10 @@ public class NotesCalendarEntry {
         this.endDateTime = endDateTime;
     }
 
+    public void setModifiedDateTime(Date modifiedDateTime) {
+        this.modifiedDateTime = modifiedDateTime;
+    }
+
     public void setSubject(String subject) {
         this.subject = subject;
     }
@@ -86,8 +91,8 @@ public class NotesCalendarEntry {
         this.alarmOffsetMins = value;
     }
 
-    public void setID(String id) {
-        this.id = id;
+    public void setUID(String uid) {
+        this.uid = uid;
     }
 
     public EntryType getEntryType() {
@@ -138,6 +143,14 @@ public class NotesCalendarEntry {
         return getGoogleDateString(endDateTime, addDays);
     }
 
+    public Date getModifiedDateTime() {
+        return modifiedDateTime;
+    }
+
+    public String getModifiedDateTimeGoogle() throws ParseException {
+        return getGoogleDateTimeString(modifiedDateTime);
+    }
+
     public String getSubject() {
         return subject;
     }
@@ -158,8 +171,27 @@ public class NotesCalendarEntry {
         return alarmOffsetMins;
     }
 
-    public String getID() {
-        return id;
+    /**
+     * Returns the UID stored in Lotus Notes.
+     */
+    public String getUID() {
+        return uid;
+    }
+
+    /**
+     * Returns a UID that includes the Lotus Notes UID and other
+     * info to help sync this entry.
+     */
+    public String getSyncUID() {
+        // Description of the SyncUID format...
+        // Include a version stamp in case this format changes in the future.
+        // Include the Lotus Notes UID.
+        // Include the start timestamp. This is needed because we make multiple entries
+        // from one repeating event. If we don't include the start timestamp, all the
+        // multiple entries would have the same SyncUID.
+        // Include the modified timestamp. If the Lotus entry ever changes, this value
+        // will change and we'll know to update the sync.
+        return currSyncUIDVersion + "-" + uid + "-" + startDateTime.getTime() + "-" + modifiedDateTime.getTime();
     }
 
     
@@ -207,6 +239,9 @@ public class NotesCalendarEntry {
     }
 
 
+    // Version stamp for the SyncUID format
+    protected static final int currSyncUIDVersion = 1;
+
     // The Lotus Notes type for this calendar entry
     public enum EntryType { NONE, APPOINTMENT, TASK };
     // The various sub-types of an appointment
@@ -217,6 +252,8 @@ public class NotesCalendarEntry {
     // DateTime in Lotus Notes format
     protected Date startDateTime = null;
     protected Date endDateTime = null;
+    // The last date/time the entry was modified
+    protected Date modifiedDateTime = null;
     protected String subject = null;
     protected String location = null;
     // Body is the description for the calendar entry
@@ -227,5 +264,6 @@ public class NotesCalendarEntry {
     // before (default) or after the date.  "Before" offsets are negative values and
     // "after" offsets are positive.  So, -15 means notify 15 minutes before the event.
     protected int alarmOffsetMins = 0;
-    protected String id = null;
+    // Unique ID for this calendar entry. This is the value created by Lotus.
+    protected String uid = null;
 }

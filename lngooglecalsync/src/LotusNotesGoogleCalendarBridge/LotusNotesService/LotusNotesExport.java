@@ -9,6 +9,11 @@ public class LotusNotesExport {
 
     public LotusNotesExport() {
         notesVersion = "unknown";
+
+        // Get the absolute path to this app
+        String appPath = new java.io.File("").getAbsolutePath() + System.getProperty("file.separator");
+        lnFoundEntriesFullFilename = appPath + lnFoundEntriesFilename;
+        lnInRangeEntriesFullFilename = appPath + lnInRangeEntriesFilename;
     }
 
     public void setServer(String server) {
@@ -52,11 +57,11 @@ public class LotusNotesExport {
      *    Pass in null to retrieve from a local mail file.
      * @param mailFileName The mail file to read from, e.g. "mail/johnsmith.nsf".
      */
-    public List<NotesCalendarEntry> getCalendarEntries() throws Exception {
+    public ArrayList<NotesCalendarEntry> getCalendarEntries() throws Exception {
         boolean wasNotesThreadInitialized = false;
-        List<NotesCalendarEntry> calendarEntries = new ArrayList<NotesCalendarEntry>();
+        ArrayList<NotesCalendarEntry> calendarEntries = new ArrayList<NotesCalendarEntry>();
         NotesCalendarEntry cal = null;
-//javax.swing.JOptionPane.showMessageDialog(null, "location 1");
+
         try {
             // Some users, especially on OS X, have trouble locating Notes.jar (which
             // needs to be in the classpath) and the supporting dll/so/dylib files (which
@@ -68,7 +73,6 @@ public class LotusNotesExport {
         } catch (Exception ex) {
             throw new Exception("The Lotus Notes Java interface file (Notes.jar) could not be found.\nMake sure Notes.jar is in your classpath.", ex);
         }
-//javax.swing.JOptionPane.showMessageDialog(null, "location 2");
 
         try {
             // Make sure your Windows PATH statement includes the location
@@ -80,21 +84,17 @@ public class LotusNotesExport {
             // So, we set a flag to indicate whether things succeeded or not.
             NotesThread.sinitThread();
             wasNotesThreadInitialized = true;
-//javax.swing.JOptionPane.showMessageDialog(null, "location 3");
 
             // Note: We cast null to a String to avoid overload conflicts
             Session session = NotesFactory.createSession((String)null, (String)null, password);
             notesVersion = session.getNotesVersion();
             
-//javax.swing.JOptionPane.showMessageDialog(null, "location 4");
-
             String dominoServerTemp = server;
             if (server.equals(""))
                 dominoServerTemp = null;
             Database db = session.getDatabase(dominoServerTemp, mailfile, false);
             if (db == null)
                 throw new Exception("Couldn't create Lotus Notes Database object.");
-//javax.swing.JOptionPane.showMessageDialog(null, "location 5");
             
             View lnView;
 
@@ -114,16 +114,14 @@ public class LotusNotesExport {
                 lnView = db.createView(calendarViewName,
                         "SELECT (@IsAvailable(CalendarDateTime) & (@Explode(CalendarDateTime) *= @Explode(@TextToTime(@Text(@Adjust(@Today;0;0;-7;0;0;0)) + \"-\" + @Text(@Adjust(@Today;0;0;60;0;0;0))))))");
             }
-//javax.swing.JOptionPane.showMessageDialog(null, "location 6");
 
             ViewNavigator vn = lnView.createViewNav();
             ViewEntry e = vn.getFirstDocument();
             if (e == null) throw new Exception("No documents were found in the Lotus Notes view.");
-//javax.swing.JOptionPane.showMessageDialog(null, "location 6a");
+
             // Loop through all entries in the View
             while (e != null)
             {
-//javax.swing.JOptionPane.showMessageDialog(null, "location 6b");
                 Item lnItem;
 
                 lotus.domino.Document doc = e.getDocument();
@@ -134,7 +132,6 @@ public class LotusNotesExport {
                 }
 
                 cal = new NotesCalendarEntry();
-//javax.swing.JOptionPane.showMessageDialog(null, "location 6c");
 
                 lnItem = doc.getFirstItem("Subject");
                 cal.setSubject(lnItem.getText());
@@ -142,7 +139,6 @@ public class LotusNotesExport {
                 lnItem = doc.getFirstItem("Body");
                 if (!isItemEmpty(lnItem))
                     cal.setBody(lnItem.getText());
-//javax.swing.JOptionPane.showMessageDialog(null, "location 6d");
 
                 // Get the type of Lotus calendar entry
                 lnItem = doc.getFirstItem("Form");
@@ -158,7 +154,6 @@ public class LotusNotesExport {
                     if (!isItemEmpty(lnItem))
                         cal.setAppointmentType(lnItem.getText());
                 }
-//javax.swing.JOptionPane.showMessageDialog(null, "location 6e");
 
                 lnItem = doc.getFirstItem("Room");
                 if (!isItemEmpty(lnItem))
@@ -175,8 +170,10 @@ public class LotusNotesExport {
                         cal.setAlarmOffsetMins(Integer.parseInt(lnItem.getText()));
                 }
 
+                cal.setModifiedDateTime(doc.getLastModified().toJavaDate());
+
                 lnItem = doc.getFirstItem("OrgRepeat");
-//javax.swing.JOptionPane.showMessageDialog(null, "location 6f");
+
                 // If true, this is a repeating calendar entry
                 if (!isItemEmpty(lnItem))
                 {
@@ -202,6 +199,11 @@ public class LotusNotesExport {
                             // Only add the entry if it is within our sync date range
                             if (isDateInRange(startDate))
                             {
+                                // We are creating multiple entries from one repeating entry.
+                                // We use the same Lotus UID for all entries because we will
+                                // prepend another GUID before inserting into Google.
+                                cal.setUID(doc.getUniversalID());
+
                                 cal.setStartDateTime(startDate);
 
                                 if (endDates != null) {
@@ -216,6 +218,8 @@ public class LotusNotesExport {
                 }
                 else
                 {
+                    cal.setUID(doc.getUniversalID());
+
                     lnItem = doc.getFirstItem("StartDateTime");
                     if (!isItemEmpty(lnItem))
                         cal.setStartDateTime(lnItem.getDateTimeValue().toJavaDate());
@@ -231,11 +235,9 @@ public class LotusNotesExport {
                     if (isDateInRange(cal.getStartDateTime()))
                         calendarEntries.add(cal);
                 }
-//javax.swing.JOptionPane.showMessageDialog(null, "location 6g");
 
                 e = vn.getNextDocument();
             }
-//javax.swing.JOptionPane.showMessageDialog(null, "location 7");
 
             return calendarEntries;
         } catch (Exception ex) {
@@ -251,7 +253,6 @@ public class LotusNotesExport {
                 throw new Exception(exMsg, ex);
             }
         } finally {
-//javax.swing.JOptionPane.showMessageDialog(null, "location 8");
             // If true, the NotesThread failed to init. The LN dlls probably weren't found.
             // NOTE: Make sure this check is the first line in the finally block. When the
             // init fails, some of the finally block may get skipped.
@@ -268,7 +269,6 @@ public class LotusNotesExport {
             }
 
             NotesThread.stermThread();
-//javax.swing.JOptionPane.showMessageDialog(null, "location 9");
         }
     }
 
@@ -293,7 +293,7 @@ public class LotusNotesExport {
     public void writeEntryToFile(lotus.domino.Document doc) throws IOException, NotesException {
         // Open the output file if it is not open
         if (lnFoundEntriesWriter == null) {
-            lnFoundEntriesFile = new File("LotusNotesFoundEntries.txt");
+            lnFoundEntriesFile = new File(lnFoundEntriesFullFilename);
             lnFoundEntriesWriter = new BufferedWriter(new FileWriter(lnFoundEntriesFile));
         }
 
@@ -301,6 +301,9 @@ public class LotusNotesExport {
         List<String> itemsAndValues = new ArrayList<String>();
 
         lnFoundEntriesWriter.write("=== Calendar Entry ===\n");
+
+        itemsAndValues.add("  LastModified: " + doc.getLastModified() + "\n");
+        itemsAndValues.add("  UniversalID: " + doc.getUniversalID() + "\n");
 
         // Loop through each item
         for (Object itemObj : doc.getItems())
@@ -322,9 +325,9 @@ public class LotusNotesExport {
     }
 
 
-    public void writeInRangeEntriesToFile(List<NotesCalendarEntry> calendarEntries) throws IOException {
+    public void writeInRangeEntriesToFile(List<NotesCalendarEntry> calendarEntries) throws Exception {
         try {
-            lnInRangeEntriesFile = new File("LotusNotesInRangeEntries.txt");
+            lnInRangeEntriesFile = new File(lnInRangeEntriesFullFilename);
             lnInRangeEntriesWriter = new BufferedWriter(new FileWriter(lnInRangeEntriesFile));
 
             if (calendarEntries == null)
@@ -332,8 +335,10 @@ public class LotusNotesExport {
             else
                 for (NotesCalendarEntry entry : calendarEntries) {
                     lnInRangeEntriesWriter.write("=== " + entry.getSubject() + "\n");
+                    lnInRangeEntriesWriter.write("  UID: " + entry.getUID() + "\n");
                     lnInRangeEntriesWriter.write("  Start Date: " + entry.getStartDateTime() + "\n");
                     lnInRangeEntriesWriter.write("  End Date: " + entry.getEndDateTime() + "\n");
+                    lnInRangeEntriesWriter.write("  Modified Date: " + entry.getModifiedDateTime() + "\n");
                     lnInRangeEntriesWriter.write("  Location: " + entry.getLocation() + "\n");
                     lnInRangeEntriesWriter.write("  Alarm: " + entry.getAlarm() + "\n");
                     lnInRangeEntriesWriter.write("  Alarm Offset Mins: " + entry.getAlarmOffsetMins() + "\n");
@@ -341,7 +346,8 @@ public class LotusNotesExport {
                     lnInRangeEntriesWriter.write("  Entry Type: " + entry.getEntryType() + "\n");
                     lnInRangeEntriesWriter.write("\n");
                 }
-        } catch (Exception e) {
+        } catch (Exception ex) {
+            throw ex;
         }
         finally {
             if (lnInRangeEntriesWriter != null) {
@@ -388,6 +394,11 @@ public class LotusNotesExport {
     // These items are used when diagnosticMode = true
     File lnFoundEntriesFile = null;
     BufferedWriter lnFoundEntriesWriter = null;
+    final String lnFoundEntriesFilename = "LotusNotesFoundEntries.txt";
+    // Filename with full path
+    String lnFoundEntriesFullFilename;
     File lnInRangeEntriesFile = null;
     BufferedWriter lnInRangeEntriesWriter = null;
+    final String lnInRangeEntriesFilename = "LotusNotesInRangeEntries.txt";
+    String lnInRangeEntriesFullFilename;
 }
