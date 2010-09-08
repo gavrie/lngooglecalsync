@@ -17,13 +17,14 @@ import java.net.*;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.Calendar;
 import java.util.UUID;
 
 public class GoogleImport {
 
-    public GoogleImport(String accountname, String password, boolean useSSL) throws Exception {
+    public GoogleImport(String accountname, String password, String calendarName, boolean useSSL) throws Exception {
         try {
             // Get the absolute path to this app
             String appPath = new java.io.File("").getAbsolutePath() + System.getProperty("file.separator");
@@ -44,6 +45,7 @@ public class GoogleImport {
 
             service.setUserCredentials(accountname, password);
 
+            destinationCalendarName = calendarName;
             createCalendar();
         } catch (InvalidCredentialsException ex) {
             throw new Exception("The username and/or password are invalid for signing into Google.", ex);
@@ -77,9 +79,9 @@ public class GoogleImport {
                 } catch (com.google.gdata.util.ServiceException ex) {
                     calendars = null;
                     // If there is a network problem while connecting to Google, retry a few times
-                    if (++retryCount > 10)
+                    if (++retryCount > maxRetryCount)
                         throw ex;
-                    Thread.sleep(200);
+                    Thread.sleep(retryDelayMsecs);
                 }
             } while (calendars == null);
 
@@ -100,8 +102,6 @@ public class GoogleImport {
     }
 
 
-
-
     /**
      * Creates a Google calendar for the desired name (if it doesn't already exist).
      * @throws IOException
@@ -115,10 +115,14 @@ public class GoogleImport {
 
         CalendarEntry calendar = new CalendarEntry();
         calendar.setTitle(new PlainTextConstruct(destinationCalendarName));
-//        calendar.setSummary(new PlainTextConstruct("Lotus Notes Calendar"));
+
         // Get this machine's current time zone when creating the new Google calendar
         TimeZone localTimeZone = TimeZone.getDefault();
-        calendar.setTimeZone(new TimeZoneProperty(localTimeZone.getID()));
+
+        // Set the Google calendar time zone
+        String timeZoneName = localTimeZone.getID();
+        TimeZoneProperty tzp = new TimeZoneProperty(timeZoneName);
+        calendar.setTimeZone(tzp);
         
         calendar.setHidden(HiddenProperty.FALSE);
         calendar.setSelected(SelectedProperty.TRUE);
@@ -139,101 +143,13 @@ public class GoogleImport {
      * @return The number of entries successfully deleted.
      */
     public int deleteCalendarEntries() throws Exception {
-        try {
-            URL feedUrl = getDestinationCalendarUrl();
-            CalendarQuery myQuery = new CalendarQuery(feedUrl);
-
-            // Get today - 7 days
-            Calendar now = Calendar.getInstance();
-            now.add(Calendar.DATE, -7);
-            // Clear out the time portion
-            now.set(Calendar.HOUR_OF_DAY, 0);
-            now.set(Calendar.MINUTE, 0);
-            now.set(Calendar.SECOND, 0);
-
-            myQuery.setMinimumStartTime(new com.google.gdata.data.DateTime(now.getTime()));
-            // Make the end time far into the future so we delete everything
-            myQuery.setMaximumStartTime(com.google.gdata.data.DateTime.parseDateTime("2099-12-31T23:59:59"));
-
-            // Set the maximum number of results to return for the query.
-            // Note: A GData server may choose to provide fewer results, but will never provide
-            // more than the requested maximum.
-            myQuery.setMaxResults(5000);
-            int startIndex = 1;
-            int entriesReturned;
-            int retryCount = 0;
-
-            List<CalendarEventEntry> allCalEntries = new ArrayList<CalendarEventEntry>();
-            CalendarEventFeed resultFeed;
-
-            // Run our query as many times as necessary to get all the
-            // Google calendar entries we want
-            while (true) {
-                myQuery.setStartIndex(startIndex);
-
-                try {
-                    // Execute the query and get the response
-                    resultFeed = service.query(myQuery, CalendarEventFeed.class);
-                } catch (com.google.gdata.util.ServiceException ex) {
-                    // If there is a network problem while connecting to Google, retry a few times
-                    if (++retryCount > 10)
-                        throw ex;
-                    Thread.sleep(200);
-
-                    continue;
-                }
-
-                entriesReturned = resultFeed.getEntries().size();
-                if (entriesReturned == 0)
-                    // We've hit the end of the list
-                    break;
-
-                // Add the returned entries to our local list
-                allCalEntries.addAll(resultFeed.getEntries());
-
-                startIndex = startIndex + entriesReturned;
-            }
-
-            // Delete all the entries as a batch delete
-            CalendarEventFeed batchRequest = new CalendarEventFeed();
-
-            for (int i = 0; i < allCalEntries.size(); i++) {
-                CalendarEventEntry entry = allCalEntries.get(i);
-
-                BatchUtils.setBatchId(entry, Integer.toString(i));
-                BatchUtils.setBatchOperationType(entry, BatchOperationType.DELETE);
-                batchRequest.getEntries().add(entry);
-            }
-
-            // Get the batch link URL and send the batch request
-            Link batchLink = resultFeed.getLink(Link.Rel.FEED_BATCH, Link.Type.ATOM);
-            CalendarEventFeed batchResponse = service.batch(new URL(batchLink.getHref()), batchRequest);
-
-            // Ensure that all the operations were successful
-            boolean isSuccess = true;
-            StringBuffer batchFailureMsg = new StringBuffer("These entries in the batch delete failed:");
-            for (CalendarEventEntry entry : batchResponse.getEntries()) {
-                String batchId = BatchUtils.getBatchId(entry);
-                if (!BatchUtils.isSuccess(entry)) {
-                    isSuccess = false;
-                    BatchStatus status = BatchUtils.getBatchStatus(entry);
-                    batchFailureMsg.append("\nID: " + batchId + "  Reason: " + status.getReason());
-                }
-            }
-
-            if (!isSuccess) {
-                throw new Exception(batchFailureMsg.toString());
-            }
-
-            return batchRequest.getEntries().size();
-        } catch (Exception ex) {
-            throw ex;
-        }
+        ArrayList<CalendarEventEntry> googleCalEntries = getCalendarEntries();
+        return deleteCalendarEntries(googleCalEntries);
     }
 
 
     /**
-     * Delete all Google calendar entries in the provided list.
+     * Delete the Google calendar entries in the provided list.
      * @return The number of entries successfully deleted.
      */
     public int deleteCalendarEntries(ArrayList<CalendarEventEntry> googleCalEntries) throws Exception {
@@ -256,30 +172,37 @@ public class GoogleImport {
                 batchRequest.getEntries().add(entry);
             }
 
-            CalendarEventFeed feed = service.getFeed(feedUrl, CalendarEventFeed.class);
-
-//            CalendarEventFeed resultFeed;
-//            resultFeed = service.getFeed(feedUrl, CalendarFeed.class);
-  
-            // Get the batch link URL and send the batch request
-            Link batchLink = feed.getLink(Link.Rel.FEED_BATCH, Link.Type.ATOM);
-            CalendarEventFeed batchResponse = service.batch(new URL(batchLink.getHref()), batchRequest);
-
-            // Ensure that all the operations were successful
-            boolean isSuccess = true;
-            StringBuffer batchFailureMsg = new StringBuffer("These entries in the batch delete failed:");
-            for (CalendarEventEntry entry : batchResponse.getEntries()) {
-                String batchId = BatchUtils.getBatchId(entry);
-                if (!BatchUtils.isSuccess(entry)) {
-                    isSuccess = false;
-                    BatchStatus status = BatchUtils.getBatchStatus(entry);
-                    batchFailureMsg.append("\nID: " + batchId + "  Reason: " + status.getReason());
+            CalendarEventFeed feed = null;
+            do {
+                try {
+                    feed = service.getFeed(feedUrl, CalendarEventFeed.class);
+                } catch (com.google.gdata.util.ServiceException ex) {
+                    feed = null;
+                    // If there is a network problem, retry a few times
+                    if (++retryCount > maxRetryCount)
+                        throw ex;
+                    Thread.sleep(retryDelayMsecs);
                 }
-            }
+            } while (feed == null);
 
-            if (!isSuccess) {
-                throw new Exception(batchFailureMsg.toString());
-            }
+            // Get the batch link URL
+            Link batchLink = feed.getLink(Link.Rel.FEED_BATCH, Link.Type.ATOM);
+
+            // Send the batch request with retries
+            CalendarEventFeed batchResponse = null;
+            do {
+                try {
+                    batchResponse = service.batch(new URL(batchLink.getHref()), batchRequest);
+                } catch (com.google.gdata.util.ServiceException ex) {
+                    batchResponse = null;
+                    // If there is a network problem, retry a few times
+                    if (++retryCount > maxRetryCount)
+                        throw ex;
+                    Thread.sleep(retryDelayMsecs);
+                }
+            } while (batchResponse == null);
+
+            CheckBatchDeleteResults(batchResponse, googleCalEntries);
 
             return batchRequest.getEntries().size();
         } catch (Exception ex) {
@@ -287,6 +210,35 @@ public class GoogleImport {
         }
     }
 
+    
+    /**
+     * Throw an exception if there were any errors in the batch delete.
+     * @param batchResponse - The batch response.
+     * @param googleCalEntries - The original list of items that we tried to delete.
+     */
+    protected void CheckBatchDeleteResults(CalendarEventFeed batchResponse, ArrayList<CalendarEventEntry> googleCalEntries) throws Exception {
+        // Ensure that all the operations were successful
+        boolean isSuccess = true;
+
+        StringBuffer batchFailureMsg = new StringBuffer("These entries in the batch delete failed:");
+        for (CalendarEventEntry entry : batchResponse.getEntries()) {
+            String batchId = BatchUtils.getBatchId(entry);
+            if (!BatchUtils.isSuccess(entry)) {
+                isSuccess = false;
+                BatchStatus status = BatchUtils.getBatchStatus(entry);
+
+                CalendarEventEntry entryOrig = googleCalEntries.get(new Integer(batchId));
+
+                batchFailureMsg.append("\nID: " + batchId + "  Reason: " + status.getReason() +
+                        "  Subject: " + entryOrig.getTitle().getPlainText() +
+                        "  Start Date: " + entryOrig.getTimes().get(0).getStartTime().toString());
+            }
+        }
+
+        if (!isSuccess) {
+            throw new Exception(batchFailureMsg.toString());
+        }
+    }
 
     /**
      * Get all the Google calendar entries for a specific date range.
@@ -331,9 +283,9 @@ public class GoogleImport {
                     resultFeed = service.query(myQuery, CalendarEventFeed.class);
                 } catch (com.google.gdata.util.ServiceException ex) {
                     // If there is a network problem while connecting to Google, retry a few times
-                    if (++retryCount > 10)
+                    if (++retryCount > maxRetryCount)
                         throw ex;
-                    Thread.sleep(200);
+                    Thread.sleep(retryDelayMsecs);
                     
                     continue;
                 }
@@ -347,6 +299,18 @@ public class GoogleImport {
                 allCalEntries.addAll(resultFeed.getEntries());
 
                 startIndex = startIndex + entriesReturned;
+            }
+
+            // Remove all entries marked canceled. Canceled entries aren't visible
+            // in Google calendar, and trying to delete them programatically will
+            // cause an exception.
+            for (int i = 0; i < allCalEntries.size(); i++) {
+                CalendarEventEntry entry = allCalEntries.get(i);
+
+                if (entry.getStatus().equals(BaseEventEntry.EventStatus.CANCELED)) {
+                    allCalEntries.remove(entry);
+                    i--;
+                }
             }
 
             if (diagnosticMode)
@@ -434,14 +398,11 @@ public class GoogleImport {
         // Loop through all Lotus entries
         for (int i = 0; i < lotusCalEntries.size(); i++) {
             NotesCalendarEntry lotusEntry = lotusCalEntries.get(i);
-            String syncUID = lotusEntry.getSyncUID();
 
             // Loop through all Google entries for each Lotus entry.  This isn't
-            // normally efficient, but we have small lists (probably less than 300).
+            // really efficient, but we have small lists (probably less than 300).
             for (int j = 0; j < googleCalEntries.size(); j++) {
-                // The Google IcalUID has the format: GoogleUID:SyncUID.
-                // Strip off the "GoogleUID:" and do a compare.
-                if (googleCalEntries.get(j).getIcalUID().substring(33).equals(syncUID)) {
+                if ( ! hasEntryChanged(lotusEntry, googleCalEntries.get(j))) {
                     // The Lotus and Google entries are identical, so remove them from out lists.
                     // They don't need created or deleted.
                     lotusCalEntries.remove(i--);
@@ -452,6 +413,47 @@ public class GoogleImport {
         }
     }
 
+
+    /**
+     * Compare a Lotus and Google entry. Return true if the Lotus entry has changed
+     * since the last sync.
+     */
+    public boolean hasEntryChanged(NotesCalendarEntry lotusEntry, CalendarEventEntry googleEntry) {
+        String syncUID = lotusEntry.getSyncUID();
+
+        // The Google IcalUID has the format: GoogleUID:SyncUID.
+        // Strip off the "GoogleUID:" part and do a compare.
+        if (googleEntry.getIcalUID().substring(33).equals(syncUID)) {
+            // The two entries match on our first test, but we have to compare
+            // other values. Why? Say a sync is performed with the "sync alarms"
+            // option enabled, but then "sync alarms" is turned off. When the
+            // second sync happens, we want to delete all the Google entries created
+            // the first time (with alarms) and re-create them without alarms.
+
+            if (syncAlarms && lotusEntry.getAlarm()) {   
+                // We are syncing alarms, so make sure the Google entry has an alarm.
+                // Note: If there is an alarm set, we'll assume the offset is correct.
+                if (googleEntry.getReminder().size() == 0)
+                    return true;
+            }
+            else {
+                // We aren't syncing alarms, so make sure the Google entry doesn't
+                // have an alarm specified
+                if (googleEntry.getReminder().size() > 0)
+                    return true;
+            }
+
+            // Compare the Description field of Google entry to what we would build it as
+            if (! googleEntry.getPlainTextContent().equals(createDescriptionText(lotusEntry))) {
+                return true;
+            }
+
+            // The Lotus and Google entries are identical
+            return false;
+        }
+
+        return true;
+    }
 
     // This method is for testing purposes.
     public void createSampleCalEntry() {
@@ -539,8 +541,9 @@ public class GoogleImport {
             // we really want to remember (referred to as the SyncUID).
             event.setIcalUID(UUID.randomUUID().toString().replaceAll("-", "") + ":" + lotusEntry.getSyncUID());
 
-            if (syncDescription && lotusEntry.getBody() != null)
-                event.setContent(new PlainTextConstruct(lotusEntry.getBody()));
+            StringBuffer sb = new StringBuffer();
+
+            event.setContent(new PlainTextConstruct(createDescriptionText(lotusEntry)));
 
             String locationStr = lotusEntry.getLocation();
             if (locationStr != null && !locationStr.isEmpty()) {
@@ -596,16 +599,7 @@ public class GoogleImport {
             if (syncAlarms && lotusEntry.getAlarm()) {
                 Reminder reminder = new Reminder();
 
-                // Lotus Notes alarms can be before (negative value) or after (positive value)
-                // the event.  Google only supports alarms before the event and the number
-                // is then positive.
-                // So, convert to Google as follows: alarms after (positive) are made 0,
-                // alarms before (negative) are made positive.
-                int alarmMins = 0;
-                if (lotusEntry.getAlarmOffsetMins() < 0)
-                    alarmMins = Math.abs(lotusEntry.getAlarmOffsetMins());
-
-                reminder.setMinutes(alarmMins);
+                reminder.setMinutes(lotusEntry.getAlarmOffsetMinsGoogle());
                 reminder.setMethod(Method.ALERT);
                 event.getReminder().add(reminder);
             }
@@ -618,14 +612,51 @@ public class GoogleImport {
                     break;
                 } catch (com.google.gdata.util.ServiceException ex) {
                     // If there is a network problem while connecting to Google, retry a few times
-                    if (++retryCount > 10)
+                    if (++retryCount > maxRetryCount)
                         throw ex;
-                    Thread.sleep(200);
+                    Thread.sleep(retryDelayMsecs);
                 }
             } while (true);
         }
 
         return createdCount;
+    }
+
+    protected String createDescriptionText(NotesCalendarEntry lotusEntry) {
+        StringBuffer sb = new StringBuffer();
+
+        if (syncMeetingAttendees) {
+            if (lotusEntry.getChairpersonPlain() != null) {
+                //chair comes out in format: CN=Jonathan Marshall/OU=UK/O=IBM, leaving like that at the moment
+                sb.append("Chairperson: "); sb.append(lotusEntry.getChairpersonPlain());
+            }
+
+            if (lotusEntry.getRequiredAttendeesPlain() != null) {
+                if (sb.length() > 0)
+                    sb.append("\n");
+                sb.append("Required: "); sb.append(lotusEntry.getRequiredAttendeesPlain());
+            }
+
+            if (lotusEntry.getOptionalAttendees() != null){
+                if (sb.length() > 0)
+                    sb.append("\n");
+                sb.append("Optional: "); sb.append(lotusEntry.getOptionalAttendees());
+            }
+        }
+
+        if (syncDescription && lotusEntry.getBody() != null) {
+            if (sb.length() > 0)
+                // Put blank lines between attendees and the description
+                sb.append("\n\n\n");
+
+            // Lotus ends each description line with \r\n.  Remove all
+            // carriage returns (\r) because they aren't needed and they prevent the
+            // Lotus description from matching the description in Google.
+            String s = lotusEntry.getBody().replaceAll("\r", "");
+            sb.append(s.trim());
+        }
+
+        return sb.toString();
     }
 
     public void setSyncDescription(boolean value) {
@@ -634,6 +665,10 @@ public class GoogleImport {
 
     public void setSyncAlarms(boolean value) {
         syncAlarms = value;
+    }
+
+    public void setSyncMeetingAttendees(boolean value){
+    	syncMeetingAttendees = value;
     }
 
     public void setDiagnosticMode(boolean value) {
@@ -652,11 +687,15 @@ public class GoogleImport {
 
     boolean syncDescription = false;
     boolean syncAlarms = false;
+    boolean syncMeetingAttendees = false;
 
     final String googleInRangeEntriesFilename = "GoogleInRangeEntries.txt";
     // Filename with full path
     String googleInRangeEntriesFullFilename;
 
-    String destinationCalendarName = "Lotus Notes";
+    final int maxRetryCount = 10;
+    final int retryDelayMsecs = 300;
+
+    String destinationCalendarName;
     String DEST_CALENDAR_COLOR = "#F2A640";
 }

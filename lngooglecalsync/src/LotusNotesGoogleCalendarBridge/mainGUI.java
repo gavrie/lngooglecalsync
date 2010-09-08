@@ -27,6 +27,7 @@ import com.google.gdata.data.calendar.CalendarEventEntry;
 
 import java.io.*;
 import java.text.*;
+import java.net.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -94,7 +95,7 @@ public class mainGUI extends javax.swing.JFrame {
             doSync();
         } catch (Exception ex) {
             exitCode = EXIT_EXCEPTION;
-            System.out.println("General problem: " + ex.getMessage());
+            System.out.println("\nGeneral problem: " + ex.getMessage());
             ex.printStackTrace();
         }
     }
@@ -109,6 +110,7 @@ public class mainGUI extends javax.swing.JFrame {
         proxy.deactivateNow();
 
         statusClear();
+
         if (confBean.getSyncOnStartup() && jButton_Synchronize.isEnabled())
             statusAppendLine("Automatic sync-on-startup is enabled. Starting sync.");
         else
@@ -170,16 +172,20 @@ public class mainGUI extends javax.swing.JFrame {
             proxy.activateNow();
         }
 
+
+
+
         // check whether the user has deselected to use SSL when connecting to google (this is not recommended)
         boolean GoogleConnectUsingSSL = jCheckBox_GoogleSSL.isSelected();
         statusAppendStart("Logging into Google");
-        GoogleImport googleService = new GoogleImport(jTextField_GoogleUsername.getText(), new String(jPasswordField_GooglePassword.getPassword()), GoogleConnectUsingSSL);
+        GoogleImport googleService = new GoogleImport(jTextField_GoogleUsername.getText(), new String(jPasswordField_GooglePassword.getPassword()), jTextField_DestinationCalendarName.getText(), GoogleConnectUsingSSL);
         statusAppendFinished();
 //if (true) {statusAppendLineDiag("DEBUG: Done logging into Google. Stopping sync."); return;}
 
         googleService.setDiagnosticMode(jCheckBox_DiagnosticMode.isSelected());
         googleService.setSyncDescription(jCheckBox_SyncDescription.isSelected());
         googleService.setSyncAlarms(jCheckBox_SyncAlarms.isSelected());
+        googleService.setSyncMeetingAttendees(jCheckBox_SyncMeetingAttendees.isSelected());
 
         statusAppendStart("Getting Google calendar entries");
         ArrayList<CalendarEventEntry> googleCalEntries = googleService.getCalendarEntries();
@@ -190,7 +196,6 @@ public class mainGUI extends javax.swing.JFrame {
         googleService.compareCalendarEntries(lotusCalEntries, googleCalEntries);
         statusAppendFinished();
         statusAppendLine("  " + lotusCalEntries.size() + " entries to create. " + googleCalEntries.size() + " entries to delete.");
-
 
 //googleService.createSampleGEntry();
 //if (true) {statusAppendLineDiag("DEBUG: Done comparing entries. Stopping sync."); return;}
@@ -253,6 +258,9 @@ public class mainGUI extends javax.swing.JFrame {
         jLabel17 = new javax.swing.JLabel();
         jCheckBox_SyncDescription = new javax.swing.JCheckBox();
         jCheckBox_SyncAlarms = new javax.swing.JCheckBox();
+        jLabel20 = new javax.swing.JLabel();
+        jTextField_DestinationCalendarName = new javax.swing.JTextField();
+        jCheckBox_SyncMeetingAttendees = new javax.swing.JCheckBox();
         jPanel1 = new javax.swing.JPanel();
         jCheckBox_GoogleSSL = new javax.swing.JCheckBox();
         jPasswordField_GooglePassword = new javax.swing.JPasswordField();
@@ -377,6 +385,20 @@ public class mainGUI extends javax.swing.JFrame {
         jCheckBox_SyncAlarms.setMinimumSize(new java.awt.Dimension(40, 23));
         jCheckBox_SyncAlarms.setPreferredSize(new java.awt.Dimension(100, 23));
 
+        jLabel20.setText("Destination Calendar Name");
+
+        jTextField_DestinationCalendarName.setToolTipText("The calendar name is case sensitive, i.e. \"my cal\" is different then \"My Cal\".");
+        jTextField_DestinationCalendarName.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                jTextField_DestinationCalendarNameFocusLost(evt);
+            }
+        });
+
+        jCheckBox_SyncMeetingAttendees.setText("Attendees are Listed at Top of Description");
+        jCheckBox_SyncMeetingAttendees.setMaximumSize(new java.awt.Dimension(100, 23));
+        jCheckBox_SyncMeetingAttendees.setMinimumSize(new java.awt.Dimension(40, 23));
+        jCheckBox_SyncMeetingAttendees.setPreferredSize(new java.awt.Dimension(100, 23));
+
         org.jdesktop.layout.GroupLayout jPanel3Layout = new org.jdesktop.layout.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -385,18 +407,24 @@ public class mainGUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel3Layout.createSequentialGroup()
+                        .add(16, 16, 16)
+                        .add(jLabel20, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 135, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jTextField_DestinationCalendarName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 258, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(jLabel17, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 76, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jPanel3Layout.createSequentialGroup()
                         .add(10, 10, 10)
                         .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jCheckBox_DiagnosticMode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jCheckBox_SyncOnStart, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(jLabel17, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 76, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jCheckBox_SyncDescription, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jCheckBox_SyncMeetingAttendees, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 274, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jCheckBox_SyncAlarms, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 253, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                     .add(jLabel11, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 105, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jPanel3Layout.createSequentialGroup()
                         .add(10, 10, 10)
                         .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jCheckBox_SyncAlarms, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 194, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jCheckBox_SyncDescription, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(282, Short.MAX_VALUE))
+                            .add(jCheckBox_SyncOnStart, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 179, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jCheckBox_DiagnosticMode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(73, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -404,6 +432,10 @@ public class mainGUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .add(jLabel11, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jTextField_DestinationCalendarName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel20))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(jCheckBox_SyncOnStart, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jCheckBox_DiagnosticMode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -412,8 +444,10 @@ public class mainGUI extends javax.swing.JFrame {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jCheckBox_SyncDescription, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jCheckBox_SyncMeetingAttendees, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jCheckBox_SyncAlarms, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(293, Short.MAX_VALUE))
+                .addContainerGap(239, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Sync Settings", jPanel3);
@@ -711,6 +745,11 @@ public class mainGUI extends javax.swing.JFrame {
         jTextField_LotusNotesServer.setEnabled(!jCheckBox_LotusNotesServerIsLocal.isSelected());
     }//GEN-LAST:event_jCheckBox_LotusNotesServerIsLocalStateChanged
 
+    private void jTextField_DestinationCalendarNameFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextField_DestinationCalendarNameFocusLost
+        // Trim whitespace from front and back of text
+        jTextField_DestinationCalendarName.setText(jTextField_DestinationCalendarName.getText().trim());
+    }//GEN-LAST:event_jTextField_DestinationCalendarNameFocusLost
+
     private void validateSettings() {
         boolean complete = false;
 
@@ -744,12 +783,14 @@ public class mainGUI extends javax.swing.JFrame {
         confBean.setGoogleProxyIP(jTextField_proxyIP.getText());
         confBean.setGoogleProxyUsername(jTextField_proxyUsername.getText());
         confBean.setGoogleProxyPassword(new String(jPasswordField_proxyPassword.getPassword()));
+        confBean.setGoogleCalendarName(jTextField_DestinationCalendarName.getText());
 
         confBean.setGoogleUseSSL(jCheckBox_GoogleSSL.isSelected());
         confBean.setSyncOnStartup(jCheckBox_SyncOnStart.isSelected());
         confBean.setDiagnosticMode(jCheckBox_DiagnosticMode.isSelected());
         confBean.setSyncDescription(jCheckBox_SyncDescription.isSelected());
         confBean.setSyncAlarms(jCheckBox_SyncAlarms.isSelected());
+        confBean.setSyncMeetingAttendees(jCheckBox_SyncMeetingAttendees.isSelected());
 
         //save configuration to file
         confBean.writeConfig();
@@ -772,10 +813,13 @@ public class mainGUI extends javax.swing.JFrame {
             jTextField_proxyPort.setText(confBean.getGoogleProxyPort());
             jTextField_proxyUsername.setText(confBean.getGoogleProxyUsername());
             jPasswordField_proxyPassword.setText(confBean.getGoogleProxyPassword());
+            jTextField_DestinationCalendarName.setText(confBean.getGoogleCalendarName());
+            
             jCheckBox_SyncOnStart.setSelected(confBean.getSyncOnStartup());
             jCheckBox_DiagnosticMode.setSelected(confBean.getDiagnosticMode());
             jCheckBox_SyncDescription.setSelected(confBean.getSyncDescription());
             jCheckBox_SyncAlarms.setSelected(confBean.getSyncAlarms());
+            jCheckBox_SyncMeetingAttendees.setSelected(confBean.getSyncMeetingAttendees());
 
             // Configure proxy settings
             proxy.setProxyHost(confBean.getGoogleProxyIP());
@@ -864,7 +908,7 @@ public class mainGUI extends javax.swing.JFrame {
     private boolean isUrlValid = false;
     long statusStartTime = 0;
     // An exit code of 0 is success. All other values are failure.
-    final String appVersion = "1.6";
+    final String appVersion = "1.7";
     private boolean isSilentMode = false;
     private boolean saveSettingsOnExit = true;
 
@@ -886,6 +930,7 @@ public class mainGUI extends javax.swing.JFrame {
     private javax.swing.JCheckBox jCheckBox_LotusNotesServerIsLocal;
     private javax.swing.JCheckBox jCheckBox_SyncAlarms;
     private javax.swing.JCheckBox jCheckBox_SyncDescription;
+    private javax.swing.JCheckBox jCheckBox_SyncMeetingAttendees;
     private javax.swing.JCheckBox jCheckBox_SyncOnStart;
     private javax.swing.JCheckBox jCheckBox_enableProxy;
     private javax.swing.JLabel jLabel10;
@@ -898,6 +943,7 @@ public class mainGUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
+    private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -915,6 +961,7 @@ public class mainGUI extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextArea jTextArea_Status;
+    private javax.swing.JTextField jTextField_DestinationCalendarName;
     private javax.swing.JTextField jTextField_GoogleUsername;
     private javax.swing.JTextField jTextField_LotusNotesMailFile;
     private javax.swing.JTextField jTextField_LotusNotesServer;

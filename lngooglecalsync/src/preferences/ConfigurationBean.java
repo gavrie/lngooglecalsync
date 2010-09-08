@@ -110,6 +110,10 @@ public class ConfigurationBean {
         setBooleanProperty(PROP_USE_SSL, googleUseSSL);
     }
 
+    public void setGoogleCalendarName(String value) {
+        config.setProperty(PROP_GOOGLE_CALENDAR_NAME, value.trim());
+    }
+
     public void setSyncOnStartup(boolean value) {
         setBooleanProperty(PROP_SYNC_ON_STARTUP, value);
     }
@@ -132,6 +136,10 @@ public class ConfigurationBean {
 
     public void setLotusNotesPassword(String value) {
         config.setProperty(PROP_LOTUS_NOTES_PASSWORD, value);
+    }
+
+    public void setSyncMeetingAttendees(boolean value){
+    	setBooleanProperty(PROP_SYNC_MEETING_ATTENDEES, value);
     }
 
     protected void setBooleanProperty(String propertyName, boolean propertyValue) {
@@ -165,7 +173,7 @@ public class ConfigurationBean {
     }
 
     public String getGooglePassword() throws Exception {
-        return getStringProperty("GooglePassword");
+        return getStringProperty(PROP_GOOGLE_PASSWORD);
     }
 
     public String getGoogleProxyIP() {
@@ -192,6 +200,15 @@ public class ConfigurationBean {
         return getBooleanProperty(PROP_USE_SSL);
     }
 
+    public String getGoogleCalendarName() {
+        String calendarName = getStringTrimmedProperty(PROP_GOOGLE_CALENDAR_NAME);
+
+        if (calendarName.isEmpty())
+            calendarName = "Lotus Notes";
+        
+        return calendarName;
+    }
+
     public String getLotusNotesUsername() {
         return getStringProperty(PROP_LOTUS_NOTES_USERNAME);
     }
@@ -216,6 +233,10 @@ public class ConfigurationBean {
         return getBooleanProperty(PROP_SYNC_ALARMS);
     }
 
+    public boolean getSyncMeetingAttendees(){
+    	return getBooleanProperty(PROP_SYNC_MEETING_ATTENDEES);
+    }
+
     protected String getStringProperty(String propertyName) {
         String property;
 
@@ -225,6 +246,10 @@ public class ConfigurationBean {
         }
 
         return property;
+    }
+
+    protected String getStringTrimmedProperty(String propertyName) {
+        return getStringProperty(propertyName).trim();
     }
 
     protected boolean getBooleanProperty(String propertyName) {
@@ -264,21 +289,25 @@ public class ConfigurationBean {
 
 
     // Version stamp for the config-file format
-    protected static final int currConfigVersion = 2;
+    protected static final int currConfigVersion = 3;
     protected static final String PROP_CONFIG_VERSION = "ConfigVersion";
     protected static final String PROP_LOTUS_NOTES_SERVER = "LotusNotesServer";
     protected static final String PROP_LOTUS_NOTES_SERVER_IS_LOCAL = "LotusNotesServerIsLocal";
     protected static final String PROP_LOTUS_NOTES_MAIL_FILE = "LotusNotesMailFile";
     protected static final String PROP_LOTUS_NOTES_PASSWORD = "LotusNotesPassword";
     protected static final String PROP_LOTUS_NOTES_USERNAME = "LotusNotesUsername";
+
     protected static final String PROP_DIAGNOSTIC_MODE = "DiagnosticMode";
     protected static final String PROP_SYNC_ON_STARTUP = "SyncOnStartup";
     protected static final String PROP_SYNC_DESCRIPTION = "SyncDescription";
     protected static final String PROP_SYNC_ALARMS = "SyncAlarms";
+    protected static final String PROP_SYNC_MEETING_ATTENDEES = "SyncMeetingAttendees";
+
     protected static final String PROP_PROXY_USERNAME = "GoogleProxyUsername";
     protected static final String PROP_PROXY_PASSWORD = "GoogleProxyPassword";
     protected static final String PROP_USE_SSL = "GoogleUseSSL";
     protected static final String PROP_GOOGLE_PASSWORD = "GooglePassword";
+    protected static final String PROP_GOOGLE_CALENDAR_NAME = "GoogleCalendarName";
 
     protected Properties config;
     protected final String configFilename = "lngooglecalsync.properties";

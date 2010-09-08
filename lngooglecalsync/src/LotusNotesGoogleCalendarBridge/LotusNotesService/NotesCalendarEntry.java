@@ -31,6 +31,9 @@ public class NotesCalendarEntry {
         cal.alarm = this.alarm;
         cal.alarmOffsetMins = this.alarmOffsetMins;
         cal.uid = this.uid;
+        cal.requiredAttendees = this.requiredAttendees;
+        cal.optionalAttendees = this.optionalAttendees;
+        cal.chairperson = this.chairperson;
 
         return cal;
     }
@@ -93,6 +96,104 @@ public class NotesCalendarEntry {
 
     public void setUID(String uid) {
         this.uid = uid;
+    }
+
+    public void setRequiredAttendees(String names){
+		requiredAttendees = names;
+    }
+
+    public void setOptionalAttendees(String names){
+		optionalAttendees = names;
+    }
+    
+    public void setChairperson(String name){
+    	chairperson = name;
+    }
+
+    /**
+     * Returns the chairperson name as it was retrieved from Lotus.
+     * The standard format is like "CN=John A Smith/US/Acme@MAIL".
+     */
+    public String getChairperson(){
+    	return chairperson;
+    }
+
+    /**
+     * Returns the Lotus chairperson name without the Lotus metadata.
+     * Given a Lotus format like "CN=John A Smith/US/Acme@MAIL", this
+     * method returns "John A Smith".
+     */
+    public String getChairpersonPlain(){
+        return getNamePlain(chairperson);
+    }
+
+    /**
+     * Returns the required attendee list as it was retrieved from Lotus.
+     * The standard format is like "John A Smith/US/Acme@MAIL;kelly@gmail.com;Jane B Doe/H9876/Sponge@Bob".
+     */
+    public String getRequiredAttendees(){
+    	return requiredAttendees;
+    }
+    
+    /**
+     * Returns the attendee list without the Lotus metadata.
+     * Given a Lotus list like "John A Smith/US/Acme@MAIL;kelly@gmail.com;Jane B Doe/H9876/Sponge@Bob",
+     * this method returns "John A Smith; kelly@gmail.com; Jane B Doe"
+     */
+    public String getRequiredAttendeesPlain(){
+        return getNameListPlain(requiredAttendees);
+    }
+
+    /**
+     * Returns the attendee list without the Lotus metadata.
+     * Given a Lotus list like "John A Smith/US/Acme@MAIL;kelly@gmail.com;Jane B Doe/H9876/Sponge@Bob",
+     * this method returns "John A Smith; kelly@gmail.com; Jane B Doe"
+     */
+    public String getOptionalAttendees(){
+        return getNameListPlain(optionalAttendees);
+    }
+
+    /**
+     * Given a Lotus format like "CN=John A Smith/US/Acme@MAIL", this
+     * method returns "John A Smith".
+     */
+    protected String getNamePlain(String lotusName){
+        String s = lotusName;
+
+        // Strip off the "CN="
+        int i = s.indexOf("=");
+        if (i > -1) {
+            s = s.substring(i+1);
+        }
+
+        // Strip off the "/US/Acme@MAIL"
+        i = s.indexOf("/");
+        if (i > -1) {
+            s = s.substring(0, i);
+        }
+
+        return s;
+    }
+
+    /**
+     * Returns a list of names without the Lotus metadata.
+     * Given a Lotus list like "John A Smith/US/Acme@MAIL;kelly@gmail.com;Jane B Doe/H9876/Sponge@Bob",
+     * this method returns "John A Smith; kelly@gmail.com; Jane B Doe"
+     */
+    protected String getNameListPlain(String lotusNames){
+        if (lotusNames == null)
+            return null;
+
+        String[] nameList = lotusNames.split(";");
+
+        StringBuffer sb = new StringBuffer();
+        for (String lotusName : nameList) {
+            if (sb.length() > 0)
+                sb.append("; ");
+            sb.append(getNamePlain(lotusName));
+        }
+
+        return sb.toString();
     }
 
     public EntryType getEntryType() {
@@ -171,6 +272,19 @@ public class NotesCalendarEntry {
         return alarmOffsetMins;
     }
 
+    public int getAlarmOffsetMinsGoogle() {
+        // Lotus Notes alarms can be before (negative value) or after (positive value)
+        // the event.  Google only supports alarms before the event and the number
+        // is then positive.
+        // So, convert to Google as follows: alarms after (positive) are made 0,
+        // alarms before (negative) are made positive.
+        int alarmMins = 0;
+        if (alarmOffsetMins < 0)
+            alarmMins = Math.abs(alarmOffsetMins);
+
+        return alarmMins;
+    }
+
     /**
      * Returns the UID stored in Lotus Notes.
      */
@@ -183,14 +297,14 @@ public class NotesCalendarEntry {
      * info to help sync this entry.
      */
     public String getSyncUID() {
-        // Description of the SyncUID format...
-        // Include a version stamp in case this format changes in the future.
-        // Include the Lotus Notes UID.
-        // Include the start timestamp. This is needed because we make multiple entries
-        // from one repeating event. If we don't include the start timestamp, all the
-        // multiple entries would have the same SyncUID.
-        // Include the modified timestamp. If the Lotus entry ever changes, this value
-        // will change and we'll know to update the sync.
+        // Layout of the SyncUID format:
+        //   Include a version stamp in case this format changes in the future.
+        //   Include the Lotus Notes UID.
+        //   Include the start timestamp. This is needed because we make multiple entries
+        //   from one repeating event. If we don't include the start timestamp, all the
+        //   multiple entries would have the same SyncUID.
+        //   Include the modified timestamp. If the Lotus entry ever changes, this value
+        //   will change and we'll know to update the sync.
         return currSyncUIDVersion + "-" + uid + "-" + startDateTime.getTime() + "-" + modifiedDateTime.getTime();
     }
 
@@ -266,4 +380,8 @@ public class NotesCalendarEntry {
     protected int alarmOffsetMins = 0;
     // Unique ID for this calendar entry. This is the value created by Lotus.
     protected String uid = null;
+    protected String requiredAttendees = null;
+    protected String optionalAttendees = null; 
+    protected String chairperson = null;
+    
 }

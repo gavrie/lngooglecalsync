@@ -89,6 +89,7 @@ public class LotusNotesExport {
             Session session = NotesFactory.createSession((String)null, (String)null, password);
             notesVersion = session.getNotesVersion();
             
+
             String dominoServerTemp = server;
             if (server.equals(""))
                 dominoServerTemp = null;
@@ -116,15 +117,42 @@ public class LotusNotesExport {
             }
 
             ViewNavigator vn = lnView.createViewNav();
-            ViewEntry e = vn.getFirstDocument();
-            if (e == null) throw new Exception("No documents were found in the Lotus Notes view.");
+            if (vn == null || vn.getCount() == 0) throw new Exception("No documents were found in the Lotus Notes view.");
 
+            ViewEntry ve = vn.getFirstDocument();
             // Loop through all entries in the View
-            while (e != null)
+            while (ve != null)
             {
                 Item lnItem;
+//if (!ve.isValid() || !ve.isDocument()) {
+//javax.swing.JOptionPane.showMessageDialog(null, "View entry is either invalid or not a document. Skipping.");
+//ve = vn.getNextDocument();
+//continue;
+//}
 
-                lotus.domino.Document doc = e.getDocument();
+                lotus.domino.Document doc = ve.getDocument();
+/*
+if (doc == null || !doc.isValid()) {
+javax.swing.JOptionPane.showMessageDialog(null, "Doc is null or invalid. Skipping.");
+ve = vn.getNextDocument();
+continue;
+}
+if (doc.isDeleted()) {
+javax.swing.JOptionPane.showMessageDialog(null, "Doc is deleted. Skipping.");
+ve = vn.getNextDocument();
+continue;
+}
+if (doc.isEncrypted()) {
+javax.swing.JOptionPane.showMessageDialog(null, "Doc is encrypted. Skipping.");
+ve = vn.getNextDocument();
+continue;
+}
+if (doc.isSigned()) {
+javax.swing.JOptionPane.showMessageDialog(null, "Doc is signed. Skipping.");
+ve = vn.getNextDocument();
+continue;
+}
+*/
 
                 // If we are in diagnostic mode, write the entry to a text file
                 if (diagnosticMode) {
@@ -168,6 +196,20 @@ public class LotusNotesExport {
                     lnItem = doc.getFirstItem("$AlarmOffset");
                     if (!isItemEmpty(lnItem))
                         cal.setAlarmOffsetMins(Integer.parseInt(lnItem.getText()));
+                }
+                
+                //Get attendee info
+                lnItem = doc.getFirstItem("REQUIREDATTENDEES");
+                if (!isItemEmpty(lnItem)){
+                	cal.setRequiredAttendees(lnItem.getText());
+                }
+                lnItem = doc.getFirstItem("OPTIONALATTENDEES");
+                if (!isItemEmpty(lnItem)){
+                	cal.setOptionalAttendees(lnItem.getText());
+                }
+                lnItem = doc.getFirstItem("CHAIR");
+                if (!isItemEmpty(lnItem)){
+                	cal.setChairperson(lnItem.getText());
                 }
 
                 cal.setModifiedDateTime(doc.getLastModified().toJavaDate());
@@ -236,7 +278,7 @@ public class LotusNotesExport {
                         calendarEntries.add(cal);
                 }
 
-                e = vn.getNextDocument();
+                ve = vn.getNextDocument();
             }
 
             return calendarEntries;
@@ -302,13 +344,32 @@ public class LotusNotesExport {
 
         lnFoundEntriesWriter.write("=== Calendar Entry ===\n");
 
+        if (doc.isDeleted()) {
+            lnFoundEntriesWriter.write("  Doc is flagged Deleted.\n\n");
+            return;
+        }
+        if (doc.isEncrypted()) {
+            lnFoundEntriesWriter.write("  Doc is flagged Encrypted.\n\n");
+            return;
+        }
+        if (doc.isSigned()) {
+            lnFoundEntriesWriter.write("  Doc is flagged Signed.\n\n");
+            return;
+        }
+
         itemsAndValues.add("  LastModified: " + doc.getLastModified() + "\n");
         itemsAndValues.add("  UniversalID: " + doc.getUniversalID() + "\n");
+
+        String itemName;
 
         // Loop through each item
         for (Object itemObj : doc.getItems())
         {
-            String itemName = ((Item)itemObj).getName();
+            if (itemObj instanceof Item)
+                itemName = ((Item)itemObj).getName();
+            else
+                continue;
+
             // Get the item value using the item name
             Item lnItem = doc.getFirstItem(itemName);
 

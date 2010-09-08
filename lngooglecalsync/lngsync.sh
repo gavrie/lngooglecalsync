@@ -8,7 +8,8 @@
 # The application uses Notes.jar, the Java interface file installed with the
 # Lotus Notes client. Notes.jar references some .so files under Linux and .dylib
 # files under OS X.
-# In particular, make sure the dir containing lsxbe.so or lsxbe.dylib is in the path.
+# In particular, make sure the dir containing lsxbe.so, liblsxbe.so, or lsxbe.dylib
+# is in the path.
 # The default locations for Notes.jar and the library files are hard-coded below.
 
 OS_TYPE=`uname`
