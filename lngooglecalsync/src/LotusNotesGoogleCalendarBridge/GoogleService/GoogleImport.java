@@ -461,7 +461,8 @@ public class GoogleImport {
         cal.setSubject("DeanRepeatTest");
         cal.setEntryType(NotesCalendarEntry.EntryType.APPOINTMENT);
         cal.setAppointmentType("3");
-        cal.setLocation("nowhere");
+        cal.setLocation("nolocation");
+        cal.setRoom("noroom");
 
         Date dstartDate, dendDate;
         Calendar now = Calendar.getInstance();
@@ -483,13 +484,12 @@ public class GoogleImport {
         CalendarEventEntry event = new CalendarEventEntry();
         event.setTitle(new PlainTextConstruct(cal.getSubject()));
 
-        String locationStr = cal.getLocation();
-        if (locationStr != null && !locationStr.isEmpty()) {
+        String whereStr = cal.getGoogleWhereString();
+        if (whereStr != null) {
             Where location = new Where();
-            location.setValueString(locationStr);
+            location.setValueString(whereStr);
             event.addLocation(location);
         }
-
 
         try {
             When eventTime = new When();
@@ -545,10 +545,10 @@ public class GoogleImport {
 
             event.setContent(new PlainTextConstruct(createDescriptionText(lotusEntry)));
 
-            String locationStr = lotusEntry.getLocation();
-            if (locationStr != null && !locationStr.isEmpty()) {
+            String whereStr = lotusEntry.getGoogleWhereString();
+            if (whereStr != null) {
                 Where location = new Where();
-                location.setValueString(locationStr);
+                location.setValueString(whereStr);
                 event.addLocation(location);
             }
 

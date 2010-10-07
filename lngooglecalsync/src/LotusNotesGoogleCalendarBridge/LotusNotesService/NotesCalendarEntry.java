@@ -27,6 +27,7 @@ public class NotesCalendarEntry {
         cal.modifiedDateTime = this.modifiedDateTime;
         cal.subject = this.subject;
         cal.location = this.location;
+        cal.room = this.room;
         cal.body = this.body;
         cal.alarm = this.alarm;
         cal.alarmOffsetMins = this.alarmOffsetMins;
@@ -80,6 +81,10 @@ public class NotesCalendarEntry {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public void setRoom(String room) {
+        this.room = room;
     }
 
     public void setBody(String value) {
@@ -158,6 +163,9 @@ public class NotesCalendarEntry {
      * method returns "John A Smith".
      */
     protected String getNamePlain(String lotusName){
+        if (lotusName == null)
+            return null;
+
         String s = lotusName;
 
         // Strip off the "CN="
@@ -258,6 +266,35 @@ public class NotesCalendarEntry {
 
     public String getLocation() {
         return location;
+    }
+
+    public String getRoom() {
+        return room;
+    }
+
+    /**
+     * Lotus has both a Location field and a Room field. Usually only one is filled in.
+     * But it is possible to set both fields, e.g. Location = "New York Blg 3" and
+     * Room = "Fancy Conf Room".
+     * If only one of Location or Room has a value, than that one value is returned.
+     * If both fields have values, then the concatinated value is returned.
+     * If neither fields have values, null is returned.
+     */
+    public String getGoogleWhereString() {
+        String whereStr = null;
+        if (location != null && !location.isEmpty()) {
+            whereStr = location;
+        }
+
+        if (room != null && !room.isEmpty()) {
+            if (whereStr == null)
+                whereStr = room;
+            else
+                // We have both a Location and Room values
+                whereStr = whereStr + " : " + room;
+        }
+
+        return whereStr;
     }
 
     public String getBody() {
@@ -370,6 +407,7 @@ public class NotesCalendarEntry {
     protected Date modifiedDateTime = null;
     protected String subject = null;
     protected String location = null;
+    protected String room = null;
     // Body is the description for the calendar entry
     protected String body = null;
     // True if the entry has an alarm set
@@ -382,6 +420,5 @@ public class NotesCalendarEntry {
     protected String uid = null;
     protected String requiredAttendees = null;
     protected String optionalAttendees = null; 
-    protected String chairperson = null;
-    
+    protected String chairperson = null;    
 }

@@ -290,6 +290,7 @@ public class mainGUI extends javax.swing.JFrame {
         jPasswordField_GooglePassword1 = new javax.swing.JPasswordField();
         jPasswordField_proxyPassword = new javax.swing.JPasswordField();
         jLabel16 = new javax.swing.JLabel();
+        jButton_Help = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Lotus Notes to Google Calendar Synchronizer (LNGS)");
@@ -341,7 +342,7 @@ public class mainGUI extends javax.swing.JFrame {
                     .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 476, Short.MAX_VALUE)
                     .add(jPanel2Layout.createSequentialGroup()
                         .add(jLabel10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 308, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(30, 30, 30)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 77, Short.MAX_VALUE)
                         .add(jButton_Synchronize)))
                 .addContainerGap())
         );
@@ -664,25 +665,35 @@ public class mainGUI extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Connection Settings", jPanel1);
 
-        jLabel16.setFont(new java.awt.Font("Tahoma", 0, 13));
         jLabel16.setForeground(new java.awt.Color(51, 51, 255));
         jLabel16.setText("This tool synchronizes your Lotus Notes calendar to your Google calendar.");
+
+        jButton_Help.setMnemonic('x');
+        jButton_Help.setText("Help");
+        jButton_Help.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton_HelpActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                     .add(layout.createSequentialGroup()
-                        .add(230, 230, 230)
-                        .add(jButton_Cancel))
-                    .add(layout.createSequentialGroup()
-                        .addContainerGap()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jLabel16, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 469, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 501, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
-                .add(10, 10, 10))
+                            .add(jLabel16, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 416, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 501, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap())
+                    .add(layout.createSequentialGroup()
+                        .add(220, 220, 220)
+                        .add(jButton_Cancel)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(jButton_Help)
+                        .add(26, 26, 26))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -692,7 +703,9 @@ public class mainGUI extends javax.swing.JFrame {
                 .add(17, 17, 17)
                 .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(jButton_Cancel)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jButton_Cancel)
+                    .add(jButton_Help))
                 .addContainerGap())
         );
 
@@ -749,6 +762,18 @@ public class mainGUI extends javax.swing.JFrame {
         // Trim whitespace from front and back of text
         jTextField_DestinationCalendarName.setText(jTextField_DestinationCalendarName.getText().trim());
     }//GEN-LAST:event_jTextField_DestinationCalendarNameFocusLost
+
+    private void jButton_HelpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_HelpActionPerformed
+        try {
+            // Get the absolute path to this app and append the help filename
+            String helpFilename = new java.io.File("").getAbsolutePath() + System.getProperty("file.separator") + "HelpFile.html";
+
+            // This works for Java 1.6+ to open an html file:
+            java.awt.Desktop.getDesktop().browse(new java.io.File(helpFilename).toURI());
+        } catch (Exception ex) {
+            statusAppendException("There was a problem opening the help file.", ex);
+        }
+    }//GEN-LAST:event_jButton_HelpActionPerformed
 
     private void validateSettings() {
         boolean complete = false;
@@ -908,7 +933,7 @@ public class mainGUI extends javax.swing.JFrame {
     private boolean isUrlValid = false;
     long statusStartTime = 0;
     // An exit code of 0 is success. All other values are failure.
-    final String appVersion = "1.7";
+    final String appVersion = "1.8";
     private boolean isSilentMode = false;
     private boolean saveSettingsOnExit = true;
 
@@ -924,6 +949,7 @@ public class mainGUI extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton_Cancel;
+    private javax.swing.JButton jButton_Help;
     private javax.swing.JButton jButton_Synchronize;
     private javax.swing.JCheckBox jCheckBox_DiagnosticMode;
     private javax.swing.JCheckBox jCheckBox_GoogleSSL;

@@ -185,7 +185,7 @@ continue;
 
                 lnItem = doc.getFirstItem("Room");
                 if (!isItemEmpty(lnItem))
-                    cal.setLocation(lnItem.getText());
+                    cal.setRoom(lnItem.getText());
                 lnItem = doc.getFirstItem("Location");
                 if (!isItemEmpty(lnItem))
                     cal.setLocation(lnItem.getText());
@@ -401,6 +401,7 @@ continue;
                     lnInRangeEntriesWriter.write("  End Date: " + entry.getEndDateTime() + "\n");
                     lnInRangeEntriesWriter.write("  Modified Date: " + entry.getModifiedDateTime() + "\n");
                     lnInRangeEntriesWriter.write("  Location: " + entry.getLocation() + "\n");
+                    lnInRangeEntriesWriter.write("  Room: " + entry.getRoom() + "\n");
                     lnInRangeEntriesWriter.write("  Alarm: " + entry.getAlarm() + "\n");
                     lnInRangeEntriesWriter.write("  Alarm Offset Mins: " + entry.getAlarmOffsetMins() + "\n");
                     lnInRangeEntriesWriter.write("  Appointment Type: " + entry.getAppointmentType() + "\n");
