@@ -14,10 +14,8 @@ import com.google.gdata.data.extensions.*;
 import com.google.gdata.util.*;
 import java.io.*;
 import java.net.*;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.Calendar;
 import java.util.UUID;
@@ -613,7 +611,8 @@ public class GoogleImport {
                 } catch (com.google.gdata.util.ServiceException ex) {
                     // If there is a network problem while connecting to Google, retry a few times
                     if (++retryCount > maxRetryCount)
-                        throw ex;
+                        throw new Exception("Couldn't create Google entry.\nSubject: " + event.getTitle() +
+                            "\nStart Date: " + event.getTimes().get(0).getStartTime().toString(), ex);
                     Thread.sleep(retryDelayMsecs);
                 }
             } while (true);

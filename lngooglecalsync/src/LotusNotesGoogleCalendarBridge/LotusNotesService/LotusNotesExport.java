@@ -2,6 +2,7 @@ package LotusNotesGoogleCalendarBridge.LotusNotesService;
 
 import lotus.domino.*;
 import java.io.*;
+import java.text.*;
 import java.util.*;
 
 
@@ -97,62 +98,24 @@ public class LotusNotesExport {
             if (db == null)
                 throw new Exception("Couldn't create Lotus Notes Database object.");
             
-            View lnView;
+            // Query Lotus Notes to get calendar entries in our date range.
+            // To understand this SELECT, go to http://publib.boulder.ibm.com/infocenter/domhelp/v8r0/index.jsp
+            // and search for the various keywords. Here is an overview...
+            //   @IsAvailable(CalendarDateTime) is true if the LN document is a calendar entry
+            //   @Explode splits a string based on the delimiters ",; "
+            //   The operator *= is a permuted equal operator. It compares all entries on
+            //   the left side to all entries on the right side. If there is at least one
+            //   match, then true is returned.
+            DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+            String calendarQuery = "SELECT (@IsAvailable(CalendarDateTime) & (@Explode(CalendarDateTime) *= @Explode(@TextToTime(\"" + df.format(minStartDate) + "-" + df.format(maxEndDate) + "\"))))";
+            DocumentCollection queryResults = db.search(calendarQuery);
 
-            lnView = db.getView(calendarViewName);
-            // If true, the view doesn't exist
-            if (lnView == null) {
-                // Dynamically create a view that selects all calendar entries from (today - 7 days) to (today + 60 days).
-                // This gives us a good range of entries.
-                //
-                // To understand this SELECT, go to http://publib.boulder.ibm.com/infocenter/domhelp/v8r0/index.jsp
-                // and search for the various keywords. Here is an overview...
-                // @IsAvailable(CalendarDateTime) is true if the LN document is a calendar entry
-                // @Explode splits a string based on the delimiters ",; "
-                // The operator *= is a permuted equal operator. It compares all entries on
-                // the left side to all entries on the right side. If there is at least one
-                // match, then true is returned.
-                lnView = db.createView(calendarViewName,
-                        "SELECT (@IsAvailable(CalendarDateTime) & (@Explode(CalendarDateTime) *= @Explode(@TextToTime(@Text(@Adjust(@Today;0;0;-7;0;0;0)) + \"-\" + @Text(@Adjust(@Today;0;0;60;0;0;0))))))");
-            }
-
-            ViewNavigator vn = lnView.createViewNav();
-            if (vn == null || vn.getCount() == 0) throw new Exception("No documents were found in the Lotus Notes view.");
-
-            ViewEntry ve = vn.getFirstDocument();
-            // Loop through all entries in the View
-            while (ve != null)
+            Document doc;
+            doc = queryResults.getFirstDocument();
+            // Loop through all entries returned
+            while (doc != null)
             {
                 Item lnItem;
-//if (!ve.isValid() || !ve.isDocument()) {
-//javax.swing.JOptionPane.showMessageDialog(null, "View entry is either invalid or not a document. Skipping.");
-//ve = vn.getNextDocument();
-//continue;
-//}
-
-                lotus.domino.Document doc = ve.getDocument();
-/*
-if (doc == null || !doc.isValid()) {
-javax.swing.JOptionPane.showMessageDialog(null, "Doc is null or invalid. Skipping.");
-ve = vn.getNextDocument();
-continue;
-}
-if (doc.isDeleted()) {
-javax.swing.JOptionPane.showMessageDialog(null, "Doc is deleted. Skipping.");
-ve = vn.getNextDocument();
-continue;
-}
-if (doc.isEncrypted()) {
-javax.swing.JOptionPane.showMessageDialog(null, "Doc is encrypted. Skipping.");
-ve = vn.getNextDocument();
-continue;
-}
-if (doc.isSigned()) {
-javax.swing.JOptionPane.showMessageDialog(null, "Doc is signed. Skipping.");
-ve = vn.getNextDocument();
-continue;
-}
-*/
 
                 // If we are in diagnostic mode, write the entry to a text file
                 if (diagnosticMode) {
@@ -278,7 +241,7 @@ continue;
                         calendarEntries.add(cal);
                 }
 
-                ve = vn.getNextDocument();
+                doc = queryResults.getNextDocument();
             }
 
             return calendarEntries;

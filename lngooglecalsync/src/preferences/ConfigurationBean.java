@@ -130,6 +130,14 @@ public class ConfigurationBean {
         setBooleanProperty(PROP_SYNC_ALARMS, value);
     }
 
+    public void setSyncDaysInFuture(int value) {
+        config.setProperty(PROP_SYNC_DAYS_IN_FUTURE, Integer.toString(value));
+    }
+
+    public void setSyncDaysInPast(int value) {
+        config.setProperty(PROP_SYNC_DAYS_IN_PAST, Integer.toString(value));
+    }
+
     public void setLotusNotesUsername(String LotusNotesUsername) {
         config.setProperty(PROP_LOTUS_NOTES_USERNAME, LotusNotesUsername);
     }
@@ -237,6 +245,14 @@ public class ConfigurationBean {
     	return getBooleanProperty(PROP_SYNC_MEETING_ATTENDEES);
     }
 
+    public int getSyncDaysInFuture() {
+        return getIntegerProperty(PROP_SYNC_DAYS_IN_FUTURE, 60);
+    }
+
+    public int getSyncDaysInPast() {
+        return getIntegerProperty(PROP_SYNC_DAYS_IN_PAST, 7);
+    }
+
     protected String getStringProperty(String propertyName) {
         String property;
 
@@ -263,8 +279,14 @@ public class ConfigurationBean {
         return property;
     }
 
+    // Read a property value. If the property is not found, return 0.
     protected int getIntegerProperty(String propertyName) {
-        int property = 0;
+        return getIntegerProperty(propertyName, 0);
+    }
+
+    // Read a property value. If the property is not found, return defaultValue.
+    protected int getIntegerProperty(String propertyName, int defaultValue) {
+        int property = defaultValue;
 
         String propertyStr = config.getProperty(propertyName);
         if (propertyStr != null) {
@@ -288,8 +310,10 @@ public class ConfigurationBean {
     }
 
 
-    // Version stamp for the config-file format
-    protected static final int currConfigVersion = 3;
+    // Version stamp for the config-file format.
+    // IMPORTANT: Update this version number whenever there is a format change to the
+    // config file, e.g. adding a new setting.
+    protected static final int currConfigVersion = 4;
     protected static final String PROP_CONFIG_VERSION = "ConfigVersion";
     protected static final String PROP_LOTUS_NOTES_SERVER = "LotusNotesServer";
     protected static final String PROP_LOTUS_NOTES_SERVER_IS_LOCAL = "LotusNotesServerIsLocal";
@@ -302,6 +326,8 @@ public class ConfigurationBean {
     protected static final String PROP_SYNC_DESCRIPTION = "SyncDescription";
     protected static final String PROP_SYNC_ALARMS = "SyncAlarms";
     protected static final String PROP_SYNC_MEETING_ATTENDEES = "SyncMeetingAttendees";
+    protected static final String PROP_SYNC_DAYS_IN_FUTURE = "SyncDaysInFuture";
+    protected static final String PROP_SYNC_DAYS_IN_PAST = "SyncDaysInPast";
 
     protected static final String PROP_PROXY_USERNAME = "GoogleProxyUsername";
     protected static final String PROP_PROXY_PASSWORD = "GoogleProxyPassword";
