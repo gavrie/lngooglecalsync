@@ -249,17 +249,8 @@ public class GoogleImport {
             URL feedUrl = getDestinationCalendarUrl();
             CalendarQuery myQuery = new CalendarQuery(feedUrl);
 
-            // Get today - 7 days
-            Calendar now = Calendar.getInstance();
-            now.add(Calendar.DATE, -7);
-            // Clear out the time portion
-            now.set(Calendar.HOUR_OF_DAY, 0);
-            now.set(Calendar.MINUTE, 0);
-            now.set(Calendar.SECOND, 0);
-
-            myQuery.setMinimumStartTime(new com.google.gdata.data.DateTime(now.getTime()));
-            // Make the end time far into the future so we delete everything
-            myQuery.setMaximumStartTime(com.google.gdata.data.DateTime.parseDateTime("2099-12-31T23:59:59"));
+            myQuery.setMinimumStartTime(new com.google.gdata.data.DateTime(minStartDate.getTime()));
+            myQuery.setMaximumStartTime(new com.google.gdata.data.DateTime(maxEndDate.getTime()));
 
             // Set the maximum number of results to return for the query.
             // Note: A GData server may choose to provide fewer results, but will never provide
@@ -417,11 +408,17 @@ public class GoogleImport {
      * since the last sync.
      */
     public boolean hasEntryChanged(NotesCalendarEntry lotusEntry, CalendarEventEntry googleEntry) {
+        final int googleUIDIdx = 33;
+
+        // If the ICAL UID is less than our minimum length, say the entry has changed
+        if (googleEntry.getIcalUID().length() - 1 < googleUIDIdx)
+            return true;
+
         String syncUID = lotusEntry.getSyncUID();
 
         // The Google IcalUID has the format: GoogleUID:SyncUID.
         // Strip off the "GoogleUID:" part and do a compare.
-        if (googleEntry.getIcalUID().substring(33).equals(syncUID)) {
+        if (googleEntry.getIcalUID().substring(googleUIDIdx).equals(syncUID)) {
             // The two entries match on our first test, but we have to compare
             // other values. Why? Say a sync is performed with the "sync alarms"
             // option enabled, but then "sync alarms" is turned off. When the
@@ -607,13 +604,16 @@ public class GoogleImport {
                 try {
                     service.insert(getDestinationCalendarUrl(), event);
                     createdCount++;
+
                     break;
-                } catch (com.google.gdata.util.ServiceException ex) {
-                    // If there is a network problem while connecting to Google, retry a few times
-                    if (++retryCount > maxRetryCount)
-                        throw new Exception("Couldn't create Google entry.\nSubject: " + event.getTitle() +
+                } catch (Exception ex) {
+                    // If there is a network problem (a ServiceException) while connecting to Google, retry a few times
+                    // before throwing an exception.
+                    if (ex instanceof com.google.gdata.util.ServiceException && ++retryCount <= maxRetryCount)
+                        Thread.sleep(retryDelayMsecs);
+                    else
+                        throw new Exception("Couldn't create Google entry.\nSubject: " + event.getTitle().getPlainText() +
                             "\nStart Date: " + event.getTimes().get(0).getStartTime().toString(), ex);
-                    Thread.sleep(retryDelayMsecs);
                 }
             } while (true);
         }
@@ -655,7 +655,8 @@ public class GoogleImport {
             sb.append(s.trim());
         }
 
-        return sb.toString();
+        // Return a string truncated to a max size
+        return sb.toString().substring(0, sb.length() < maxDescriptionChars ? sb.length() : maxDescriptionChars);
     }
 
     public void setSyncDescription(boolean value) {
@@ -668,6 +669,14 @@ public class GoogleImport {
 
     public void setSyncMeetingAttendees(boolean value){
     	syncMeetingAttendees = value;
+    }
+
+    public void setMinStartDate(Date minStartDate) {
+        this.minStartDate = minStartDate;
+    }
+
+    public void setMaxEndDate(Date maxEndDate) {
+        this.maxEndDate = maxEndDate;
     }
 
     public void setDiagnosticMode(boolean value) {
@@ -687,6 +696,10 @@ public class GoogleImport {
     boolean syncDescription = false;
     boolean syncAlarms = false;
     boolean syncMeetingAttendees = false;
+    // Our min and max dates for entries we will process.
+    // If the calendar entry is outside this range, it is ignored.
+    Date minStartDate = null;
+    Date maxEndDate = null;
 
     final String googleInRangeEntriesFilename = "GoogleInRangeEntries.txt";
     // Filename with full path
@@ -694,6 +707,10 @@ public class GoogleImport {
 
     final int maxRetryCount = 10;
     final int retryDelayMsecs = 300;
+
+    // The maximum number of chars allowed in a calendar description. Google has some
+    // limit around 8100 chars. Lotus has a limit greater than that, so choose 8000.
+    final int maxDescriptionChars = 8000;
 
     String destinationCalendarName;
     String DEST_CALENDAR_COLOR = "#F2A640";
