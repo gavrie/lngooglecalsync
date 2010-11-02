@@ -1,6 +1,12 @@
 ' Run Lotus Notes to Google Calendar Synchronizer under Windows.
 Option Explicit
 
+dim useLotusJVM
+' If set to 1, then the JVM installed with Lotus Notes is used instead
+' of the version of Java found in the PATH.
+useLotusJVM = 0
+
+
 dim oShell, oEnv, oJavawExec, oJavaExec 
 dim lotusPath, lotusDataPath, classPath, processPath
 dim appParm, silentMode
@@ -8,13 +14,19 @@ silentMode = false
 
 set oShell = WScript.CreateObject("WScript.Shell")
 
+' There are environment variables for the System, User, and Process.
+' The Process PATH should be the System and User PATHs combined.
+set oEnv = oShell.Environment("Process")
+
 ' Read the Lotus Notes install path from the Registry. If the Registry
-' read fails, the default path is used.
+' read fails, try a default path.
 On Error Resume Next
-lotusPath = "c:\Program Files\Lotus\Notes"
 lotusPath = oShell.RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Lotus\Notes\Path")
-lotusDataPath = "c:\Program Files\Lotus\Notes\Data"
+if lotusPath = "" then lotusPath = oShell.RegRead("HKEY_CURRENT_USER\Software\Lotus\Notes\Installer\PROGDIR")
+if lotusPath = "" then lotusPath = oEnv.Item("ProgramFiles") & "\Lotus\Notes"
 lotusDataPath = oShell.RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Lotus\Notes\DataPath")
+if lotusDataPath = "" then lotusDataPath = oShell.RegRead("HKEY_CURRENT_USER\Software\Lotus\Notes\Installer\DATADIR")
+if lotusDataPath = "" then lotusDataPath = lotusPath & "\Data"
 ' Cancel previous 'On Error' statement
 On Error GoTo 0
 
@@ -23,11 +35,8 @@ if WScript.Arguments.Count > 0 then
 	if appParm = "-silent" then silentMode = true
 end if
 
-' There are environment variables for the System, User, and Process.
-' The Process PATH should be the System and User PATHs combined.
 ' Add the Lotus bin dir to the PATH because Notes.jar uses some Lotus Notes dlls.
 ' In particular, make sure the dir containing nlsxbe.dll is in the PATH.
-set oEnv = oShell.Environment("Process")
 processPath = oEnv.Item("PATH")
 ' Update the Process PATH because this is what 'javaw' will read
 oEnv("PATH") = processPath & ";" & lotusPath & ";" & lotusDataPath 
@@ -35,8 +44,19 @@ oEnv("PATH") = processPath & ";" & lotusPath & ";" & lotusDataPath
 ' Set the classpath so Notes.jar can be found
 classPath = """" & lotusPath & "\jvm\lib\ext\Notes.jar"";.\icalbridge.jar"
 
+' Get the path to the version of Java installed with Lotus Notes.
+' It is safest to use the Lotus Java for compatibility with Notes.jar.
+dim javaPath
+if useLotusJVM then
+	javaPath = lotusPath & "\jvm\bin\javaw.exe"
+else
+	' Let the OS find Java via the PATH
+	javaPath = "javaw.exe"
+end if
+
+
 ' Run the Java application
-set oJavawExec = oShell.Exec("javaw -cp " & classPath & " LotusNotesGoogleCalendarBridge.mainGUI " & appParm)
+set oJavawExec = oShell.Exec("""" & javaPath & """ -cp " & classPath & " LotusNotesGoogleCalendarBridge.mainGUI " & appParm)
 
 ' Wait for javaw to finish
 Do While oJavawExec.Status = 0 
@@ -62,7 +82,7 @@ if oJavawExec.ExitCode > 0 then
 			"To get more information, run the application in GUI mode or see lngsync.log.", _
 			vbExclamation, "Lotus Notes Google Calender Sync Error"
 	else 
-		set oJavaExec = oShell.Exec("javaw -version")
+		set oJavaExec = oShell.Exec("""" & javaPath & """ -version")
 		Do While oJavaExec.Status = 0 
 			WScript.Sleep 100 
 		Loop
