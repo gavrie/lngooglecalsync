@@ -51,8 +51,12 @@ if [[ -n $1 && $1 = "-silent" ]]; then
 	echo Running Lotus Notes Google Calendar Sync in silent mode..
 	LOG_FILE=$SCRIPT_PATH/lngsync.log
 	$COMMAND -silent > $LOG_FILE
-	echo Synchronisation complete.  See log file $LOG_FILE
+	rc=$?
+	echo Synchronization complete.  See log file $LOG_FILE
 else 
 	echo Running Lotus Notes Google Calendar Sync in GUI mode...
-	$COMMAND 
+	$COMMAND
+	rc=$? 
 fi
+
+exit $rc
