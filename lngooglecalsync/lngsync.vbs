@@ -7,12 +7,13 @@ dim useLotusJVM
 useLotusJVM = 0
 
 
-dim oShell, oEnv, oJavawExec, oJavaExec 
-dim lotusPath, lotusDataPath, classPath, processPath
+dim oShell, oEnv, oJavawExec, oJavaExec, oFileSys
+dim lotusPath, lotusDataPath, classPath, processPath, programFilesPath, notesJarPath
 dim appParm, silentMode
 silentMode = false
 
 set oShell = WScript.CreateObject("WScript.Shell")
+set oFileSys = CreateObject("Scripting.FileSystemObject")
 
 ' There are environment variables for the System, User, and Process.
 ' The Process PATH should be the System and User PATHs combined.
@@ -23,12 +24,36 @@ set oEnv = oShell.Environment("Process")
 On Error Resume Next
 lotusPath = oShell.RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Lotus\Notes\Path")
 if lotusPath = "" then lotusPath = oShell.RegRead("HKEY_CURRENT_USER\Software\Lotus\Notes\Installer\PROGDIR")
-if lotusPath = "" then lotusPath = oEnv.Item("ProgramFiles") & "\Lotus\Notes"
+if lotusPath = "" then
+	' Try to find the path where Lotus Notes is installed
+	' Firs, get the Program Files path from the environment
+	programFilesPath = oEnv.Item("ProgramFiles")
+	lotusPath = programFilesPath & "\Lotus\Notes2"
+	if not oFileSys.FolderExists(lotusPath) then
+		lotusPath = programFilesPath & "\IBM\Lotus\Notes"
+		if not oFileSys.FolderExists(lotusPath) then
+			' On 64-bit systems, Lotus is probably in the "Program Files (x86)" dir
+			lotusPath = oEnv.Item("SystemDrive") & "\Program Files (x86)\Lotus\Notes" 
+			if not oFileSys.FolderExists(lotusPath) then
+				lotusPath = oEnv.Item("SystemDrive") & "\Program Files (x86)\IBM\Lotus\Notes" 
+			end if
+		end if
+	end if
+end if
+
+'MsgBox("DEBUG" & vbCRLF & "lotusPath: " & lotusPath)
+ 
 lotusDataPath = oShell.RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Lotus\Notes\DataPath")
 if lotusDataPath = "" then lotusDataPath = oShell.RegRead("HKEY_CURRENT_USER\Software\Lotus\Notes\Installer\DATADIR")
 if lotusDataPath = "" then lotusDataPath = lotusPath & "\Data"
 ' Cancel previous 'On Error' statement
 On Error GoTo 0
+
+' Try to find the Notes.jar file
+notesJarPath = lotusPath & "\jvm\lib\ext\Notes.jar"
+if not oFileSys.FileExists(notesJarPath) then
+	notesJarPath = lotusPath & "\Notes.jar"
+end if
 
 if WScript.Arguments.Count > 0 then
 	appParm = WScript.Arguments(0)
@@ -39,10 +64,10 @@ end if
 ' In particular, make sure the dir containing nlsxbe.dll is in the PATH.
 processPath = oEnv.Item("PATH")
 ' Update the Process PATH because this is what 'javaw' will read
-oEnv("PATH") = processPath & ";" & lotusPath & ";" & lotusDataPath 
+oEnv("PATH") = lotusPath & ";" & lotusDataPath & ";" & processPath  
 
 ' Set the classpath so Notes.jar can be found
-classPath = """" & lotusPath & "\jvm\lib\ext\Notes.jar"";.\icalbridge.jar"
+classPath = """" & notesJarPath & """;.\icalbridge.jar"
 
 ' Get the path to the version of Java installed with Lotus Notes.
 ' It is safest to use the Lotus Java for compatibility with Notes.jar.

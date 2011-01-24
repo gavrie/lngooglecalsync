@@ -1,6 +1,7 @@
 package LotusNotesGoogleCalendarBridge.GoogleService;
 
 import LotusNotesGoogleCalendarBridge.LotusNotesService.NotesCalendarEntry;
+import LotusNotesGoogleCalendarBridge.StatusMessageCallback;
 import com.google.gdata.client.GoogleService.*;
 import com.google.gdata.client.calendar.*;
 import com.google.gdata.data.*;
@@ -22,8 +23,17 @@ import java.util.UUID;
 
 public class GoogleImport {
 
-    public GoogleImport(String accountname, String password, String calendarName, boolean useSSL) throws Exception {
+    public GoogleImport() {
+    }
+
+
+    /**
+     * Login to Google and connect to the calendar.
+     */
+    public void Connect() throws Exception {
         try {
+            statusMessageCallback.statusAppendStart("Logging into Google");
+
             // Get the absolute path to this app
             String appPath = new java.io.File("").getAbsolutePath() + System.getProperty("file.separator");
             googleInRangeEntriesFullFilename = appPath = googleInRangeEntriesFilename;
@@ -33,18 +43,27 @@ public class GoogleImport {
                 protocol = "https:";
             }
 
-            mainCalendarFeedUrl = new URL(protocol + "//www.google.com/calendar/feeds/" + accountname + "/owncalendars/full");
-            privateCalendarFeedUrl = new URL(protocol + "//www.google.com/calendar/feeds/" + accountname + "/private/full");
+            mainCalendarFeedUrl = new URL(protocol + "//www.google.com/calendar/feeds/" + googleUsername + "/owncalendars/full");
+            privateCalendarFeedUrl = new URL(protocol + "//www.google.com/calendar/feeds/" + googleUsername + "/private/full");
 
             service = new CalendarService("LotusNotes-Calendar-Sync");
             if (useSSL) {
                 service.useSsl();
             }
 
-            service.setUserCredentials(accountname, password);
-
-            destinationCalendarName = calendarName;
+            service.setUserCredentials(googleUsername, googlePassword);
             createCalendar();
+
+            if (diagnosticMode) {
+                // Get this machine's current time zone
+                TimeZone localTimeZone = TimeZone.getDefault();
+                String timeZoneName = localTimeZone.getID();
+                statusMessageCallback.statusAppendLineDiag("Local Machine Time Zone: " + timeZoneName);
+
+                statusMessageCallback.statusAppendLineDiag("Dest Calendar Time Zone: " + getDestinationTimeZone());
+            }
+
+            statusMessageCallback.statusAppendFinished();
         } catch (InvalidCredentialsException ex) {
             throw new Exception("The username and/or password are invalid for signing into Google.", ex);
         } catch (AuthenticationException ex) {
@@ -52,9 +71,6 @@ public class GoogleImport {
         } catch (Exception ex) {
             throw ex;
         }
-    }
-
-    public GoogleImport() {
     }
 
 
@@ -66,11 +82,67 @@ public class GoogleImport {
         CalendarFeed calendars = null;
         int retryCount = 0;
 
+        if (destinationCalendarName == null)
+            throw new Exception("The destination calendar has not been set, so Google calendar entries cannot be found.");
+
         try {
             // If true, we already know our calendar URL
             if (destinationCalendarFeedUrl != null)
                 return destinationCalendarFeedUrl;
 
+            calendars = getCalendarList();
+
+            // Loop through all calendars
+            for (int i = 0; i < calendars.getEntries().size(); i++) {
+                CalendarEntry calendar = calendars.getEntries().get(i);
+
+                // Occasionally Google returns a null calendar or a calendar with a null title.
+                // This is probably a networking hiccup, so retry when this occurs.
+                try {
+                    if (calendar == null) {
+                        throw new Exception("A null calendar was returned by Google. Perhaps there was a network problem. Please try your action again.");
+                    }
+                    if (calendar.getTitle() == null) {
+                        throw new Exception("A calendar was returned by Google that has a null title. Perhaps there was a network problem. Please try your action again.");
+                    }
+                    if (calendar.getTitle().getPlainText() == null) {
+                        throw new Exception("A calendar was returned by Google that has a null plain-text title. Perhaps there was a network problem. Please try your action again.");
+                    }
+                } catch (Exception ex) {
+                    if (++retryCount > maxRetryCount)
+                        throw ex;
+                    Thread.sleep(retryDelayMsecs);
+
+                    // Get our calendar list again, reset our loop counter, and go to the top of the loop
+                    calendars = getCalendarList();
+                    i = 0;
+                    continue;
+                }
+
+                // If true, we've found the name of the destination calendar
+                if (calendar.getTitle().getPlainText().equals(destinationCalendarName)) {
+                    destinationCalendarFeedUrl = new URL(calendar.getLink("alternate", "application/atom+xml").getHref());
+                    break;
+                }
+            }
+        } catch (Exception ex) {
+            throw ex;
+        }
+
+        return destinationCalendarFeedUrl;
+    }
+
+
+    /**
+     * Get a list of all Google calendars.
+     * @return The list of all Google calendars.
+     */
+    protected CalendarFeed getCalendarList() throws Exception {
+        CalendarFeed calendars = null;
+        int retryCount = 0;
+
+        try {
+            // Get a feed that lists all calendars
             do {
                 try {
                     calendars = service.getFeed(mainCalendarFeedUrl, CalendarFeed.class);
@@ -82,21 +154,11 @@ public class GoogleImport {
                     Thread.sleep(retryDelayMsecs);
                 }
             } while (calendars == null);
-
-
-            for (int i = 0; i < calendars.getEntries().size(); i++) {
-                CalendarEntry calendar = calendars.getEntries().get(i);
-
-                // If true, we've found the name of the destination calendar
-                if (calendar.getTitle().getPlainText().equals(destinationCalendarName)) {
-                    destinationCalendarFeedUrl = new URL(calendar.getLink("alternate", "application/atom+xml").getHref());
-                }
-            }
         } catch (Exception ex) {
             throw ex;
         }
 
-        return destinationCalendarFeedUrl;
+        return calendars;
     }
 
 
@@ -116,12 +178,12 @@ public class GoogleImport {
 
         // Get this machine's current time zone when creating the new Google calendar
         TimeZone localTimeZone = TimeZone.getDefault();
+        String timeZoneName = localTimeZone.getID();
 
         // Set the Google calendar time zone
-        String timeZoneName = localTimeZone.getID();
         TimeZoneProperty tzp = new TimeZoneProperty(timeZoneName);
         calendar.setTimeZone(tzp);
-        
+
         calendar.setHidden(HiddenProperty.FALSE);
         calendar.setSelected(SelectedProperty.TRUE);
         calendar.setColor(new ColorProperty(DEST_CALENDAR_COLOR));
@@ -247,10 +309,13 @@ public class GoogleImport {
             ArrayList<CalendarEventEntry> allCalEntries = new ArrayList<CalendarEventEntry>();
 
             URL feedUrl = getDestinationCalendarUrl();
+
             CalendarQuery myQuery = new CalendarQuery(feedUrl);
 
             myQuery.setMinimumStartTime(new com.google.gdata.data.DateTime(minStartDate.getTime()));
-            myQuery.setMaximumStartTime(new com.google.gdata.data.DateTime(maxEndDate.getTime()));
+            // Make the end time far into the future so we delete everything
+            myQuery.setMaximumStartTime(com.google.gdata.data.DateTime.parseDateTime("2099-12-31T23:59:59"));
+            //myQuery.setMaximumStartTime(new com.google.gdata.data.DateTime(maxEndDate.getTime()));
 
             // Set the maximum number of results to return for the query.
             // Note: A GData server may choose to provide fewer results, but will never provide
@@ -659,6 +724,28 @@ public class GoogleImport {
         return sb.toString().substring(0, sb.length() < maxDescriptionChars ? sb.length() : maxDescriptionChars);
     }
 
+    public String getDestinationTimeZone() throws Exception {
+        CalendarEventFeed calendar = null;
+        calendar = service.getFeed(getDestinationCalendarUrl(), CalendarEventFeed.class);
+        return calendar.getTimeZone().getValue();
+    }
+
+    public void setUsername(String value) {
+        googleUsername = value;
+    }
+
+    public void setPassword(String value) {
+        googlePassword = value;
+    }
+
+    public void setCalendarName(String value) {
+        destinationCalendarName = value;
+    }
+
+    public void setUseSSL(boolean value) {
+        useSSL = value;
+    }
+
     public void setSyncDescription(boolean value) {
         syncDescription = value;
     }
@@ -683,35 +770,45 @@ public class GoogleImport {
         diagnosticMode = value;
     }
 
-    URL mainCalendarFeedUrl = null;
-    URL privateCalendarFeedUrl = null;
-    URL destinationCalendarFeedUrl = null;
-    CalendarService service;
+    public void setStatusMessageCallback(StatusMessageCallback value) {
+        statusMessageCallback = value;
+    }
 
-    BufferedWriter googleInRangeEntriesWriter = null;
-    File googleInRangeEntriesFile = null;
+    protected StatusMessageCallback statusMessageCallback = null;
 
-    boolean diagnosticMode = false;
+    protected URL mainCalendarFeedUrl = null;
+    protected URL privateCalendarFeedUrl = null;
+    protected URL destinationCalendarFeedUrl = null;
+    protected CalendarService service;
 
-    boolean syncDescription = false;
-    boolean syncAlarms = false;
-    boolean syncMeetingAttendees = false;
+    protected String googleUsername;
+    protected String googlePassword;
+
+    protected String destinationCalendarName;
+    protected String DEST_CALENDAR_COLOR = "#F2A640";
+
+    // Debug file info
+    protected BufferedWriter googleInRangeEntriesWriter = null;
+    protected File googleInRangeEntriesFile = null;
+    protected final String googleInRangeEntriesFilename = "GoogleInRangeEntries.txt";
+    // Filename with full path
+    protected String googleInRangeEntriesFullFilename;
+
+    protected boolean useSSL = true;
+    protected boolean diagnosticMode = false;
+
+    protected boolean syncDescription = false;
+    protected boolean syncAlarms = false;
+    protected boolean syncMeetingAttendees = false;
     // Our min and max dates for entries we will process.
     // If the calendar entry is outside this range, it is ignored.
-    Date minStartDate = null;
-    Date maxEndDate = null;
+    protected Date minStartDate = null;
+    protected Date maxEndDate = null;
 
-    final String googleInRangeEntriesFilename = "GoogleInRangeEntries.txt";
-    // Filename with full path
-    String googleInRangeEntriesFullFilename;
-
-    final int maxRetryCount = 10;
-    final int retryDelayMsecs = 300;
+    protected final int maxRetryCount = 10;
+    protected final int retryDelayMsecs = 300;
 
     // The maximum number of chars allowed in a calendar description. Google has some
     // limit around 8100 chars. Lotus has a limit greater than that, so choose 8000.
-    final int maxDescriptionChars = 8000;
-
-    String destinationCalendarName;
-    String DEST_CALENDAR_COLOR = "#F2A640";
+    protected final int maxDescriptionChars = 8000;
 }

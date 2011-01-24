@@ -106,7 +106,8 @@ public class LotusNotesExport {
             //   The operator *= is a permuted equal operator. It compares all entries on
             //   the left side to all entries on the right side. If there is at least one
             //   match, then true is returned.
-            DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+            DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
+
             String calendarQuery = "SELECT (@IsAvailable(CalendarDateTime) & (@Explode(CalendarDateTime) *= @Explode(@TextToTime(\"" + df.format(minStartDate) + "-" + df.format(maxEndDate) + "\"))))";
             DocumentCollection queryResults = db.search(calendarQuery);
 
@@ -125,7 +126,10 @@ public class LotusNotesExport {
                 cal = new NotesCalendarEntry();
 
                 lnItem = doc.getFirstItem("Subject");
-                cal.setSubject(lnItem.getText());
+                if (!isItemEmpty(lnItem))
+                    cal.setSubject(lnItem.getText());
+                else
+                    cal.setSubject("<no subject>");
 
                 lnItem = doc.getFirstItem("Body");
                 if (!isItemEmpty(lnItem))

@@ -35,7 +35,8 @@ import java.math.BigDecimal;
 import javax.swing.*;
 import preferences.ConfigurationBean;
 
-public class mainGUI extends javax.swing.JFrame {
+
+public class mainGUI extends javax.swing.JFrame implements StatusMessageCallback {
 
     public mainGUI() {
         preInitComponents();
@@ -115,28 +116,27 @@ public class mainGUI extends javax.swing.JFrame {
         else
             statusAppendLine("Starting sync");
         
-        if (jCheckBox_DiagnosticMode.isSelected()) {
-            // Don't echo the commented out values for privacy reasons
-            statusAppendLineDiag("Application Version: " + appVersion);
-            statusAppendLineDiag("OS: " + System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch"));
-            statusAppendLineDiag("Java: " + System.getProperty("java.version") + " " + System.getProperty("java.vendor"));
-            //statusAppendLineDiag("Lotus Username: " + jTextField_LotusNotesUsername.getText());
-            statusAppendLineDiag("Local Server: " + jCheckBox_LotusNotesServerIsLocal.isSelected());
-            //statusAppendLineDiag("Server: " + jTextField_LotusNotesServer.getText());
-            //statusAppendLineDiag("Mail File: " + jTextField_LotusNotesMailFile.getText());
-            //statusAppendLineDiag("Google Email: " + jTextField_GoogleUsername.getText());
-            statusAppendLineDiag("Use Proxy: " + jCheckBox_enableProxy.isSelected());
-            statusAppendLineDiag("Use SSL: " + jCheckBox_GoogleSSL.isSelected());
-            statusAppendLineDiag("Sync Description: " + jCheckBox_SyncDescription.isSelected());
-            statusAppendLineDiag("Sync Alarms: " + jCheckBox_SyncAlarms.isSelected());
-            statusAppendLineDiag("Sync Days In Future: " + jTextField_SyncDaysInFuture.getText());
-            statusAppendLineDiag("Sync Days In Past: " + jTextField_SyncDaysInPast.getText());
-            statusAppendLineDiag("Java Classpath: " + System.getProperty("java.class.path"));
-            statusAppendLineDiag("Java Library Path: " + System.getProperty("java.library.path"));
-        }
+        // Don't echo the commented out values for privacy reasons
+        statusAppendLineDiag("Application Version: " + appVersion);
+        statusAppendLineDiag("OS: " + System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch"));
+        statusAppendLineDiag("Java: " + System.getProperty("java.version") + " " + System.getProperty("java.vendor"));
+        //statusAppendLineDiag("Lotus Username: " + jTextField_LotusNotesUsername.getText());
+        statusAppendLineDiag("Local Server: " + jCheckBox_LotusNotesServerIsLocal.isSelected());
+        //statusAppendLineDiag("Server: " + jTextField_LotusNotesServer.getText());
+        //statusAppendLineDiag("Mail File: " + jTextField_LotusNotesMailFile.getText());
+        //statusAppendLineDiag("Google Email: " + jTextField_GoogleUsername.getText());
+        statusAppendLineDiag("Use Proxy: " + jCheckBox_enableProxy.isSelected());
+        statusAppendLineDiag("Use SSL: " + jCheckBox_GoogleSSL.isSelected());
+        statusAppendLineDiag("Sync Description: " + jCheckBox_SyncDescription.isSelected());
+        statusAppendLineDiag("Sync Alarms: " + jCheckBox_SyncAlarms.isSelected());
+        statusAppendLineDiag("Sync Days In Future: " + jTextField_SyncDaysInFuture.getText());
+        statusAppendLineDiag("Sync Days In Past: " + jTextField_SyncDaysInPast.getText());
+        statusAppendLineDiag("Java Classpath: " + System.getProperty("java.class.path"));
+        statusAppendLineDiag("Java Library Path: " + System.getProperty("java.library.path"));
 
-        DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-        statusAppendLine("Date range: " + df.format(minStartDate) + " thru " + df.format(maxEndDate));
+        DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
+
+        statusAppendLine("Date range: " + df.format(minStartDate) + " thru " + df.format(maxEndDate) + " (-" + syncDaysInPast +  " to +" + syncDaysInFuture + " days)");
 
         // === Get the Lotus Notes calendar data
         statusAppendStart("Getting Lotus Notes calendar entries");
@@ -155,9 +155,9 @@ public class mainGUI extends javax.swing.JFrame {
         
         ArrayList<NotesCalendarEntry> lotusCalEntries = lotusNotesService.getCalendarEntries();
         statusAppendFinished();
-        statusAppendLine("  " + lotusCalEntries.size() + " entries found within date range");
-        if (jCheckBox_DiagnosticMode.isSelected())
-            statusAppendLineDiag("Lotus Version: " + lotusNotesService.getNotesVersion());
+        statusAppendLine(lotusCalEntries.size() + " Lotus entries found within date range");
+
+        statusAppendLineDiag("Lotus Version: " + lotusNotesService.getNotesVersion());
 
 //if (true) {statusAppendLineDiag("DEBUG: Lotus Notes tasks finished. Stopping sync."); return;}
 
@@ -174,15 +174,14 @@ public class mainGUI extends javax.swing.JFrame {
         }
 
 
-
-
-        // check whether the user has deselected to use SSL when connecting to google (this is not recommended)
+        // Check whether the user has deselected to use SSL when connecting to google (this is not recommended)
         boolean GoogleConnectUsingSSL = jCheckBox_GoogleSSL.isSelected();
-        statusAppendStart("Logging into Google");
-        GoogleImport googleService = new GoogleImport(jTextField_GoogleUsername.getText(), new String(jPasswordField_GooglePassword.getPassword()), jTextField_DestinationCalendarName.getText(), GoogleConnectUsingSSL);
-        statusAppendFinished();
-//if (true) {statusAppendLineDiag("DEBUG: Done logging into Google. Stopping sync."); return;}
-
+        GoogleImport googleService = new GoogleImport();
+        googleService.setStatusMessageCallback(this);
+        googleService.setUsername(jTextField_GoogleUsername.getText());
+        googleService.setPassword(new String(jPasswordField_GooglePassword.getPassword()));
+        googleService.setCalendarName(jTextField_DestinationCalendarName.getText());
+        googleService.setUseSSL(GoogleConnectUsingSSL);
         googleService.setDiagnosticMode(jCheckBox_DiagnosticMode.isSelected());
         googleService.setSyncDescription(jCheckBox_SyncDescription.isSelected());
         googleService.setSyncAlarms(jCheckBox_SyncAlarms.isSelected());
@@ -190,15 +189,20 @@ public class mainGUI extends javax.swing.JFrame {
         googleService.setMinStartDate(minStartDate);
         googleService.setMaxEndDate(maxEndDate);
 
+        googleService.Connect();
+
+//if (true) {statusAppendLineDiag("DEBUG: Done logging into Google. Stopping sync."); return;}
+
+
         statusAppendStart("Getting Google calendar entries");
         ArrayList<CalendarEventEntry> googleCalEntries = googleService.getCalendarEntries();
         statusAppendFinished();
-        statusAppendLine("  " + googleCalEntries.size() + " entries found within date range");
+        statusAppendLine(googleCalEntries.size() + " Google entries found within date range");
 
         statusAppendStart("Comparing Lotus Notes and Google calendar entries");
         googleService.compareCalendarEntries(lotusCalEntries, googleCalEntries);
         statusAppendFinished();
-        statusAppendLine("  " + lotusCalEntries.size() + " entries to create. " + googleCalEntries.size() + " entries to delete.");
+        statusAppendLine(lotusCalEntries.size() + " Google entries to create. " + googleCalEntries.size() + " entries to delete.");
 
 //googleService.createSampleGEntry();
 //if (true) {statusAppendLineDiag("DEBUG: Done comparing entries. Stopping sync."); return;}
@@ -207,7 +211,7 @@ public class mainGUI extends javax.swing.JFrame {
             statusAppendStart("Deleting old Google calendar entries");
             int deleteCount = googleService.deleteCalendarEntries(googleCalEntries);
             statusAppendFinished();
-            statusAppendLine("  " + deleteCount + " entries deleted");
+            statusAppendLine(deleteCount + " Google entries deleted");
         }
 
         if (lotusCalEntries.size() > 0) {
@@ -215,7 +219,7 @@ public class mainGUI extends javax.swing.JFrame {
             int createdCount = 0;
             createdCount = googleService.createCalendarEntries(lotusCalEntries);
             statusAppendFinished();
-            statusAppendLine("  " + createdCount + " entries created");
+            statusAppendLine(createdCount + " Google entries created");
         }
 
         long elapsedMillis = System.currentTimeMillis() - startTime;    
@@ -719,7 +723,7 @@ public class mainGUI extends javax.swing.JFrame {
         jLabel16.setForeground(new java.awt.Color(51, 51, 255));
         jLabel16.setText("This tool synchronizes your Lotus Notes calendar to your Google calendar.");
 
-        jButton_Help.setMnemonic('x');
+        jButton_Help.setMnemonic('H');
         jButton_Help.setText("Help");
         jButton_Help.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -922,10 +926,10 @@ public class mainGUI extends javax.swing.JFrame {
     protected void setDateRange() {
         // Define our min start date for entries we will process
         Calendar now = Calendar.getInstance();
-        int syncDaysInPast = 0;
+        syncDaysInPast = 0;
         if (!jTextField_SyncDaysInPast.getText().isEmpty())
-            syncDaysInPast = Integer.parseInt(jTextField_SyncDaysInPast.getText()) * -1;
-        now.add(Calendar.DATE, syncDaysInPast);
+            syncDaysInPast = Integer.parseInt(jTextField_SyncDaysInPast.getText());
+        now.add(Calendar.DATE, syncDaysInPast * -1);
         // Clear out the time portion
         now.set(Calendar.HOUR_OF_DAY, 0);
         now.set(Calendar.MINUTE, 0);
@@ -934,7 +938,7 @@ public class mainGUI extends javax.swing.JFrame {
 
         // Define our max end date for entries we will process
         now = Calendar.getInstance();
-        int syncDaysInFuture = 0;
+        syncDaysInFuture = 0;
         if (!jTextField_SyncDaysInFuture.getText().isEmpty())
             syncDaysInFuture = Integer.parseInt(jTextField_SyncDaysInFuture.getText());
         now.add(Calendar.DATE, syncDaysInFuture);
@@ -956,7 +960,8 @@ public class mainGUI extends javax.swing.JFrame {
      * Adds a line to the status area.
      * @param text - The text to add.
      */
-    protected void statusAppendLine(String text) {
+    @Override
+    public void statusAppendLine(String text) {
     	if (isSilentMode) 
     		System.out.println(text);
     	else {
@@ -971,28 +976,77 @@ public class mainGUI extends javax.swing.JFrame {
      * Adds a line to the status area in diagnostic format.
      * @param text - The text to add.
      */
-    protected void statusAppendLineDiag(String text) {
-    	statusAppendLine("    " + text);
+    @Override
+    public void statusAppendLineDiag(String text) {
+        if (jCheckBox_DiagnosticMode.isSelected())
+            statusAppendLine("    " + text);
     }
 
-    protected void statusAppendStart(String text) {
-        statusStartTime = System.currentTimeMillis();
-        if (isSilentMode) 
+    /**
+     * Adds text to the status area (without inserting a newline).
+     * @param text - The text to add.
+     */
+    @Override
+    public void statusAppend(String text) {
+        if (isSilentMode)
         	System.out.print(text);
-        else
+        else {
         	jTextArea_Status.append(text);
+
+            // Scroll to the bottom so the new text can be seen
+            jTextArea_Status.setCaretPosition(jTextArea_Status.getDocument().getLength());
+        }
     }
 
-    protected void statusAppendFinished() {
+    /**
+     * Adds a line to the status area and starts a timer.
+     * @param text - The text to add.
+     */
+    @Override
+    public void statusAppendStart(String text) {
+        statusStartTime = System.currentTimeMillis();
+
+        if (jCheckBox_DiagnosticMode.isSelected()) {
+            // In diag mode, the output will be like:
+            //    Starting text
+            //    Other diag output lines go here
+            //    ...
+            //    Starting text (elapsed time)
+            // The final line will be written when statusAppendFinished() is called
+            statusStartMsg = text;
+            statusAppendLine(text);
+        }
+        else
+            // In non-diag mode, the output will be like:
+            //    Starting text (elapsed time)
+            // The elapsed time will be written when statusAppendFinished() is called
+            statusAppend(text);
+    }
+
+    /**
+     * Writes the elapsed time (started with statusAppendStart()) to the status area.
+     */
+    @Override
+    public void statusAppendFinished() {
         // Convert milliseonds to seconds and round to the tenths place
         long elapsedMillis = System.currentTimeMillis() - statusStartTime;
         BigDecimal elapsedSecs = new BigDecimal(elapsedMillis / 1000.0).setScale(1, BigDecimal.ROUND_HALF_UP);
-        statusAppendLine(" (" + elapsedSecs.toString() + " s)");
+
+        if (jCheckBox_DiagnosticMode.isSelected())
+            statusAppendLine(statusStartMsg + " (done in " + elapsedSecs.toString() + " s)");
+        else
+            statusAppendLine(" (" + elapsedSecs.toString() + " s)");
     }
 
-    protected void statusAppendException(String msg, Exception ex) {
+    /**
+     * Adds a line to the status area followed by the stack trace of an exception.
+     * @param text - The text to add.
+     * @param ex - Exception to display the stack trace of.
+     */
+    @Override
+    public void statusAppendException(String text, Exception ex) {
         statusAppendLine("\n\n=== ERROR ===");
-        statusAppendLine(msg);
+        statusAppendLine(text);
 
         // Add the stack trace to the status area
         StringWriter sw = new StringWriter();
@@ -1005,8 +1059,9 @@ public class mainGUI extends javax.swing.JFrame {
     ConfigurationBean confBean;
     private boolean isUrlValid = false;
     long statusStartTime = 0;
+    String statusStartMsg;
     // An exit code of 0 is success. All other values are failure.
-    final String appVersion = "1.10";
+    final String appVersion = "1.11";
     private boolean isSilentMode = false;
     private boolean saveSettingsOnExit = true;
 
@@ -1014,6 +1069,8 @@ public class mainGUI extends javax.swing.JFrame {
     // If the calendar entry is outside this range, it is ignored.
     Date minStartDate = null;
     Date maxEndDate = null;
+    int syncDaysInPast = 0;
+    int syncDaysInFuture = 0;
 
     static final int EXIT_SUCCESS = 0;
     static final int EXIT_INVALID_PARM = 1;
