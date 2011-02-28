@@ -31,6 +31,7 @@ public class NotesCalendarEntry {
         cal.body = this.body;
         cal.alarm = this.alarm;
         cal.alarmOffsetMins = this.alarmOffsetMins;
+        cal.privateEntry = this.privateEntry;
         cal.uid = this.uid;
         cal.requiredAttendees = this.requiredAttendees;
         cal.optionalAttendees = this.optionalAttendees;
@@ -97,6 +98,10 @@ public class NotesCalendarEntry {
 
     public void setAlarmOffsetMins(int value) {
         this.alarmOffsetMins = value;
+    }
+
+    public void setPrivate(boolean value) {
+        this.privateEntry = value;
     }
 
     public void setUID(String uid) {
@@ -309,6 +314,10 @@ public class NotesCalendarEntry {
         return alarmOffsetMins;
     }
 
+    public boolean getPrivate() {
+        return privateEntry;
+    }
+
     public int getAlarmOffsetMinsGoogle() {
         // Lotus Notes alarms can be before (negative value) or after (positive value)
         // the event.  Google only supports alarms before the event and the number
@@ -416,6 +425,8 @@ public class NotesCalendarEntry {
     // before (default) or after the date.  "Before" offsets are negative values and
     // "after" offsets are positive.  So, -15 means notify 15 minutes before the event.
     protected int alarmOffsetMins = 0;
+    // True if the entry has the Mark Private flag set
+    protected boolean privateEntry = false;
     // Unique ID for this calendar entry. This is the value created by Lotus.
     protected String uid = null;
     protected String requiredAttendees = null;

@@ -79,7 +79,6 @@ else
 	javaPath = "javaw.exe"
 end if
 
-
 ' Run the Java application
 set oJavawExec = oShell.Exec("""" & javaPath & """ -cp " & classPath & " LotusNotesGoogleCalendarBridge.mainGUI " & appParm)
 

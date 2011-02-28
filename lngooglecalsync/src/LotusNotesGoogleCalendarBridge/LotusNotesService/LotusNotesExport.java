@@ -1,8 +1,8 @@
 package LotusNotesGoogleCalendarBridge.LotusNotesService;
+import LotusNotesGoogleCalendarBridge.StatusMessageCallback;
 
 import lotus.domino.*;
 import java.io.*;
-import java.text.*;
 import java.util.*;
 
 
@@ -47,6 +47,10 @@ public class LotusNotesExport {
         this.maxEndDate = maxEndDate;
     }
 
+    public void setStatusMessageCallback(StatusMessageCallback value) {
+        statusMessageCallback = value;
+    }
+
     public String getNotesVersion() {
         return notesVersion;
     }
@@ -62,6 +66,8 @@ public class LotusNotesExport {
         boolean wasNotesThreadInitialized = false;
         ArrayList<NotesCalendarEntry> calendarEntries = new ArrayList<NotesCalendarEntry>();
         NotesCalendarEntry cal = null;
+
+        statusMessageCallback.statusAppendStart("Getting Lotus Notes calendar entries");
 
         try {
             // Some users, especially on OS X, have trouble locating Notes.jar (which
@@ -98,17 +104,21 @@ public class LotusNotesExport {
             if (db == null)
                 throw new Exception("Couldn't create Lotus Notes Database object.");
             
+            // Get our start and end query dates in Lotus Notes format. We will query
+            // using the localized format for the dates (which is what Lotus expects).
+            // E.g. in England the date may be 31/1/2011, but in the US it is 1/31/2011.
+            lotus.domino.DateTime minStartDateLN = session.createDateTime(minStartDate);
+            lotus.domino.DateTime maxEndDateLN = session.createDateTime(maxEndDate);
+
             // Query Lotus Notes to get calendar entries in our date range.
             // To understand this SELECT, go to http://publib.boulder.ibm.com/infocenter/domhelp/v8r0/index.jsp
-            // and search for the various keywords. Here is an overview...
+            // and search for the various keywords. Here is an overview:
             //   @IsAvailable(CalendarDateTime) is true if the LN document is a calendar entry
             //   @Explode splits a string based on the delimiters ",; "
             //   The operator *= is a permuted equal operator. It compares all entries on
             //   the left side to all entries on the right side. If there is at least one
             //   match, then true is returned.
-            DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
-
-            String calendarQuery = "SELECT (@IsAvailable(CalendarDateTime) & (@Explode(CalendarDateTime) *= @Explode(@TextToTime(\"" + df.format(minStartDate) + "-" + df.format(maxEndDate) + "\"))))";
+            String calendarQuery = "SELECT (@IsAvailable(CalendarDateTime) & (@Explode(CalendarDateTime) *= @Explode(@TextToTime(\"" + minStartDateLN.getLocalTime() + "-" + maxEndDateLN.getLocalTime() + "\"))))";
             DocumentCollection queryResults = db.search(calendarQuery);
 
             Document doc;
@@ -164,7 +174,14 @@ public class LotusNotesExport {
                     if (!isItemEmpty(lnItem))
                         cal.setAlarmOffsetMins(Integer.parseInt(lnItem.getText()));
                 }
-                
+
+                // When the Mark Private checkbox is checked, OrgConfidential is set to 1
+                lnItem = doc.getFirstItem("OrgConfidential");
+                if (!isItemEmpty(lnItem)) {
+                    if (lnItem.getText().equals("1"))
+                        cal.setPrivate(true);
+                }
+
                 //Get attendee info
                 lnItem = doc.getFirstItem("REQUIREDATTENDEES");
                 if (!isItemEmpty(lnItem)){
@@ -278,6 +295,8 @@ public class LotusNotesExport {
             }
 
             NotesThread.stermThread();
+            
+            statusMessageCallback.statusAppendFinished();
         }
     }
 
@@ -407,6 +426,8 @@ public class LotusNotesExport {
         return false;
     }
 
+
+    protected StatusMessageCallback statusMessageCallback = null;
 
     String calendarViewName = "Google Calendar Sync";
     String username, password;

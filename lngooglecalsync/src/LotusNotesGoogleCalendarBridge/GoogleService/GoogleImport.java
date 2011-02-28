@@ -62,14 +62,14 @@ public class GoogleImport {
 
                 statusMessageCallback.statusAppendLineDiag("Dest Calendar Time Zone: " + getDestinationTimeZone());
             }
-
-            statusMessageCallback.statusAppendFinished();
         } catch (InvalidCredentialsException ex) {
             throw new Exception("The username and/or password are invalid for signing into Google.", ex);
         } catch (AuthenticationException ex) {
             throw new Exception("Unable to login to Google. Perhaps you need to use a proxy server.", ex);
         } catch (Exception ex) {
             throw ex;
+        } finally {
+            statusMessageCallback.statusAppendFinished();
         }
     }
 
@@ -82,13 +82,18 @@ public class GoogleImport {
         CalendarFeed calendars = null;
         int retryCount = 0;
 
+        statusMessageCallback.statusAppendLineDiag("Get destination calendar URL.");
+
         if (destinationCalendarName == null)
             throw new Exception("The destination calendar has not been set, so Google calendar entries cannot be found.");
 
         try {
             // If true, we already know our calendar URL
-            if (destinationCalendarFeedUrl != null)
+            if (destinationCalendarFeedUrl != null) {
+//!@!
+//statusMessageCallback.statusAppendLineDiag("URL was prviously found: " + destinationCalendarFeedUrl);
                 return destinationCalendarFeedUrl;
+            }
 
             calendars = getCalendarList();
 
@@ -113,11 +118,15 @@ public class GoogleImport {
                         throw ex;
                     Thread.sleep(retryDelayMsecs);
 
+                    statusMessageCallback.statusAppendLineDiag("An Exception occurred. Retry attempt " + retryCount + ".");
+
                     // Get our calendar list again, reset our loop counter, and go to the top of the loop
                     calendars = getCalendarList();
                     i = 0;
                     continue;
                 }
+
+                statusMessageCallback.statusAppendLineDiag("Found calendar named: " + calendar.getTitle().getPlainText());
 
                 // If true, we've found the name of the destination calendar
                 if (calendar.getTitle().getPlainText().equals(destinationCalendarName)) {
@@ -129,6 +138,8 @@ public class GoogleImport {
             throw ex;
         }
 
+//!@!
+//statusMessageCallback.statusAppendLineDiag("URL was found for the first time: " + destinationCalendarFeedUrl);
         return destinationCalendarFeedUrl;
     }
 
@@ -172,6 +183,8 @@ public class GoogleImport {
         if (getDestinationCalendarUrl() != null) {
             return;
         }
+
+        statusMessageCallback.statusAppendLineDiag("Creating calendar named '" + destinationCalendarName + "'");
 
         CalendarEntry calendar = new CalendarEntry();
         calendar.setTitle(new PlainTextConstruct(destinationCalendarName));
@@ -306,6 +319,8 @@ public class GoogleImport {
      */
     public ArrayList<CalendarEventEntry> getCalendarEntries() throws Exception {
         try {
+            statusMessageCallback.statusAppendStart("Getting Google calendar entries");
+
             ArrayList<CalendarEventEntry> allCalEntries = new ArrayList<CalendarEventEntry>();
 
             URL feedUrl = getDestinationCalendarUrl();
@@ -315,14 +330,14 @@ public class GoogleImport {
             myQuery.setMinimumStartTime(new com.google.gdata.data.DateTime(minStartDate.getTime()));
             // Make the end time far into the future so we delete everything
             myQuery.setMaximumStartTime(com.google.gdata.data.DateTime.parseDateTime("2099-12-31T23:59:59"));
-            //myQuery.setMaximumStartTime(new com.google.gdata.data.DateTime(maxEndDate.getTime()));
 
             // Set the maximum number of results to return for the query.
             // Note: A GData server may choose to provide fewer results, but will never provide
             // more than the requested maximum.
             myQuery.setMaxResults(5000);
             int startIndex = 1;
-            int entriesReturned;
+            int entriesReturned = 0;
+            int queryCount = 0;
             int retryCount = 0;
 
             CalendarEventFeed resultFeed;
@@ -337,14 +352,19 @@ public class GoogleImport {
                     resultFeed = service.query(myQuery, CalendarEventFeed.class);
                 } catch (com.google.gdata.util.ServiceException ex) {
                     // If there is a network problem while connecting to Google, retry a few times
-                    if (++retryCount > maxRetryCount)
+                    if (++retryCount > maxRetryCount) {
                         throw ex;
+                    }
                     Thread.sleep(retryDelayMsecs);
+
+                    statusMessageCallback.statusAppendLineDiag("A Google ServiceException occurred. Retry attempt " + retryCount + ".");
                     
                     continue;
                 }
 
+                queryCount++;
                 entriesReturned = resultFeed.getEntries().size();
+                statusMessageCallback.statusAppendLineDiag(entriesReturned + " entries returned by query #" + queryCount + ".");
                 if (entriesReturned == 0)
                     // We've hit the end of the list
                     break;
@@ -370,9 +390,13 @@ public class GoogleImport {
             if (diagnosticMode)
                 writeInRangeEntriesToFile(allCalEntries);
 
+            statusMessageCallback.statusAppendFinished();
+
             return allCalEntries;
         } catch (Exception ex) {
             throw ex;
+        } finally {
+            statusMessageCallback.statusAppendFinished();
         }
     }
 
@@ -444,7 +468,8 @@ public class GoogleImport {
 
 
     /**
-     * Compare the Lotus and Google entries based on the Lotus modified timestamp.
+     * Compare the Lotus and Google entries based on the Lotus modified timestamp
+     * and other items.
      * On exit, lotusCalEntries will only contain the entries we want created and
      * googleCalEntries will only contain the entries we want deleted.
      */
@@ -454,7 +479,7 @@ public class GoogleImport {
             NotesCalendarEntry lotusEntry = lotusCalEntries.get(i);
 
             // Loop through all Google entries for each Lotus entry.  This isn't
-            // really efficient, but we have small lists (probably less than 300).
+            // very efficient, but we have small lists (probably less than 300).
             for (int j = 0; j < googleCalEntries.size(); j++) {
                 if ( ! hasEntryChanged(lotusEntry, googleCalEntries.get(j))) {
                     // The Lotus and Google entries are identical, so remove them from out lists.
@@ -664,6 +689,11 @@ public class GoogleImport {
                 event.getReminder().add(reminder);
             }
 
+            // If the Lotus Notes entry has the Mark Private checkbox checked, then
+            // mark the entry private in Google
+            if (lotusEntry.getPrivate())
+                event.setVisibility(BaseEventEntry.Visibility.PRIVATE);
+
             retryCount = 0;
             do {
                 try {
@@ -726,7 +756,13 @@ public class GoogleImport {
 
     public String getDestinationTimeZone() throws Exception {
         CalendarEventFeed calendar = null;
-        calendar = service.getFeed(getDestinationCalendarUrl(), CalendarEventFeed.class);
+        
+        URL calendarUrl = getDestinationCalendarUrl();
+
+//!@!
+//statusMessageCallback.statusAppendLineDiag("Calendar URL: " + calendarUrl);
+
+        calendar = service.getFeed(calendarUrl, CalendarEventFeed.class);
         return calendar.getTimeZone().getValue();
     }
 

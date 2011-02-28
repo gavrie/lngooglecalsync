@@ -31,6 +31,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.awt.Cursor;
+import java.awt.event.*;
 import java.math.BigDecimal;
 import javax.swing.*;
 import preferences.ConfigurationBean;
@@ -56,6 +57,19 @@ public class mainGUI extends javax.swing.JFrame implements StatusMessageCallback
         validateSettings();
 
         setDateRange();
+
+//!@! This code is not finished. It is to setup an internal scheduler so cron, etc.
+// doesn't need to be used.
+        //javax.swing.Timer syncTimer;
+
+        //ActionListener scheduledSync = new ActionListener() {
+        //    @Override
+        //    public void actionPerformed(ActionEvent evt) {
+//                javax.swing.JOptionPane.showMessageDialog(null, "loc1");
+        //    }
+        //};
+//        syncTimer = new javax.swing.Timer(5000, scheduledSync);
+//        syncTimer.start();
     }
 
     private void preInitComponents() {
@@ -75,7 +89,6 @@ public class mainGUI extends javax.swing.JFrame implements StatusMessageCallback
               });
         } else if (args[0].equals("-silent")) {
             // Run in "silent" command-line mode
-            // Use all configuration settings from the property file
             new mainGUI().runCommandLine();
             System.exit(exitCode);
         } else {
@@ -120,27 +133,30 @@ public class mainGUI extends javax.swing.JFrame implements StatusMessageCallback
         statusAppendLineDiag("Application Version: " + appVersion);
         statusAppendLineDiag("OS: " + System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch"));
         statusAppendLineDiag("Java: " + System.getProperty("java.version") + " " + System.getProperty("java.vendor"));
+        System.out.println("Java Home: " + System.getProperty("java.home"));
+        statusAppendLineDiag("Java Classpath: " + System.getProperty("java.class.path"));
+        statusAppendLineDiag("Java Library Path: " + System.getProperty("java.library.path"));
         //statusAppendLineDiag("Lotus Username: " + jTextField_LotusNotesUsername.getText());
         statusAppendLineDiag("Local Server: " + jCheckBox_LotusNotesServerIsLocal.isSelected());
         //statusAppendLineDiag("Server: " + jTextField_LotusNotesServer.getText());
         //statusAppendLineDiag("Mail File: " + jTextField_LotusNotesMailFile.getText());
         //statusAppendLineDiag("Google Email: " + jTextField_GoogleUsername.getText());
+        statusAppendLineDiag("Destination Calendar: " + jTextField_DestinationCalendarName.getText());
         statusAppendLineDiag("Use Proxy: " + jCheckBox_enableProxy.isSelected());
         statusAppendLineDiag("Use SSL: " + jCheckBox_GoogleSSL.isSelected());
         statusAppendLineDiag("Sync Description: " + jCheckBox_SyncDescription.isSelected());
         statusAppendLineDiag("Sync Alarms: " + jCheckBox_SyncAlarms.isSelected());
         statusAppendLineDiag("Sync Days In Future: " + jTextField_SyncDaysInFuture.getText());
         statusAppendLineDiag("Sync Days In Past: " + jTextField_SyncDaysInPast.getText());
-        statusAppendLineDiag("Java Classpath: " + System.getProperty("java.class.path"));
-        statusAppendLineDiag("Java Library Path: " + System.getProperty("java.library.path"));
 
         DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
 
         statusAppendLine("Date range: " + df.format(minStartDate) + " thru " + df.format(maxEndDate) + " (-" + syncDaysInPast +  " to +" + syncDaysInFuture + " days)");
 
         // === Get the Lotus Notes calendar data
-        statusAppendStart("Getting Lotus Notes calendar entries");
+//        statusAppendStart("Getting Lotus Notes calendar entries");
         LotusNotesExport lotusNotesService = new LotusNotesExport();
+        lotusNotesService.setStatusMessageCallback(this);
 
         lotusNotesService.setRequiresAuth(true);
         lotusNotesService.setCredentials(jTextField_LotusNotesUsername.getText(), new String(jPasswordField_LotusNotesPassword.getPassword()));
@@ -154,7 +170,7 @@ public class mainGUI extends javax.swing.JFrame implements StatusMessageCallback
         lotusNotesService.setDiagnosticMode(jCheckBox_DiagnosticMode.isSelected());
         
         ArrayList<NotesCalendarEntry> lotusCalEntries = lotusNotesService.getCalendarEntries();
-        statusAppendFinished();
+//        statusAppendFinished();
         statusAppendLine(lotusCalEntries.size() + " Lotus entries found within date range");
 
         statusAppendLineDiag("Lotus Version: " + lotusNotesService.getNotesVersion());
@@ -194,9 +210,7 @@ public class mainGUI extends javax.swing.JFrame implements StatusMessageCallback
 //if (true) {statusAppendLineDiag("DEBUG: Done logging into Google. Stopping sync."); return;}
 
 
-        statusAppendStart("Getting Google calendar entries");
         ArrayList<CalendarEventEntry> googleCalEntries = googleService.getCalendarEntries();
-        statusAppendFinished();
         statusAppendLine(googleCalEntries.size() + " Google entries found within date range");
 
         statusAppendStart("Comparing Lotus Notes and Google calendar entries");
@@ -226,7 +240,25 @@ public class mainGUI extends javax.swing.JFrame implements StatusMessageCallback
         BigDecimal elapsedSecs = new BigDecimal(elapsedMillis / 1000.0).setScale(1, BigDecimal.ROUND_HALF_UP);
         statusAppendLine("Finished sync (" + elapsedSecs + " s total)");            	
     }
-   
+
+
+    protected void ShowNewVersionMessage() {
+        String msgHeading = "Version " + appVersion + " is being run for the first time in GUI mode. Here are the changes:\n";
+        String verChanges = "";
+        verChanges = verChanges + "o Enhancement: A message box will popup the first time the GUI is run for a new version of LNGS. The new version updates will be shown.\n";
+        verChanges = verChanges + "o Enhancement: The way dates are handled on non-United States systems was changed to be more generic. The method used in v1.11 didn’t work for several users.\n";
+        verChanges = verChanges + "o Enhancement: If the Lotus Notes entry has the Mark Private checkbox checked, then the entry is made Private in Google calendar.\n";
+        verChanges = verChanges + "o Enhancement: Refactored the way Diagnostic Mode messages are logged by using a callback to the main class. This allows diagnostic messages to show more details.\n";
+        verChanges = verChanges + "o Enhancement: A couple classpath improvements were made in lngsync.sh and lnconntest.sh.\n";
+        verChanges = verChanges + "o Enhancement: Version 1.6.1 of the LNConnectivityTest app has been put in svn. When checking paths, the case sensitivity of the underlying OS is now taken into consideration.\n";
+        verChanges = verChanges + "o Enhancement: Several users requested a way to donate funds to the project, so PayPal donation information has been added to the Help file..\n";
+        String msgFooter = "\n\nI need help with checking for new software versions.";
+
+        javax.swing.JOptionPane.showMessageDialog(this, msgHeading + verChanges, "New Version Announcement", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+
+        // Update the version number in the config file so this message won't be shown again
+        confBean.setApplicationVersion(appVersion);
+    }
 
     class SyncSwingWorker extends SwingWorker<Void, Void>
     {
@@ -782,6 +814,10 @@ public class mainGUI extends javax.swing.JFrame implements StatusMessageCallback
 
         this.setTitle(this.getTitle() + " v" + appVersion);
 
+        if ( ! confBean.getApplicationVersion().equals(appVersion)) {
+            ShowNewVersionMessage();
+        }
+
         if (confBean.getSyncOnStartup() && jButton_Synchronize.isEnabled()) {
             new SyncSwingWorker().execute();
         }
@@ -979,7 +1015,7 @@ public class mainGUI extends javax.swing.JFrame implements StatusMessageCallback
     @Override
     public void statusAppendLineDiag(String text) {
         if (jCheckBox_DiagnosticMode.isSelected())
-            statusAppendLine("    " + text);
+            statusAppendLine("   " + text);
     }
 
     /**
@@ -1061,7 +1097,7 @@ public class mainGUI extends javax.swing.JFrame implements StatusMessageCallback
     long statusStartTime = 0;
     String statusStartMsg;
     // An exit code of 0 is success. All other values are failure.
-    final String appVersion = "1.11";
+    final String appVersion = "1.12";
     private boolean isSilentMode = false;
     private boolean saveSettingsOnExit = true;
 

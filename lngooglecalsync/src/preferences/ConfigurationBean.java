@@ -66,6 +66,10 @@ public class ConfigurationBean {
         config.setProperty(PROP_CONFIG_VERSION, Integer.toString(value));
     }
 
+    public void setApplicationVersion(String value) {
+        config.setProperty(PROP_APP_VERSION, value);
+    }
+
     public void setLotusNotesServer(String value) {
         config.setProperty(PROP_LOTUS_NOTES_SERVER, value);
     }
@@ -79,7 +83,7 @@ public class ConfigurationBean {
     }
 
     public void setGoogleUserName(String googleUserName) {
-        config.setProperty("GoogleUsername", googleUserName);
+        config.setProperty(PROP_GOOGLE_USERNAME, googleUserName);
     }
 
     public void setGooglePassword(String googlePassword) {
@@ -87,11 +91,11 @@ public class ConfigurationBean {
     }
 
     public void setGoogleProxyIP(String googleProxyIP) {
-        config.setProperty("GoogleProxyIP", googleProxyIP);
+        config.setProperty(PROP_PROXY_IP, googleProxyIP);
     }
 
     public void setGoogleProxyPort(String googleProxyPort) {
-        config.setProperty("GoogleProxyPort", googleProxyPort);
+        config.setProperty(PROP_PROXY_PORT, googleProxyPort);
     }
 
     public void setGoogleProxyUsername(String value) {
@@ -103,7 +107,7 @@ public class ConfigurationBean {
     }
 
     public void setGoogleEnableProxy(boolean googleEnableProxy) {
-        setBooleanProperty("GoogleEnableProxy", googleEnableProxy);
+        setBooleanProperty(PROP_PROXY_ENABLE, googleEnableProxy);
     }
 
     public void setGoogleUseSSL(boolean googleUseSSL) {
@@ -164,6 +168,10 @@ public class ConfigurationBean {
         return getIntegerProperty(PROP_CONFIG_VERSION);
     }
 
+    public String getApplicationVersion() {
+        return getStringProperty(PROP_APP_VERSION);
+    }
+
     public String getLotusNotesServer() {
         return getStringProperty(PROP_LOTUS_NOTES_SERVER);
     }
@@ -177,7 +185,7 @@ public class ConfigurationBean {
     }
 
     public String getGoogleUserName() {
-        return getStringProperty("GoogleUsername");
+        return getStringProperty(PROP_GOOGLE_USERNAME);
     }
 
     public String getGooglePassword() throws Exception {
@@ -185,11 +193,11 @@ public class ConfigurationBean {
     }
 
     public String getGoogleProxyIP() {
-        return getStringProperty("GoogleProxyIP");
+        return getStringProperty(PROP_PROXY_IP);
     }
 
     public String getGoogleProxyPort() {
-        return getStringProperty("GoogleProxyPort");
+        return getStringProperty(PROP_PROXY_PORT);
     }
 
     public String getGoogleProxyUsername() {
@@ -201,7 +209,7 @@ public class ConfigurationBean {
     }
 
     public boolean getGoogleEnableProxy() {
-        return getBooleanProperty("GoogleEnableProxy");
+        return getBooleanProperty(PROP_PROXY_ENABLE);
     }
 
     public boolean getGoogleUseSSL() {
@@ -313,8 +321,11 @@ public class ConfigurationBean {
     // Version stamp for the config-file format.
     // IMPORTANT: Update this version number whenever there is a format change to the
     // config file, e.g. adding a new setting.
-    protected static final int currConfigVersion = 4;
+    protected static final int currConfigVersion = 5;
     protected static final String PROP_CONFIG_VERSION = "ConfigVersion";
+
+    protected static final String PROP_APP_VERSION = "ApplicationVersion";
+
     protected static final String PROP_LOTUS_NOTES_SERVER = "LotusNotesServer";
     protected static final String PROP_LOTUS_NOTES_SERVER_IS_LOCAL = "LotusNotesServerIsLocal";
     protected static final String PROP_LOTUS_NOTES_MAIL_FILE = "LotusNotesMailFile";
@@ -329,9 +340,13 @@ public class ConfigurationBean {
     protected static final String PROP_SYNC_DAYS_IN_FUTURE = "SyncDaysInFuture";
     protected static final String PROP_SYNC_DAYS_IN_PAST = "SyncDaysInPast";
 
+    protected static final String PROP_PROXY_ENABLE = "GoogleEnableProxy";
     protected static final String PROP_PROXY_USERNAME = "GoogleProxyUsername";
     protected static final String PROP_PROXY_PASSWORD = "GoogleProxyPassword";
+    protected static final String PROP_PROXY_IP = "GoogleProxyIP";
+    protected static final String PROP_PROXY_PORT = "GoogleProxyPort";
     protected static final String PROP_USE_SSL = "GoogleUseSSL";
+    protected static final String PROP_GOOGLE_USERNAME = "GoogleUsername";
     protected static final String PROP_GOOGLE_PASSWORD = "GooglePassword";
     protected static final String PROP_GOOGLE_CALENDAR_NAME = "GoogleCalendarName";
 
