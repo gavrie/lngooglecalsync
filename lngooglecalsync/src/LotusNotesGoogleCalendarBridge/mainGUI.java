@@ -245,16 +245,11 @@ public class mainGUI extends javax.swing.JFrame implements StatusMessageCallback
     protected void ShowNewVersionMessage() {
         String msgHeading = "Version " + appVersion + " is being run for the first time in GUI mode. Here are the changes:\n";
         String verChanges = "";
-        verChanges = verChanges + "o Enhancement: A message box will popup the first time the GUI is run for a new version of LNGS. The new version updates will be shown.\n";
-        verChanges = verChanges + "o Enhancement: The way dates are handled on non-United States systems was changed to be more generic. The method used in v1.11 didn’t work for several users.\n";
-        verChanges = verChanges + "o Enhancement: If the Lotus Notes entry has the Mark Private checkbox checked, then the entry is made Private in Google calendar.\n";
-        verChanges = verChanges + "o Enhancement: Refactored the way Diagnostic Mode messages are logged by using a callback to the main class. This allows diagnostic messages to show more details.\n";
-        verChanges = verChanges + "o Enhancement: A couple classpath improvements were made in lngsync.sh and lnconntest.sh.\n";
-        verChanges = verChanges + "o Enhancement: Version 1.6.1 of the LNConnectivityTest app has been put in svn. When checking paths, the case sensitivity of the underlying OS is now taken into consideration.\n";
-        verChanges = verChanges + "o Enhancement: Several users requested a way to donate funds to the project, so PayPal donation information has been added to the Help file..\n";
-        String msgFooter = "\n\nI need help with checking for new software versions.";
+        verChanges = verChanges + "o Fix: The lngsync.sh script contained a bug in v1.12 which has been fixed.\n";
+        verChanges = verChanges + "o Enhancement: The Help file now contains an Upgrade section for how to upgrade to new versions of LNGS.\n";
+        String msgFooter = "\n\nTo upgrade to a new version of the application, just unzip the new files and copy your old lngooglecalsync.properties file into the new-version directory.";
 
-        javax.swing.JOptionPane.showMessageDialog(this, msgHeading + verChanges, "New Version Announcement", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        javax.swing.JOptionPane.showMessageDialog(this, msgHeading + verChanges + msgFooter, "New Version Announcement", javax.swing.JOptionPane.INFORMATION_MESSAGE);
 
         // Update the version number in the config file so this message won't be shown again
         confBean.setApplicationVersion(appVersion);
@@ -1097,7 +1092,7 @@ public class mainGUI extends javax.swing.JFrame implements StatusMessageCallback
     long statusStartTime = 0;
     String statusStartMsg;
     // An exit code of 0 is success. All other values are failure.
-    final String appVersion = "1.12";
+    final String appVersion = "1.12.1";
     private boolean isSilentMode = false;
     private boolean saveSettingsOnExit = true;
 
