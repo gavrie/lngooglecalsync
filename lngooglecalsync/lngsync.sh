@@ -24,9 +24,9 @@ if [ "$OS_TYPE" = "Darwin" ]; then
   export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$NOTES_PATH
 fi
 
-SCRIPT_PATH=`dirname $0`
+SCRIPT_PATH=`dirname "$0"`
 # Make invokable from any directory
-cd $SCRIPT_PATH
+cd "$SCRIPT_PATH"
 
 # Make silent mode work for cronjobs with ugly X11 hack
 if [ -z "$DISPLAY" ]; then
@@ -41,7 +41,7 @@ if [ -z "$DISPLAY" ]; then
 fi
 
 export PATH=$PATH:$NOTES_PATH
-export MY_CLASSPATH=$NOTES_PATH/jvm/lib/ext/Notes.jar:./icalbridge.jar:./lib/*jar
+export MY_CLASSPATH=$NOTES_PATH/jvm/lib/ext/Notes.jar:./icalbridge.jar:$(printf "%s\n"  ./lib/*.jar | tr "\n" ":")
 
 COMMAND="java -d32 -cp $MY_CLASSPATH LotusNotesGoogleCalendarBridge.mainGUI $*"
 
