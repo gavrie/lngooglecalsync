@@ -1,10 +1,10 @@
-package LotusNotesGoogleCalendarBridge.ProxyModule;
+package lngs.util;
 
 import java.net.Authenticator;
 
-public class ProxyConfigBean {
+public class ProxyManager {
 
-    public ProxyConfigBean() {
+    public ProxyManager() {
         proxyHost = "";
         proxyPort = "";
         enabled = false;
@@ -16,17 +16,17 @@ public class ProxyConfigBean {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
-        debug("configured proxy");
+        //debug("configured proxy");
     }
 
     public void setProxyHost(String proxyHost) {
         this.proxyHost = proxyHost;
-        debug ("set proxy host");
+        //debug ("set proxy host");
     }
 
     public void setProxyPort(String proxyPort) {
         this.proxyPort = proxyPort;
-        debug ("set proxy port");
+        //debug ("set proxy port");
     }
 
     public String getProxyHost() {
@@ -59,13 +59,13 @@ public class ProxyConfigBean {
 
     public void activateNow() {
         if (enableProxyAuthentication) {
-            Authenticator.setDefault(new DefaultProxyAuthenticator(getProxyUser(), getProxyPassword()));
+            Authenticator.setDefault(new ProxyAuthenticator(getProxyUser(), getProxyPassword()));
         }
 
         System.getProperties().put("proxySet", "true");
         System.getProperties().put("proxyHost", proxyHost);
         System.getProperties().put("proxyPort", proxyPort);
-        debug("proxy has been activated");
+        //debug("proxy has been activated");
     }
 
     public void deactivateNow() {
@@ -77,7 +77,7 @@ public class ProxyConfigBean {
         System.getProperties().put("proxyHost", "");
         System.getProperties().put("proxyPort", "");
         enableProxyAuthentication = false;
-        debug ("proxy has been deactivated");
+        //debug ("proxy has been deactivated");
     }
 
     private void debug(String message) {

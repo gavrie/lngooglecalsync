@@ -1,11 +1,11 @@
-package LotusNotesGoogleCalendarBridge.ProxyModule;
+package lngs.util;
 
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 
-class DefaultProxyAuthenticator extends Authenticator {
+class ProxyAuthenticator extends Authenticator {
 
-    public DefaultProxyAuthenticator(String user, String password) {
+    public ProxyAuthenticator(String user, String password) {
         this.user = user;
         this.password = password;
     }
