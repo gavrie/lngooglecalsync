@@ -1,7 +1,7 @@
-package LotusNotesGoogleCalendarBridge.GoogleService;
+package lngs.google;
 
-import LotusNotesGoogleCalendarBridge.LotusNotesService.NotesCalendarEntry;
-import LotusNotesGoogleCalendarBridge.StatusMessageCallback;
+import lngs.lotus.LotusNotesCalendarEntry;
+import lngs.util.StatusMessageCallback;
 import com.google.gdata.client.GoogleService.*;
 import com.google.gdata.client.calendar.*;
 import com.google.gdata.data.*;
@@ -16,14 +16,15 @@ import com.google.gdata.util.*;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.Calendar;
 import java.util.UUID;
 
-public class GoogleImport {
+public class GoogleManager {
 
-    public GoogleImport() {
+    public GoogleManager() {
     }
 
 
@@ -47,11 +48,32 @@ public class GoogleImport {
             privateCalendarFeedUrl = new URL(protocol + "//www.google.com/calendar/feeds/" + googleUsername + "/private/full");
 
             service = new CalendarService("LotusNotes-Calendar-Sync");
+
             if (useSSL) {
                 service.useSsl();
             }
 
-            service.setUserCredentials(googleUsername, googlePassword);
+            int retryCount = 0;
+            boolean doRetry = false;
+
+            do {
+                try {
+                    doRetry = false;
+                    service.setUserCredentials(googleUsername, googlePassword);
+                } catch (InvalidCredentialsException ex) {
+                    throw new Exception("The username and/or password are invalid for signing into Google.", ex);
+                } catch (AuthenticationException ex) {
+                    throw new Exception("Unable to login to Google. Perhaps you need to use a proxy server.", ex);
+                } catch (Exception ex) {
+                    if (++retryCount > maxRetryCount)
+                        throw ex;
+                    Thread.sleep(retryDelayMsecs);
+                    doRetry = true;
+
+                    statusMessageCallback.statusAppendLineDiag("Retry #" + retryCount + ". Encountered " + ex.toString());
+                }            
+            } while (doRetry);
+
             createCalendar();
 
             if (diagnosticMode) {
@@ -62,10 +84,6 @@ public class GoogleImport {
 
                 statusMessageCallback.statusAppendLineDiag("Dest Calendar Time Zone: " + getDestinationTimeZone());
             }
-        } catch (InvalidCredentialsException ex) {
-            throw new Exception("The username and/or password are invalid for signing into Google.", ex);
-        } catch (AuthenticationException ex) {
-            throw new Exception("Unable to login to Google. Perhaps you need to use a proxy server.", ex);
         } catch (Exception ex) {
             throw ex;
         } finally {
@@ -82,7 +100,7 @@ public class GoogleImport {
         CalendarFeed calendars = null;
         int retryCount = 0;
 
-        statusMessageCallback.statusAppendLineDiag("Get destination calendar URL.");
+//        statusMessageCallback.statusAppendLineDiag("Get destination calendar URL.");
 
         if (destinationCalendarName == null)
             throw new Exception("The destination calendar has not been set, so Google calendar entries cannot be found.");
@@ -90,8 +108,6 @@ public class GoogleImport {
         try {
             // If true, we already know our calendar URL
             if (destinationCalendarFeedUrl != null) {
-//!@!
-//statusMessageCallback.statusAppendLineDiag("URL was prviously found: " + destinationCalendarFeedUrl);
                 return destinationCalendarFeedUrl;
             }
 
@@ -118,7 +134,7 @@ public class GoogleImport {
                         throw ex;
                     Thread.sleep(retryDelayMsecs);
 
-                    statusMessageCallback.statusAppendLineDiag("An Exception occurred. Retry attempt " + retryCount + ".");
+                    statusMessageCallback.statusAppendLineDiag("Retry #" + retryCount + ". Encountered " + ex.toString());
 
                     // Get our calendar list again, reset our loop counter, and go to the top of the loop
                     calendars = getCalendarList();
@@ -138,8 +154,6 @@ public class GoogleImport {
             throw ex;
         }
 
-//!@!
-//statusMessageCallback.statusAppendLineDiag("URL was found for the first time: " + destinationCalendarFeedUrl);
         return destinationCalendarFeedUrl;
     }
 
@@ -192,6 +206,7 @@ public class GoogleImport {
         // Get this machine's current time zone when creating the new Google calendar
         TimeZone localTimeZone = TimeZone.getDefault();
         String timeZoneName = localTimeZone.getID();
+        statusMessageCallback.statusAppendLineDiag("Local Machine Time Zone: " + timeZoneName);
 
         // Set the Google calendar time zone
         TimeZoneProperty tzp = new TimeZoneProperty(timeZoneName);
@@ -243,6 +258,10 @@ public class GoogleImport {
                 BatchUtils.setBatchId(entry, Integer.toString(i));
                 BatchUtils.setBatchOperationType(entry, BatchOperationType.DELETE);
                 batchRequest.getEntries().add(entry);
+
+                statusMessageCallback.statusAppendLineDiag("Delete #" + (i+1) +
+                        ". Subject: " + entry.getTitle().getPlainText() +
+                        "  Start Date: " + entry.getTimes().get(0).getStartTime().toString());
             }
 
             CalendarEventFeed feed = null;
@@ -357,7 +376,7 @@ public class GoogleImport {
                     }
                     Thread.sleep(retryDelayMsecs);
 
-                    statusMessageCallback.statusAppendLineDiag("A Google ServiceException occurred. Retry attempt " + retryCount + ".");
+                    statusMessageCallback.statusAppendLineDiag("Retry #" + retryCount + ". Encountered " + ex.toString());
                     
                     continue;
                 }
@@ -390,8 +409,6 @@ public class GoogleImport {
             if (diagnosticMode)
                 writeInRangeEntriesToFile(allCalEntries);
 
-            statusMessageCallback.statusAppendFinished();
-
             return allCalEntries;
         } catch (Exception ex) {
             throw ex;
@@ -420,13 +437,26 @@ public class GoogleImport {
                     googleInRangeEntriesWriter.write("=== Calendar Entry ===\n");
 
                     googleInRangeEntriesWriter.write("  Title: " + calEntry.getTitle().getPlainText() + "\n");
+
+                    List<Where> whereList = calEntry.getLocations();
+                    String where;
+                    where = "";
+                    if (whereList.size() > 0 && whereList.get(0).getValueString() != null) {
+                        where = whereList.get(0).getValueString();
+                    }
+                    googleInRangeEntriesWriter.write("  Where: " + where + "\n");
+
                     googleInRangeEntriesWriter.write("  IcalUID: " + calEntry.getIcalUID() + "\n");
                     for (When eventTime : calEntry.getTimes()) {
-                        googleInRangeEntriesWriter.write("  Start Date: " + new Date(eventTime.getStartTime().getValue()) + "\n");
-                        googleInRangeEntriesWriter.write("  End Date: " + new Date(eventTime.getEndTime().getValue()) + "\n");
+                        googleInRangeEntriesWriter.write("  Start Date:   " + new Date(eventTime.getStartTime().getValue()) + "\n");
+                        googleInRangeEntriesWriter.write("  End Date:     " + new Date(eventTime.getEndTime().getValue()) + "\n");
                     }
-                    googleInRangeEntriesWriter.write("  Edited Date: " + new Date(calEntry.getEdited().getValue()) + "\n");
+                    googleInRangeEntriesWriter.write("  Edited Date:  " + new Date(calEntry.getEdited().getValue()) + "\n");
                     googleInRangeEntriesWriter.write("  Updated Date: " + new Date(calEntry.getUpdated().getValue()) + "\n");
+                    String alarmInfo = "None";
+                    if (calEntry.getReminder().size() != 0)
+                        alarmInfo = calEntry.getReminder().get(0).getMinutes() + " mins";
+                    googleInRangeEntriesWriter.write("  Alarm: " + alarmInfo + "\n");
 
                     googleInRangeEntriesWriter.write("\n\n");
                 }
@@ -473,10 +503,10 @@ public class GoogleImport {
      * On exit, lotusCalEntries will only contain the entries we want created and
      * googleCalEntries will only contain the entries we want deleted.
      */
-    public void compareCalendarEntries(ArrayList<NotesCalendarEntry> lotusCalEntries, ArrayList<CalendarEventEntry> googleCalEntries) {
+    public void compareCalendarEntries(ArrayList<LotusNotesCalendarEntry> lotusCalEntries, ArrayList<CalendarEventEntry> googleCalEntries) {
         // Loop through all Lotus entries
         for (int i = 0; i < lotusCalEntries.size(); i++) {
-            NotesCalendarEntry lotusEntry = lotusCalEntries.get(i);
+            LotusNotesCalendarEntry lotusEntry = lotusCalEntries.get(i);
 
             // Loop through all Google entries for each Lotus entry.  This isn't
             // very efficient, but we have small lists (probably less than 300).
@@ -494,10 +524,11 @@ public class GoogleImport {
 
 
     /**
-     * Compare a Lotus and Google entry. Return true if the Lotus entry has changed
-     * since the last sync.
+     * Compare a Lotus and Google entry
+     * Return true if the Lotus entry has changed since the last sync.
+     * Return false if the two entries are equivalent.
      */
-    public boolean hasEntryChanged(NotesCalendarEntry lotusEntry, CalendarEventEntry googleEntry) {
+    public boolean hasEntryChanged(LotusNotesCalendarEntry lotusEntry, CalendarEventEntry googleEntry) {
         final int googleUIDIdx = 33;
 
         // If the ICAL UID is less than our minimum length, say the entry has changed
@@ -509,27 +540,68 @@ public class GoogleImport {
         // The Google IcalUID has the format: GoogleUID:SyncUID.
         // Strip off the "GoogleUID:" part and do a compare.
         if (googleEntry.getIcalUID().substring(googleUIDIdx).equals(syncUID)) {
-            // The two entries match on our first test, but we have to compare
+            // The Google and Lotus entries match on our first test, but we have to compare
             // other values. Why? Say a sync is performed with the "sync alarms"
             // option enabled, but then "sync alarms" is turned off. When the
             // second sync happens, we want to delete all the Google entries created
             // the first time (with alarms) and re-create them without alarms.
 
+            // Compare the title/subject
+            String lotusSubject = lotusEntry.getSubject().trim().replace("\r", "");
+            if (syncAllSubjectsToValue) {
+                lotusSubject = syncAllSubjectsToThisValue;
+            }
+            if (!googleEntry.getTitle().getPlainText().equals(lotusSubject)) {
+//!@!
+//statusMessageCallback.statusAppendLineDiag("Entry has changed (subject changed). Subject: " + googleEntry.getTitle().getPlainText());
+                return true;
+            }
+
+            List<Where> whereList = googleEntry.getLocations();
+            // If true, we want location/where info in our Google entries and the Lotus
+            // entry has location info to add.
+            if (syncWhere && lotusEntry.getGoogleWhereString() != null) {
+                // If true, the Google entry doesn't contain location info, so
+                // the entries don't match.
+                if (whereList.size() > 0 && whereList.get(0).getValueString() == null) {
+//!@!
+//statusMessageCallback.statusAppendLineDiag("Entry has changed (location changed 1). Subject: " + googleEntry.getTitle().getPlainText());
+                    return true;
+                }
+            }
+            else {
+                // If true, the Google entry has location info (which we don't want), so
+                // the entries don't match.
+                if (whereList.size() > 0 && whereList.get(0).getValueString() != null) {
+//!@!
+//statusMessageCallback.statusAppendLineDiag("Entry has changed (location changed 2). Subject: " + googleEntry.getTitle().getPlainText());
+                    return true;
+                }
+            }
+
             if (syncAlarms && lotusEntry.getAlarm()) {   
                 // We are syncing alarms, so make sure the Google entry has an alarm.
-                // Note: If there is an alarm set, we'll assume the offset is correct.
-                if (googleEntry.getReminder().size() == 0)
+                // Note: If there is an alarm set, we'll assume the alarm offset is correct.
+                if (googleEntry.getReminder().size() == 0) {
+//!@!
+//statusMessageCallback.statusAppendLineDiag("Entry has changed (no Google reminder). Subject: " + googleEntry.getTitle().getPlainText());
                     return true;
+                }
             }
             else {
                 // We aren't syncing alarms, so make sure the Google entry doesn't
                 // have an alarm specified
-                if (googleEntry.getReminder().size() > 0)
+                if (googleEntry.getReminder().size() > 0) {
+//!@!
+//statusMessageCallback.statusAppendLineDiag("Entry has changed (has Google reminder). Subject: " + googleEntry.getTitle().getPlainText());
                     return true;
+                }
             }
 
             // Compare the Description field of Google entry to what we would build it as
             if (! googleEntry.getPlainTextContent().equals(createDescriptionText(lotusEntry))) {
+//!@!
+//statusMessageCallback.statusAppendLineDiag("Entry has changed because of description text");
                 return true;
             }
 
@@ -542,9 +614,9 @@ public class GoogleImport {
 
     // This method is for testing purposes.
     public void createSampleCalEntry() {
-        NotesCalendarEntry cal = new NotesCalendarEntry();
+        LotusNotesCalendarEntry cal = new LotusNotesCalendarEntry();
         cal.setSubject("DeanRepeatTest");
-        cal.setEntryType(NotesCalendarEntry.EntryType.APPOINTMENT);
+        cal.setEntryType(LotusNotesCalendarEntry.EntryType.APPOINTMENT);
         cal.setAppointmentType("3");
         cal.setLocation("nolocation");
         cal.setRoom("noroom");
@@ -611,14 +683,22 @@ public class GoogleImport {
      * @throws ServiceException
      * @throws IOException
      */
-    public int createCalendarEntries(ArrayList<NotesCalendarEntry> lotusCalEntries) throws Exception, ServiceException, IOException {
+    public int createCalendarEntries(ArrayList<LotusNotesCalendarEntry> lotusCalEntries) throws Exception, ServiceException, IOException {
         int retryCount = 0;
         int createdCount = 0;
 
         for (int i = 0; i < lotusCalEntries.size(); i++) {
-            NotesCalendarEntry lotusEntry = lotusCalEntries.get(i);
+            LotusNotesCalendarEntry lotusEntry = lotusCalEntries.get(i);
             CalendarEventEntry event = new CalendarEventEntry();
-            event.setTitle(new PlainTextConstruct(lotusEntry.getSubject()));
+            // Set the subject/title
+            if (syncAllSubjectsToValue) {
+                // Set all subjects to a specific value (for privacy)
+                event.setTitle(new PlainTextConstruct(syncAllSubjectsToThisValue));
+            }
+            else {
+                // Set the subject to the Lotus value
+                event.setTitle(new PlainTextConstruct(lotusEntry.getSubject()));
+            }
 
             // The Google IcalUID must be unique for all eternity or we'll get a
             // VersionConflictException during the insert. So start the IcalUID string
@@ -628,19 +708,22 @@ public class GoogleImport {
 
             StringBuffer sb = new StringBuffer();
 
+            // Set the body/description
             event.setContent(new PlainTextConstruct(createDescriptionText(lotusEntry)));
 
-            String whereStr = lotusEntry.getGoogleWhereString();
-            if (whereStr != null) {
-                Where location = new Where();
-                location.setValueString(whereStr);
-                event.addLocation(location);
+            if (syncWhere) {
+                String whereStr = lotusEntry.getGoogleWhereString();
+                if (whereStr != null) {
+                    Where location = new Where();
+                    location.setValueString(whereStr);
+                    event.addLocation(location);
+                }
             }
 
             DateTime startTime, endTime;
-            if (lotusEntry.getEntryType() == NotesCalendarEntry.EntryType.TASK ||
-                    lotusEntry.getAppointmentType() == NotesCalendarEntry.AppointmentType.ALL_DAY_EVENT ||
-                    lotusEntry.getAppointmentType() == NotesCalendarEntry.AppointmentType.ANNIVERSARY)
+            if (lotusEntry.getEntryType() == LotusNotesCalendarEntry.EntryType.TASK ||
+                    lotusEntry.getAppointmentType() == LotusNotesCalendarEntry.AppointmentType.ALL_DAY_EVENT ||
+                    lotusEntry.getAppointmentType() == LotusNotesCalendarEntry.AppointmentType.ANNIVERSARY)
             {
                 // Create an all-day event by setting start/end dates with no time portion
                 startTime = DateTime.parseDate(lotusEntry.getStartDateGoogle());
@@ -652,8 +735,8 @@ public class GoogleImport {
                 else
                     endTime = DateTime.parseDate(lotusEntry.getEndDateGoogle(1));
             }
-            else if (lotusEntry.getAppointmentType() == NotesCalendarEntry.AppointmentType.APPOINTMENT ||
-                    lotusEntry.getAppointmentType() == NotesCalendarEntry.AppointmentType.MEETING)
+            else if (lotusEntry.getAppointmentType() == LotusNotesCalendarEntry.AppointmentType.APPOINTMENT ||
+                    lotusEntry.getAppointmentType() == LotusNotesCalendarEntry.AppointmentType.MEETING)
             {
                 // Create a standard event
                 startTime = DateTime.parseDateTime(lotusEntry.getStartDateTimeGoogle());
@@ -663,7 +746,7 @@ public class GoogleImport {
                 else
                     endTime = DateTime.parseDateTime(lotusEntry.getEndDateTimeGoogle());
             }
-            else if (lotusEntry.getAppointmentType() == NotesCalendarEntry.AppointmentType.REMINDER)
+            else if (lotusEntry.getAppointmentType() == LotusNotesCalendarEntry.AppointmentType.REMINDER)
             {
                 // Create a standard event with the start and end times the same
                 startTime = DateTime.parseDateTime(lotusEntry.getStartDateTimeGoogle());
@@ -699,6 +782,9 @@ public class GoogleImport {
                 try {
                     service.insert(getDestinationCalendarUrl(), event);
                     createdCount++;
+                    statusMessageCallback.statusAppendLineDiag("Create #" + createdCount +
+                            ". Subject: " + event.getTitle().getPlainText() +
+                            "  Start Date: " + event.getTimes().get(0).getStartTime().toString());
 
                     break;
                 } catch (Exception ex) {
@@ -716,7 +802,7 @@ public class GoogleImport {
         return createdCount;
     }
 
-    protected String createDescriptionText(NotesCalendarEntry lotusEntry) {
+    protected String createDescriptionText(LotusNotesCalendarEntry lotusEntry) {
         StringBuffer sb = new StringBuffer();
 
         if (syncMeetingAttendees) {
@@ -757,12 +843,24 @@ public class GoogleImport {
     public String getDestinationTimeZone() throws Exception {
         CalendarEventFeed calendar = null;
         
-        URL calendarUrl = getDestinationCalendarUrl();
+        int retryCount = 0;
+        boolean doRetry = false;
 
-//!@!
-//statusMessageCallback.statusAppendLineDiag("Calendar URL: " + calendarUrl);
+        do {
+            try {
+                doRetry = false;
+                URL calendarUrl = getDestinationCalendarUrl();
+                calendar = service.getFeed(calendarUrl, CalendarEventFeed.class);
+            } catch (Exception ex) {
+                if (++retryCount > maxRetryCount)
+                    throw ex;
+                Thread.sleep(retryDelayMsecs);
+                doRetry = true;
 
-        calendar = service.getFeed(calendarUrl, CalendarEventFeed.class);
+                statusMessageCallback.statusAppendLineDiag("Retry #" + retryCount + ". Encountered " + ex.toString());
+            }            
+        } while (doRetry);
+
         return calendar.getTimeZone().getValue();
     }
 
@@ -788,6 +886,18 @@ public class GoogleImport {
 
     public void setSyncAlarms(boolean value) {
         syncAlarms = value;
+    }
+
+    public void setSyncWhere(boolean value) {
+        syncWhere = value;
+    }
+
+    public void setSyncAllSubjectsToValue(boolean value) {
+        syncAllSubjectsToValue = value;
+    }
+
+    public void setSyncAllSubjectsToThisValue(String value) {
+        syncAllSubjectsToThisValue = value;
     }
 
     public void setSyncMeetingAttendees(boolean value){
@@ -834,6 +944,9 @@ public class GoogleImport {
     protected boolean diagnosticMode = false;
 
     protected boolean syncDescription = false;
+    protected boolean syncWhere = false;
+    protected boolean syncAllSubjectsToValue = false;
+    protected String syncAllSubjectsToThisValue = "";
     protected boolean syncAlarms = false;
     protected boolean syncMeetingAttendees = false;
     // Our min and max dates for entries we will process.
