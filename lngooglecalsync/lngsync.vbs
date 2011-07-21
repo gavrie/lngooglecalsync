@@ -67,7 +67,7 @@ processPath = oEnv.Item("PATH")
 oEnv("PATH") = lotusPath & ";" & lotusDataPath & ";" & processPath  
 
 ' Set the classpath so Notes.jar can be found
-classPath = """" & notesJarPath & """;.\icalbridge.jar"
+classPath = """" & notesJarPath & """;.\lngsync.jar"
 
 ' Get the path to the version of Java installed with Lotus Notes.
 ' It is safest to use the Lotus Java for compatibility with Notes.jar.
@@ -80,7 +80,7 @@ else
 end if
 
 ' Run the Java application
-set oJavawExec = oShell.Exec("""" & javaPath & """ -cp " & classPath & " LotusNotesGoogleCalendarBridge.mainGUI " & appParm)
+set oJavawExec = oShell.Exec("""" & javaPath & """ -cp " & classPath & " lngs.MainGUI " & appParm)
 
 ' Wait for javaw to finish
 Do While oJavawExec.Status = 0 
@@ -113,7 +113,9 @@ if oJavawExec.ExitCode > 0 then
 		 
 		MsgBox "The below error was encountered while starting Lotus Notes Google Calendar Sync.  " & _
 			"If no error is shown, then an invalid command-line parameter was probably specified." & _
-			vbCrLf & vbCrLf & oJavawExec.StdErr.ReadAll & vbCrLf & vbCrLf & vbCrLf & _
+			vbCrLf & "Exit code: " & oJavawExec.ExitCode & _
+			vbCrLf & oJavawExec.StdOut.ReadAll & _
+			vbCrLf & oJavawExec.StdErr.ReadAll & vbCrLf & vbCrLf & vbCrLf & _
 			"Below is the version of Java being used. Make sure the version is 1.6 or greater:" & vbCrLf & oJavaExec.StdErr.ReadAll, _
 			vbExclamation, "Lotus Notes Google Calender Sync Startup Error"
 	end if

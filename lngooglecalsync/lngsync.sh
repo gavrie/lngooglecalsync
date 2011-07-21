@@ -41,9 +41,9 @@ if [ -z "$DISPLAY" ]; then
 fi
 
 export PATH=$PATH:$NOTES_PATH
-export MY_CLASSPATH=$NOTES_PATH/jvm/lib/ext/Notes.jar:./icalbridge.jar:$(printf "%s\n"  ./lib/*.jar | tr "\n" ":")
+export MY_CLASSPATH=$NOTES_PATH/jvm/lib/ext/Notes.jar:./lngsync.jar:$(printf "%s\n"  ./lib/*.jar | tr "\n" ":")
 
-COMMAND="java -d32 -cp $MY_CLASSPATH LotusNotesGoogleCalendarBridge.mainGUI $*"
+COMMAND="java -d32 -cp $MY_CLASSPATH lngs.MainGUI $*"
 
 
 if [ -n $1 ] && [ "$1" = "-silent" ]; then
