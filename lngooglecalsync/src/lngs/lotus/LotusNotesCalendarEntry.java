@@ -1,13 +1,13 @@
-package LotusNotesGoogleCalendarBridge.LotusNotesService;
+package lngs.lotus;
 
 import java.util.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
 
-public class NotesCalendarEntry {
+public class LotusNotesCalendarEntry {
 
-    public NotesCalendarEntry() {
+    public LotusNotesCalendarEntry() {
         entryType = EntryType.NONE;
         appointmentType = AppointmentType.APPOINTMENT.NONE;
     }
@@ -17,8 +17,8 @@ public class NotesCalendarEntry {
      * @return The new, cloned object.
      */
     @Override
-    public NotesCalendarEntry clone() {
-        NotesCalendarEntry cal = new NotesCalendarEntry();
+    public LotusNotesCalendarEntry clone() {
+        LotusNotesCalendarEntry cal = new LotusNotesCalendarEntry();
 
         cal.appointmentType = this.appointmentType;
         cal.entryType = this.entryType;

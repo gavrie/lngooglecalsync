@@ -1,14 +1,14 @@
-package LotusNotesGoogleCalendarBridge.LotusNotesService;
-import LotusNotesGoogleCalendarBridge.StatusMessageCallback;
+package lngs.lotus;
+import lngs.util.StatusMessageCallback;
 
 import lotus.domino.*;
 import java.io.*;
 import java.util.*;
 
 
-public class LotusNotesExport {
+public class LotusNotesManager {
 
-    public LotusNotesExport() {
+    public LotusNotesManager() {
         notesVersion = "unknown";
 
         // Get the absolute path to this app
@@ -62,10 +62,10 @@ public class LotusNotesExport {
      *    Pass in null to retrieve from a local mail file.
      * @param mailFileName The mail file to read from, e.g. "mail/johnsmith.nsf".
      */
-    public ArrayList<NotesCalendarEntry> getCalendarEntries() throws Exception {
+    public ArrayList<LotusNotesCalendarEntry> getCalendarEntries() throws Exception {
         boolean wasNotesThreadInitialized = false;
-        ArrayList<NotesCalendarEntry> calendarEntries = new ArrayList<NotesCalendarEntry>();
-        NotesCalendarEntry cal = null;
+        ArrayList<LotusNotesCalendarEntry> calendarEntries = new ArrayList<LotusNotesCalendarEntry>();
+        LotusNotesCalendarEntry cal = null;
 
         statusMessageCallback.statusAppendStart("Getting Lotus Notes calendar entries");
 
@@ -95,7 +95,6 @@ public class LotusNotesExport {
             // Note: We cast null to a String to avoid overload conflicts
             Session session = NotesFactory.createSession((String)null, (String)null, password);
             notesVersion = session.getNotesVersion();
-            
 
             String dominoServerTemp = server;
             if (server.equals(""))
@@ -133,7 +132,7 @@ public class LotusNotesExport {
                     writeEntryToFile(doc);
                 }
 
-                cal = new NotesCalendarEntry();
+                cal = new LotusNotesCalendarEntry();
 
                 lnItem = doc.getFirstItem("Subject");
                 if (!isItemEmpty(lnItem))
@@ -151,9 +150,9 @@ public class LotusNotesExport {
                     cal.setEntryType(lnItem.getText());
                 else
                     // Assume we have an appointment
-                    cal.setEntryType(NotesCalendarEntry.EntryType.APPOINTMENT);
+                    cal.setEntryType(LotusNotesCalendarEntry.EntryType.APPOINTMENT);
 
-                if (cal.getEntryType() == NotesCalendarEntry.EntryType.APPOINTMENT)
+                if (cal.getEntryType() == LotusNotesCalendarEntry.EntryType.APPOINTMENT)
                 {
                     lnItem = doc.getFirstItem("AppointmentType");
                     if (!isItemEmpty(lnItem))
@@ -283,7 +282,7 @@ public class LotusNotesExport {
             // NOTE: Make sure this check is the first line in the finally block. When the
             // init fails, some of the finally block may get skipped.
             if (!wasNotesThreadInitialized) {
-                throw new Exception("There was a problem initializing the Lotus Notes thread.\nMake sure the Lotus dll/so/dylib directory is in your path.");
+                throw new Exception("There was a problem initializing the Lotus Notes thread.\nMake sure the Lotus dll/so/dylib directory is in your path.\nAlso look at the Troubleshooting section of the Help file.");
             }
 
             if (diagnosticMode)
@@ -372,7 +371,7 @@ public class LotusNotesExport {
     }
 
 
-    public void writeInRangeEntriesToFile(List<NotesCalendarEntry> calendarEntries) throws Exception {
+    public void writeInRangeEntriesToFile(List<LotusNotesCalendarEntry> calendarEntries) throws Exception {
         try {
             lnInRangeEntriesFile = new File(lnInRangeEntriesFullFilename);
             lnInRangeEntriesWriter = new BufferedWriter(new FileWriter(lnInRangeEntriesFile));
@@ -380,11 +379,11 @@ public class LotusNotesExport {
             if (calendarEntries == null)
                 lnInRangeEntriesWriter.write("The calendar entries list is null.\n");
             else
-                for (NotesCalendarEntry entry : calendarEntries) {
+                for (LotusNotesCalendarEntry entry : calendarEntries) {
                     lnInRangeEntriesWriter.write("=== " + entry.getSubject() + "\n");
                     lnInRangeEntriesWriter.write("  UID: " + entry.getUID() + "\n");
-                    lnInRangeEntriesWriter.write("  Start Date: " + entry.getStartDateTime() + "\n");
-                    lnInRangeEntriesWriter.write("  End Date: " + entry.getEndDateTime() + "\n");
+                    lnInRangeEntriesWriter.write("  Start Date:    " + entry.getStartDateTime() + "\n");
+                    lnInRangeEntriesWriter.write("  End Date:      " + entry.getEndDateTime() + "\n");
                     lnInRangeEntriesWriter.write("  Modified Date: " + entry.getModifiedDateTime() + "\n");
                     lnInRangeEntriesWriter.write("  Location: " + entry.getLocation() + "\n");
                     lnInRangeEntriesWriter.write("  Room: " + entry.getRoom() + "\n");
