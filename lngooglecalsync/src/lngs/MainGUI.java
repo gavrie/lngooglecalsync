@@ -52,6 +52,8 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
                 public void run() {
                     lngs.MainGUI gui = new MainGUI();
                     gui.setupSystemTray();
+                    gui.setLocationRelativeTo(null);  // Center window on primary monitor
+                    gui.jButton_Synchronize.requestFocus();
                 }
             });
         } else if (args[0].equals("-silent")) {
@@ -67,7 +69,7 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
     public MainGUI() {
         preInitComponents();
         initComponents();
-
+        
         // Set the application icon
         URL urlIcon = getClass().getResource(iconAppPath);
         if (urlIcon == null) {
@@ -100,7 +102,19 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
 
         setDateRange();
 
-        // If this is a new version, then make the window visible by default so we
+        // Get the path to the currently running class file
+        helpFilename = getClass().getResource(getClass().getSimpleName() + ".class").getPath();
+        int slashIdx;
+        // If the class is in a jar, then the jar filename is in the path and we want the filename removed
+        int jarIdx = helpFilename.lastIndexOf(".jar!");
+        if (jarIdx == -1)
+            slashIdx = helpFilename.lastIndexOf("/");
+        else
+            slashIdx = helpFilename.lastIndexOf("/", jarIdx);
+
+        helpFilename = helpFilename.substring(0, slashIdx+1) + "HelpFile.html";
+
+        // If this is a new version, then make the window visible by default because we
         // show a new-version message later
         if ( ! config.getApplicationVersion().equals(appVersion)) {
             setVisible(true);
@@ -222,6 +236,7 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
             proxy.deactivateNow();
 
             statusClear();
+            setDateRange();
 
             String strNow = dfShort.format(new Date()) + " " + tfDefault.format(new Date());
             if (config.getSyncOnStartup())
@@ -233,7 +248,7 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
             statusAppendLineDiag("Application Version: " + appVersion);
             statusAppendLineDiag("OS: " + System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch"));
             statusAppendLineDiag("Java: " + System.getProperty("java.version") + " " + System.getProperty("java.vendor"));
-            System.out.println("Java Home: " + System.getProperty("java.home"));
+            statusAppendLineDiag("Java Home: " + System.getProperty("java.home"));
             statusAppendLineDiag("Java Classpath: " + System.getProperty("java.class.path"));
             statusAppendLineDiag("Java Library Path: " + System.getProperty("java.library.path"));
             //statusAppendLineDiag("Lotus Username: " + jTextField_LotusNotesUsername.getText());
@@ -347,28 +362,10 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
 
 
     protected void showNewVersionMessage() {
-        String msgHeading = "Version " + appVersion + " is being run for the first time in GUI mode. Here are the changes (from the History Log in the Help file):\n\n";
-        String verChanges = "";
-        verChanges = verChanges + "o Enhancement: To be notified of new releases, subscribe to this RSS feed:\nhttps://sourceforge.net/api/file/index/project-id/259914/mtime/desc/limit/20/rss\nWhen a new version is added to the Release file folder, the RSS will show that new files were added.\n";
-        verChanges = verChanges + "o Enhancement: The application now has a lotus flower icon in the system tray. Double click to open. Right click for options.\n";
-        verChanges = verChanges + "o Enhancement: The application now minimizes to the system tray.\n";
-        verChanges = verChanges + "o Enhancement: The icalbridge.jar file was renamed lngsync.jar.\n";
-        verChanges = verChanges + "o Enhancement: The lngooglecalsync.properties file was renamed lngsync.config.\n";
-        verChanges = verChanges + "o Enhancement: Syncing can now be scheduled through the GUI (so schedulers like cron aren't needed).\n";
-        verChanges = verChanges + "o Enhancement: For privacy, subjects can now be synced to a specific value through the GUI.\n";
-        verChanges = verChanges + "o Enhancement: Syncing Location and Room info can be turned off through the GUI.\n";
-        verChanges = verChanges + "o Enhancement: Added code to retry connecting to Google if there is a network error during log on.\n";
-        verChanges = verChanges + "o Enhancement: Sync Days in Past/Future no longer include thousands separators, e.g. 1,000 is now 1000.\n";
-        verChanges = verChanges + "o Enhancement: Made a couple improvements to lngsync.sh. Thanks Michael Steiner.\n";
-        verChanges = verChanges + "o Enhancement: The path to the Help file should now be correct/found for all users.\n";
-        verChanges = verChanges + "o Enhancement: Notes.jar has been removed from the /lib directory. This file was just taking up space because the application uses the local copy of Notes.jar,\ninstalled with the Lotus Notes client. Each OS and version of the Lotus Notes client probably has a different Notes.jar.\n";
-        verChanges = verChanges + "o Enhancement: If the destination calendar is changed, a warning now says that all non-LNGS entries will be deleted.\n";
-        verChanges = verChanges + "o Enhancement: The Troubleshooting section of Help, now talks about 'The system cannot find the file specified' error.\n";
-        verChanges = verChanges + "o Enhancement: Version 1.7 of the LNConnectivityTest app has been put in svn. The entered password is no longer echoed to the screen.\n";
-        verChanges = verChanges + "o News: USA lost in the FIFA Women’s World Cup final. :-(   Congrats to the Japan team. It was a great game.\n";
-        String msgFooter = "\nTo upgrade to a new version of the application, unzip the new files and copy your old lngsync.config file into the new-version directory.\nTo upgrade from 1.x to 2.x, rename lngooglecalsync.properties to lngsync.config.\nTo contribute to the project, use the donate link in the Help file.";
-
-        javax.swing.JOptionPane.showMessageDialog(this, msgHeading + verChanges + msgFooter, "New Version Announcement", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        lngs.NewVersionDialog nvd = new NewVersionDialog(this, false);
+        nvd.SetAppVersion(appVersion);
+        nvd.SetHelpFilename(helpFilename);
+        nvd.setVisible(true);
 
         // Update the version number in the config file so this message won't be shown again
         config.setApplicationVersion(appVersion);
@@ -1129,28 +1126,11 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
     private void jTextField_DestinationCalendarNameFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextField_DestinationCalendarNameFocusLost
         // Trim whitespace from front and back of text
         jTextField_DestinationCalendarName.setText(jTextField_DestinationCalendarName.getText().trim());
-
-        if (!prevDestinationCalendarName.equals(jTextField_DestinationCalendarName.getText())) {
-            prevDestinationCalendarName = jTextField_DestinationCalendarName.getText();
-            javax.swing.JOptionPane.showMessageDialog(null, "Warning: All entries in the destination calendar that were *not* created by LNGS will be deleted during each sync.\n\nIt is recommended that LNGS have one calendar for its own use and other calendars be created for other purposes.", "Destination Calendar Warning",  javax.swing.JOptionPane.WARNING_MESSAGE);
-        }
     }//GEN-LAST:event_jTextField_DestinationCalendarNameFocusLost
 
     private void jButton_HelpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_HelpActionPerformed
         try {
             // Get the absolute path to this app and append the help filename
-
-            // Get the path to the currently running class file
-            String helpFilename = getClass().getResource(getClass().getSimpleName() + ".class").getPath();
-            int slashIdx;
-            // If the class is in a jar, then the jar filename is in the path and we want the filename removed
-            int jarIdx = helpFilename.lastIndexOf(".jar!");
-            if (jarIdx == -1)
-                slashIdx = helpFilename.lastIndexOf("/");
-            else
-                slashIdx = helpFilename.lastIndexOf("/", jarIdx);
-
-            helpFilename = helpFilename.substring(0, slashIdx+1) + "HelpFile.html";
 
             java.awt.Desktop.getDesktop().browse(new java.net.URI(helpFilename));
         } catch (Exception ex) {
@@ -1238,6 +1218,7 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
         if (syncOffsets.length == 0 || (syncOffsets.length == 1 && syncOffsets[0].trim().isEmpty()))
             throw new Exception("The Sync Min Offsets list is empty.  Specify at least one value.");
 
+        syncMinOffsetsList.clear();
         for (String strOffset : syncOffsets) {
             try {
                 strOffset = strOffset.trim();
@@ -1316,7 +1297,6 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
             jTextField_proxyUsername.setText(config.getGoogleProxyUsername());
             jPasswordField_proxyPassword.setText(config.getGoogleProxyPassword());
             jTextField_DestinationCalendarName.setText(config.getGoogleCalendarName());
-            prevDestinationCalendarName = jTextField_DestinationCalendarName.getText();
 
             jCheckBox_SyncOnStart.setSelected(config.getSyncOnStartup());
             jTextField_SyncMinOffsets.setText(config.getSyncMinOffsets());
@@ -1485,11 +1465,10 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
     long statusStartTime = 0;
     String statusStartMsg;
     // An exit code of 0 is success. All other values are failure.
-    final String appVersion = "2.0";
+    final String appVersion = "2.1 Beta 7";
     private boolean isSilentMode = false;
     private boolean saveSettingsOnExit = true;
-
-    String prevDestinationCalendarName = "";
+    private String helpFilename = "(unknown)";
 
     // Our min and max dates for entries we will process.
     // If the calendar entry is outside this range, it is ignored.
