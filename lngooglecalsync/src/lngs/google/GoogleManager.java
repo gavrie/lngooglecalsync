@@ -259,9 +259,14 @@ public class GoogleManager {
                 BatchUtils.setBatchOperationType(entry, BatchOperationType.DELETE);
                 batchRequest.getEntries().add(entry);
 
+                String startDateStr;
+                startDateStr = "";
+                if (entry.getTimes().size() > 0)
+                    startDateStr = entry.getTimes().get(0).getStartTime().toString();
+
                 statusMessageCallback.statusAppendLineDiag("Delete #" + (i+1) +
                         ". Subject: " + entry.getTitle().getPlainText() +
-                        "  Start Date: " + entry.getTimes().get(0).getStartTime().toString());
+                        "  Start Date: " + startDateStr);
             }
 
             CalendarEventFeed feed = null;
@@ -511,7 +516,12 @@ public class GoogleManager {
             // Loop through all Google entries for each Lotus entry.  This isn't
             // very efficient, but we have small lists (probably less than 300).
             for (int j = 0; j < googleCalEntries.size(); j++) {
-                if ( ! hasEntryChanged(lotusEntry, googleCalEntries.get(j))) {
+                if (isGoogleEntryManuallyCreated(googleCalEntries.get(j))) {
+                    // The Google entry was created in Gcal, so we want to remove it from
+                    // our processing list (i.e. we will leave it alone).
+                    googleCalEntries.remove(j--);
+                }
+                else if ( ! hasEntryChanged(lotusEntry, googleCalEntries.get(j))) {
                     // The Lotus and Google entries are identical, so remove them from out lists.
                     // They don't need created or deleted.
                     lotusCalEntries.remove(i--);
@@ -520,6 +530,20 @@ public class GoogleManager {
                 }
             }
         }
+    }
+
+
+    /**
+     * Check if a Google entry was created manually within Google.
+     * Return true if the entry was created manually in Gcal.
+     * Return false if the entry was created by some other application.
+     */
+    public boolean isGoogleEntryManuallyCreated(CalendarEventEntry googleEntry) {
+        // If the ICAL UID ends with this value, then it was manually created in Gcal
+        if (googleEntry.getIcalUID().endsWith("@google.com"))
+            return true;
+
+        return false;
     }
 
 
@@ -552,8 +576,6 @@ public class GoogleManager {
                 lotusSubject = syncAllSubjectsToThisValue;
             }
             if (!googleEntry.getTitle().getPlainText().equals(lotusSubject)) {
-//!@!
-//statusMessageCallback.statusAppendLineDiag("Entry has changed (subject changed). Subject: " + googleEntry.getTitle().getPlainText());
                 return true;
             }
 
@@ -564,8 +586,6 @@ public class GoogleManager {
                 // If true, the Google entry doesn't contain location info, so
                 // the entries don't match.
                 if (whereList.size() > 0 && whereList.get(0).getValueString() == null) {
-//!@!
-//statusMessageCallback.statusAppendLineDiag("Entry has changed (location changed 1). Subject: " + googleEntry.getTitle().getPlainText());
                     return true;
                 }
             }
@@ -573,8 +593,6 @@ public class GoogleManager {
                 // If true, the Google entry has location info (which we don't want), so
                 // the entries don't match.
                 if (whereList.size() > 0 && whereList.get(0).getValueString() != null) {
-//!@!
-//statusMessageCallback.statusAppendLineDiag("Entry has changed (location changed 2). Subject: " + googleEntry.getTitle().getPlainText());
                     return true;
                 }
             }
@@ -583,8 +601,6 @@ public class GoogleManager {
                 // We are syncing alarms, so make sure the Google entry has an alarm.
                 // Note: If there is an alarm set, we'll assume the alarm offset is correct.
                 if (googleEntry.getReminder().size() == 0) {
-//!@!
-//statusMessageCallback.statusAppendLineDiag("Entry has changed (no Google reminder). Subject: " + googleEntry.getTitle().getPlainText());
                     return true;
                 }
             }
@@ -592,16 +608,12 @@ public class GoogleManager {
                 // We aren't syncing alarms, so make sure the Google entry doesn't
                 // have an alarm specified
                 if (googleEntry.getReminder().size() > 0) {
-//!@!
-//statusMessageCallback.statusAppendLineDiag("Entry has changed (has Google reminder). Subject: " + googleEntry.getTitle().getPlainText());
                     return true;
                 }
             }
 
             // Compare the Description field of Google entry to what we would build it as
             if (! googleEntry.getPlainTextContent().equals(createDescriptionText(lotusEntry))) {
-//!@!
-//statusMessageCallback.statusAppendLineDiag("Entry has changed because of description text");
                 return true;
             }
 
@@ -611,6 +623,7 @@ public class GoogleManager {
 
         return true;
     }
+
 
     // This method is for testing purposes.
     public void createSampleCalEntry() {

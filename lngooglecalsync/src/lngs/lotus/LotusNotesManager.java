@@ -4,6 +4,8 @@ import lngs.util.StatusMessageCallback;
 import lotus.domino.*;
 import java.io.*;
 import java.util.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 
 public class LotusNotesManager {
@@ -108,6 +110,11 @@ public class LotusNotesManager {
             // E.g. in England the date may be 31/1/2011, but in the US it is 1/31/2011.
             lotus.domino.DateTime minStartDateLN = session.createDateTime(minStartDate);
             lotus.domino.DateTime maxEndDateLN = session.createDateTime(maxEndDate);
+//!@! Get dates in a generic format that should work for all locales
+            DateFormat dfStart = new SimpleDateFormat("yyyy/MM/dd 00:00:00");
+            String strStartDate = dfStart.format(minStartDateLN.toJavaDate());
+            DateFormat dfEnd = new SimpleDateFormat("yyyy/MM/dd 12:59:59");
+            String strEndDate = dfEnd.format(maxEndDateLN.toJavaDate());
 
             // Query Lotus Notes to get calendar entries in our date range.
             // To understand this SELECT, go to http://publib.boulder.ibm.com/infocenter/domhelp/v8r0/index.jsp
@@ -117,15 +124,18 @@ public class LotusNotesManager {
             //   The operator *= is a permuted equal operator. It compares all entries on
             //   the left side to all entries on the right side. If there is at least one
             //   match, then true is returned.
-            String calendarQuery = "SELECT (@IsAvailable(CalendarDateTime) & (@Explode(CalendarDateTime) *= @Explode(@TextToTime(\"" + minStartDateLN.getLocalTime() + "-" + maxEndDateLN.getLocalTime() + "\"))))";
+//!@!            String calendarQuery = "SELECT (@IsAvailable(CalendarDateTime) & (@Explode(CalendarDateTime) *= @Explode(@TextToTime(\"" + minStartDateLN.getLocalTime() + "-" + maxEndDateLN.getLocalTime() + "\"))))";
+            String calendarQuery = "SELECT (@IsAvailable(CalendarDateTime) & (@Explode(CalendarDateTime) *= @Explode(@TextToTime(\"" + strStartDate + "-" + strEndDate + "\"))))";
             DocumentCollection queryResults = db.search(calendarQuery);
 
+            boolean addDoc;
             Document doc;
             doc = queryResults.getFirstDocument();
             // Loop through all entries returned
             while (doc != null)
             {
                 Item lnItem;
+                addDoc = true;
 
                 // If we are in diagnostic mode, write the entry to a text file
                 if (diagnosticMode) {
@@ -195,70 +205,82 @@ public class LotusNotesManager {
                 	cal.setChairperson(lnItem.getText());
                 }
 
+                lnItem = doc.getFirstItem("APPTUNID");
+                if (!isItemEmpty(lnItem)){
+                    // If the APPTUNID contains a URL, then the entry isn't a standard
+                    // Lotus Notes item. It is a link to an external calendar.
+                    // In this case, we want to ignore the entry.
+                    if (lnItem.getText().contains("http:")) {
+                        addDoc = false;
+                    }
+                }
+
                 cal.setModifiedDateTime(doc.getLastModified().toJavaDate());
 
                 lnItem = doc.getFirstItem("OrgRepeat");
 
-                // If true, this is a repeating calendar entry
-                if (!isItemEmpty(lnItem))
-                {
-                    // Handle Lotus Notes repeating entries by creating multiple Google
-                    // entries
-
-                    Vector startDates = null;
-                    Vector endDates = null;
-
-                    lnItem = doc.getFirstItem("StartDateTime");
+                if (addDoc) {
+                    // If true, this is a repeating calendar entry
                     if (!isItemEmpty(lnItem))
-                        startDates = lnItem.getValueDateTimeArray();
-
-                    lnItem = doc.getFirstItem("EndDateTime");
-                    if (!isItemEmpty(lnItem))
-                        endDates = lnItem.getValueDateTimeArray();
-
-                    if (startDates != null)
                     {
-                        for (int i = 0 ; i < startDates.size() ; i++) {
-                            DateTime notesDate = (DateTime)startDates.get(i);
-                            Date startDate = notesDate.toJavaDate();
-                            // Only add the entry if it is within our sync date range
-                            if (isDateInRange(startDate))
-                            {
-                                // We are creating multiple entries from one repeating entry.
-                                // We use the same Lotus UID for all entries because we will
-                                // prepend another GUID before inserting into Google.
-                                cal.setUID(doc.getUniversalID());
+                        // Handle Lotus Notes repeating entries by creating multiple Google
+                        // entries
 
-                                cal.setStartDateTime(startDate);
+                        Vector startDates = null;
+                        Vector endDates = null;
 
-                                if (endDates != null) {
-                                    notesDate = (DateTime)endDates.get(i);
-                                    cal.setEndDateTime(notesDate.toJavaDate());
+                        lnItem = doc.getFirstItem("StartDateTime");
+                        if (!isItemEmpty(lnItem))
+                            startDates = lnItem.getValueDateTimeArray();
+
+                        lnItem = doc.getFirstItem("EndDateTime");
+                        if (!isItemEmpty(lnItem))
+                            endDates = lnItem.getValueDateTimeArray();
+
+                        if (startDates != null)
+                        {
+                            for (int i = 0 ; i < startDates.size() ; i++) {
+                                DateTime notesDate = (DateTime)startDates.get(i);
+                                Date startDate = notesDate.toJavaDate();
+                                // Only add the entry if it is within our sync date range
+                                if (isDateInRange(startDate))
+                                {
+                                    // We are creating multiple entries from one repeating entry.
+                                    // We use the same Lotus UID for all entries because we will
+                                    // prepend another GUID before inserting into Google.
+                                    cal.setUID(doc.getUniversalID());
+
+                                    cal.setStartDateTime(startDate);
+
+                                    if (endDates != null) {
+                                        notesDate = (DateTime)endDates.get(i);
+                                        cal.setEndDateTime(notesDate.toJavaDate());
+                                    }
+
+                                    calendarEntries.add(cal.clone());
                                 }
-
-                                calendarEntries.add(cal.clone());
                             }
                         }
                     }
-                }
-                else
-                {
-                    cal.setUID(doc.getUniversalID());
+                    else
+                    {
+                        cal.setUID(doc.getUniversalID());
 
-                    lnItem = doc.getFirstItem("StartDateTime");
-                    if (!isItemEmpty(lnItem))
-                        cal.setStartDateTime(lnItem.getDateTimeValue().toJavaDate());
+                        lnItem = doc.getFirstItem("StartDateTime");
+                        if (!isItemEmpty(lnItem))
+                            cal.setStartDateTime(lnItem.getDateTimeValue().toJavaDate());
 
-                    // For To Do tasks, the EndDateTime doesn't exist, but there is an EndDate value
-                    lnItem = doc.getFirstItem("EndDateTime");
-                    if (isItemEmpty(lnItem))
-                        lnItem = doc.getFirstItem("EndDate");
-                    if (!isItemEmpty(lnItem))
-                        cal.setEndDateTime(lnItem.getDateTimeValue().toJavaDate());
-                    
-                    // Only add the entry if it is within our sync date range
-                    if (isDateInRange(cal.getStartDateTime()))
-                        calendarEntries.add(cal);
+                        // For To Do tasks, the EndDateTime doesn't exist, but there is an EndDate value
+                        lnItem = doc.getFirstItem("EndDateTime");
+                        if (isItemEmpty(lnItem))
+                            lnItem = doc.getFirstItem("EndDate");
+                        if (!isItemEmpty(lnItem))
+                            cal.setEndDateTime(lnItem.getDateTimeValue().toJavaDate());
+
+                        // Only add the entry if it is within our sync date range
+                        if (isDateInRange(cal.getStartDateTime()))
+                            calendarEntries.add(cal);
+                    }
                 }
 
                 doc = queryResults.getNextDocument();
