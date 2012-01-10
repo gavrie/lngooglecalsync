@@ -207,10 +207,10 @@ public class LotusNotesManager {
 
                 lnItem = doc.getFirstItem("APPTUNID");
                 if (!isItemEmpty(lnItem)){
-                    // If the APPTUNID contains a URL, then the entry isn't a standard
-                    // Lotus Notes item. It is a link to an external calendar.
+                    // If the APPTUNID contains a URL (http or https), then the entry
+                    // isn't a standard Lotus Notes item. It is a link to an external calendar.
                     // In this case, we want to ignore the entry.
-                    if (lnItem.getText().contains("http:")) {
+                    if (lnItem.getText().matches("(?i).*https?:.*")) {
                         addDoc = false;
                     }
                 }
