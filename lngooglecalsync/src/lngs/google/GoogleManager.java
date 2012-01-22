@@ -48,6 +48,8 @@ public class GoogleManager {
             privateCalendarFeedUrl = new URL(protocol + "//www.google.com/calendar/feeds/" + googleUsername + "/private/full");
 
             service = new CalendarService("LotusNotes-Calendar-Sync");
+//!@!
+service.setConnectTimeout(5000);
 
             if (useSSL) {
                 service.useSsl();
@@ -516,8 +518,8 @@ public class GoogleManager {
             // Loop through all Google entries for each Lotus entry.  This isn't
             // very efficient, but we have small lists (probably less than 300).
             for (int j = 0; j < googleCalEntries.size(); j++) {
-                if (isGoogleEntryManuallyCreated(googleCalEntries.get(j))) {
-                    // The Google entry was created in Gcal, so we want to remove it from
+                if ( ! LotusNotesCalendarEntry.isLNGSUID(googleCalEntries.get(j).getIcalUID())) {
+                    // The Google entry was NOT created by LNGS, so we want to remove it from
                     // our processing list (i.e. we will leave it alone).
                     googleCalEntries.remove(j--);
                 }
@@ -530,20 +532,6 @@ public class GoogleManager {
                 }
             }
         }
-    }
-
-
-    /**
-     * Check if a Google entry was created manually within Google.
-     * Return true if the entry was created manually in Gcal.
-     * Return false if the entry was created by some other application.
-     */
-    public boolean isGoogleEntryManuallyCreated(CalendarEventEntry googleEntry) {
-        // If the ICAL UID ends with this value, then it was manually created in Gcal
-        if (googleEntry.getIcalUID().endsWith("@google.com"))
-            return true;
-
-        return false;
     }
 
 

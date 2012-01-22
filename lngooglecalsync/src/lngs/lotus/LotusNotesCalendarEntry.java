@@ -356,6 +356,16 @@ public class LotusNotesCalendarEntry {
 
     
     /**
+     * Returns true if a provided string matches the format of an LNGS UID.
+     */
+    public static boolean isLNGSUID(String sample) {
+        // An LNGS UID is a UUID followed by a colin then a Sync UID. See getSyncUID()
+        // for the format of a Sync UID.
+        return sample.matches("^[0-9A-Fa-f]{32}:[0-9]-[0-9A-Fa-f]{32}-[0-9]{13}-[0-9]{13}");
+    }
+
+
+    /**
      * Convert from Java Date object to Google format (YYYY-MM-DDTHH:MM:SS).
      * Note: Google format is the same as the XML standard xs:DateTime format.
      * @param sourceDate The source datetime.
