@@ -26,9 +26,9 @@ lotusPath = oShell.RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Lotus\Notes\Path")
 if lotusPath = "" then lotusPath = oShell.RegRead("HKEY_CURRENT_USER\Software\Lotus\Notes\Installer\PROGDIR")
 if lotusPath = "" then
 	' Try to find the path where Lotus Notes is installed
-	' Firs, get the Program Files path from the environment
+	' First, get the Program Files path from the environment
 	programFilesPath = oEnv.Item("ProgramFiles")
-	lotusPath = programFilesPath & "\Lotus\Notes2"
+	lotusPath = programFilesPath & "\Lotus\Notes"
 	if not oFileSys.FolderExists(lotusPath) then
 		lotusPath = programFilesPath & "\IBM\Lotus\Notes"
 		if not oFileSys.FolderExists(lotusPath) then
@@ -41,8 +41,6 @@ if lotusPath = "" then
 	end if
 end if
 
-'MsgBox("DEBUG" & vbCRLF & "lotusPath: " & lotusPath)
- 
 lotusDataPath = oShell.RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Lotus\Notes\DataPath")
 if lotusDataPath = "" then lotusDataPath = oShell.RegRead("HKEY_CURRENT_USER\Software\Lotus\Notes\Installer\DATADIR")
 if lotusDataPath = "" then lotusDataPath = lotusPath & "\Data"
@@ -53,6 +51,10 @@ On Error GoTo 0
 notesJarPath = lotusPath & "\jvm\lib\ext\Notes.jar"
 if not oFileSys.FileExists(notesJarPath) then
 	notesJarPath = lotusPath & "\Notes.jar"
+end if
+if not oFileSys.FileExists(notesJarPath) then
+	MsgBox "The Notes.jar file could not be found. It is very unlikely the application will be able to run successfully.", _
+		vbExclamation, "Lotus Notes Google Calendar Sync Error"
 end if
 
 if WScript.Arguments.Count > 0 then
@@ -79,6 +81,8 @@ else
 	javaPath = "javaw.exe"
 end if
 
+'MsgBox("DEBUG" & vbCRLF & "useLotusJVM: " & useLotusJVM & vbCRLF & "lotusPath: " & lotusPath & vbCRLF & "classPath: " & classPath & vbCRLF & "javaPath: " & javaPath & vbCRLF & "appParm: " & appParm)
+ 
 ' Run the Java application
 set oJavawExec = oShell.Exec("""" & javaPath & """ -cp " & classPath & " lngs.MainGUI " & appParm)
 
@@ -115,8 +119,9 @@ if oJavawExec.ExitCode > 0 then
 			"If no error is shown, then an invalid command-line parameter was probably specified." & _
 			vbCrLf & "Exit code: " & oJavawExec.ExitCode & _
 			vbCrLf & oJavawExec.StdOut.ReadAll & _
-			vbCrLf & oJavawExec.StdErr.ReadAll & vbCrLf & vbCrLf & vbCrLf & _
-			"Below is the version of Java being used. Make sure the version is 1.6 or greater:" & vbCrLf & oJavaExec.StdErr.ReadAll, _
+			vbCrLf & oJavawExec.StdErr.ReadAll, _
+			vbExclamation, "Lotus Notes Google Calender Sync Startup Error"
+		MsgBox "Below is the version of Java being used. Make sure the version is 1.6 or greater:" & vbCrLf & oJavaExec.StdErr.ReadAll, _
 			vbExclamation, "Lotus Notes Google Calender Sync Startup Error"
 	end if
 end if
