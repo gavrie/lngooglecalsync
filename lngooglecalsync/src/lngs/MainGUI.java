@@ -353,7 +353,10 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
                 statusAppendFinished();
                 statusAppendLine(createdCount + " Google entries created");
             }
-        } finally {
+        } catch (Exception ex) {
+            statusAppendException("There was an error synchronizing.", ex);
+        }
+        finally {
             long elapsedMillis = System.currentTimeMillis() - startTime;
             BigDecimal elapsedSecs = new BigDecimal(elapsedMillis / 1000.0).setScale(1, BigDecimal.ROUND_HALF_UP);
             statusAppendLine("Finished sync (" + elapsedSecs + " s total) - " + dfShort.format(new Date()) + " " + tfDefault.format(new Date()));
@@ -1465,7 +1468,7 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
     long statusStartTime = 0;
     String statusStartMsg;
     // An exit code of 0 is success. All other values are failure.
-    final String appVersion = "2.1 Beta 7";
+    final String appVersion = "2.1";
     private boolean isSilentMode = false;
     private boolean saveSettingsOnExit = true;
     private String helpFilename = "(unknown)";

@@ -1,4 +1,5 @@
 package lngs.lotus;
+
 import lngs.util.StatusMessageCallback;
 
 import lotus.domino.*;

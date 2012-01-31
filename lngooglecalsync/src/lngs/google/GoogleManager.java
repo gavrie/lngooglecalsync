@@ -48,8 +48,6 @@ public class GoogleManager {
             privateCalendarFeedUrl = new URL(protocol + "//www.google.com/calendar/feeds/" + googleUsername + "/private/full");
 
             service = new CalendarService("LotusNotes-Calendar-Sync");
-//!@!
-service.setConnectTimeout(5000);
 
             if (useSSL) {
                 service.useSsl();
@@ -543,14 +541,16 @@ service.setConnectTimeout(5000);
     public boolean hasEntryChanged(LotusNotesCalendarEntry lotusEntry, CalendarEventEntry googleEntry) {
         final int googleUIDIdx = 33;
 
-        // If the ICAL UID is less than our minimum length, say the entry has changed
-        if (googleEntry.getIcalUID().length() - 1 < googleUIDIdx)
-            return true;
-
         String syncUID = lotusEntry.getSyncUID();
 
-        // The Google IcalUID has the format: GoogleUID:SyncUID.
-        // Strip off the "GoogleUID:" part and do a compare.
+if (lotusEntry.getSubject().equals("Test2")) {
+    lotusEntry.getAlarm();
+}
+        // The Google IcalUID has the format: GoogleUID:SyncUID. Strip off the 
+        // "GoogleUID:" part and do a compare of the SyncUID.
+        // The SyncUID contains several pieces of info, including the Lotus modified
+        // timestamp. Most changes to a Lotus entry will update this timestamp. Therefore,
+        // this compare will catch the vast majority of the changes between Lotus/Google.
         if (googleEntry.getIcalUID().substring(googleUIDIdx).equals(syncUID)) {
             // The Google and Lotus entries match on our first test, but we have to compare
             // other values. Why? Say a sync is performed with the "sync alarms"
@@ -564,6 +564,7 @@ service.setConnectTimeout(5000);
                 lotusSubject = syncAllSubjectsToThisValue;
             }
             if (!googleEntry.getTitle().getPlainText().equals(lotusSubject)) {
+statusMessageCallback.statusAppendLineDiag("Entry has changed: subject. Title: " + lotusEntry.getSubject());
                 return true;
             }
 
@@ -574,6 +575,7 @@ service.setConnectTimeout(5000);
                 // If true, the Google entry doesn't contain location info, so
                 // the entries don't match.
                 if (whereList.size() > 0 && whereList.get(0).getValueString() == null) {
+statusMessageCallback.statusAppendLineDiag("Entry has changed: location/where 1. Title: " + lotusEntry.getSubject());
                     return true;
                 }
             }
@@ -581,6 +583,7 @@ service.setConnectTimeout(5000);
                 // If true, the Google entry has location info (which we don't want), so
                 // the entries don't match.
                 if (whereList.size() > 0 && whereList.get(0).getValueString() != null) {
+statusMessageCallback.statusAppendLineDiag("Entry has changed: location/where 2. Title: " + lotusEntry.getSubject());
                     return true;
                 }
             }
@@ -589,6 +592,7 @@ service.setConnectTimeout(5000);
                 // We are syncing alarms, so make sure the Google entry has an alarm.
                 // Note: If there is an alarm set, we'll assume the alarm offset is correct.
                 if (googleEntry.getReminder().size() == 0) {
+statusMessageCallback.statusAppendLineDiag("Entry has changed: alarm 1. Title: " + lotusEntry.getSubject());
                     return true;
                 }
             }
@@ -596,12 +600,14 @@ service.setConnectTimeout(5000);
                 // We aren't syncing alarms, so make sure the Google entry doesn't
                 // have an alarm specified
                 if (googleEntry.getReminder().size() > 0) {
+statusMessageCallback.statusAppendLineDiag("Entry has changed: alarm 2. Title: " + lotusEntry.getSubject());
                     return true;
                 }
             }
 
             // Compare the Description field of Google entry to what we would build it as
             if (! googleEntry.getPlainTextContent().equals(createDescriptionText(lotusEntry))) {
+statusMessageCallback.statusAppendLineDiag("Entry has changed: description. Title: " + lotusEntry.getSubject());
                 return true;
             }
 

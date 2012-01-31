@@ -7,10 +7,12 @@ dim useLotusJVM
 useLotusJVM = 0
 
 
-dim oShell, oEnv, oJavawExec, oJavaExec, oFileSys
-dim lotusPath, lotusDataPath, classPath, processPath, programFilesPath, notesJarPath
 dim appParm, silentMode
 silentMode = false
+dim oShell, oEnv, oJavawExec, oJavaExec, oFileSys
+dim lotusPath, lotusDataPath, classPath, processPath, programFilesPath, notesJarPath
+dim msgboxTitle
+msgboxTitle = "Lotus Notes Google Sync"
 
 set oShell = WScript.CreateObject("WScript.Shell")
 set oFileSys = CreateObject("Scripting.FileSystemObject")
@@ -54,7 +56,7 @@ if not oFileSys.FileExists(notesJarPath) then
 end if
 if not oFileSys.FileExists(notesJarPath) then
 	MsgBox "The Notes.jar file could not be found. It is very unlikely the application will be able to run successfully.", _
-		vbExclamation, "Lotus Notes Google Calendar Sync Error"
+		vbExclamation, msgboxTitle
 end if
 
 if WScript.Arguments.Count > 0 then
@@ -108,7 +110,7 @@ if oJavawExec.ExitCode > 0 then
 	if silentMode then
 		MsgBox "There was an error running Lotus Notes Google Calender Sync in silent mode.  " & _
 			"To get more information, run the application in GUI mode or see lngsync.log.", _
-			vbExclamation, "Lotus Notes Google Calender Sync Error"
+			vbExclamation, msgboxTitle
 	else 
 		set oJavaExec = oShell.Exec("""" & javaPath & """ -version")
 		Do While oJavaExec.Status = 0 
@@ -120,8 +122,8 @@ if oJavawExec.ExitCode > 0 then
 			vbCrLf & "Exit code: " & oJavawExec.ExitCode & _
 			vbCrLf & oJavawExec.StdOut.ReadAll & _
 			vbCrLf & oJavawExec.StdErr.ReadAll, _
-			vbExclamation, "Lotus Notes Google Calender Sync Startup Error"
+			vbExclamation, msgboxTitle
 		MsgBox "Below is the version of Java being used. Make sure the version is 1.6 or greater:" & vbCrLf & oJavaExec.StdErr.ReadAll, _
-			vbExclamation, "Lotus Notes Google Calender Sync Startup Error"
+			vbExclamation, msgboxTitle
 	end if
 end if
