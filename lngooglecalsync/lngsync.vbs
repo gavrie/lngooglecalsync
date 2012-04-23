@@ -83,7 +83,7 @@ else
 	javaPath = "javaw.exe"
 end if
 
-'MsgBox("DEBUG" & vbCRLF & "useLotusJVM: " & useLotusJVM & vbCRLF & "lotusPath: " & lotusPath & vbCRLF & "classPath: " & classPath & vbCRLF & "javaPath: " & javaPath & vbCRLF & "appParm: " & appParm)
+'MsgBox("DEBUG" & vbCRLF & "useLotusJVM: " & useLotusJVM & vbCRLF & vbCRLF & "lotusPath: " & lotusPath & vbCRLF & vbCRLF & "classPath: " & classPath & vbCRLF & vbCRLF & "javaPath: " & javaPath & vbCRLF & vbCRLF & "appParm: " & appParm)
  
 ' Run the Java application
 set oJavawExec = oShell.Exec("""" & javaPath & """ -cp " & classPath & " lngs.MainGUI " & appParm)

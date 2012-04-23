@@ -53,7 +53,7 @@ public class NewVersionDialog extends javax.swing.JDialog {
 
         jTextPane_Changes.setEditable(false);
         jTextPane_Changes.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jTextPane_Changes.setText("o Enhancement: You can now vote on LNGS enhancements at https://trello.com/#board/lngs-enhancements/4e74ad0661b3d1ea93a96a54\no Enhancement: Entries manually created in Google Calendar are now left untouched by LNGS. Previously they were deleted from Gcal.\no Enhancement: Lotus Notes allows showing entries from external calendars. External calendar entries are now ignored by LNGS. Previously the entries were added to Gcal which could lead to duplicates.\no Enhancement: In the Help file, added screen shots of the application.\no Enhancement: In the Help file, described how to use Google 2-step verification with this application. Thanks fordprefect_s.\no Enhancement: In the Help file, added links to two other calendar sync applications in case LNGS doesn't work for some people.\no Enhancement: The New Version announcement was changed from being a simple message box to a dialog.\no Enhancement: Version 1.8 of the LNConnectivityTest app has been put in svn. Several minor enhancements were made.\no Fix: When syncing a remote Lotus Notes server that formatted dates different than the local client (e.g. an Lotus Notes server with US formatting and a client with German formatting), then the wrong number of Lotus Notes entries were sometimes being found.\no Fix: The sync date range values were always based on when LNGS was originally launched (even if LNGS had been running in the tray for many days). The range is now recalculated at the start of each sync.\no Fix: After several changes to the 'Sync at These Minute Offsets' list, the schedule would be incorrect. This has been fixed.\no News: This is a huge time of change for Indianapolis Colts fans. The Super Bowl is in Indy this week. Go Giants!\no Quote: My life is my message. - Mahatma Gandhi");
+        jTextPane_Changes.setText("o Fix: The date format used on the Lotus Notes server was sometimes different than the local client format (e.g. m/d/y vs d/m/y). This has been a recurring problem, that is hopefully fixed permanently.\no Enhancement: If the sync fails, a tooltip message will popup on the tray icon.\no Enhancement: On the Connection Settings tab there is now a \"Detect Lotus Settings\" button which will help new users determine their correct Lotus Notes values.\no Enhancement: The Lotus Notes Username field has been removed because it was never used.\no Enhancement: Unknown Lotus Notes appointment types are now created as standard Google calendar appointments (instead of generating an error).\no Enhancement: Settings are now saved whenever a tab is changed (not just when the application exits).\no Enhancement: Version 1.9 of the LNConnectivityTest app has been put in svn. Several minor enhancements were made.\no Quote: You see things; and you say: \"Why?\" But I dream things that never were; and I say: \"Why not?\" - George Bernard Shaw");
         jScrollPane2.setViewportView(jTextPane_Changes);
 
         jLabel_Heading1.setText("This version is being run for the first time in GUI mode.");
@@ -93,23 +93,28 @@ public class NewVersionDialog extends javax.swing.JDialog {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel_Heading2)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(jLabel_Heading1)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(jLabel_Heading3)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(jLabel_HelpFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                            .addComponent(jButton_OK)
-                            .addGap(53, 53, 53)
-                            .addComponent(jLabel_Donate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(74, 74, 74)))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 656, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel_Heading2)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel_Heading1)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jLabel_Heading3)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jLabel_HelpFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(0, 173, Short.MAX_VALUE))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(330, 330, 330)
+                        .addComponent(jButton_OK)
+                        .addGap(55, 55, 55)
+                        .addComponent(jLabel_Donate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -122,12 +127,12 @@ public class NewVersionDialog extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel_Heading2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel_Donate, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton_OK))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jButton_OK)
+                    .addComponent(jLabel_Donate, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
 
         pack();

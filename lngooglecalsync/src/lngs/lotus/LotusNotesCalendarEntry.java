@@ -62,6 +62,8 @@ public class LotusNotesCalendarEntry {
             this.appointmentType = AppointmentType.MEETING;
         else if (appointmentType.equals("4"))
             this.appointmentType = AppointmentType.REMINDER;
+        else
+            this.appointmentType = AppointmentType.APPOINTMENT;
     }
 
     public void setStartDateTime(Date startDateTime) {
@@ -109,11 +111,11 @@ public class LotusNotesCalendarEntry {
     }
 
     public void setRequiredAttendees(String names){
-		requiredAttendees = names;
+	requiredAttendees = names;
     }
 
     public void setOptionalAttendees(String names){
-		optionalAttendees = names;
+	optionalAttendees = names;
     }
     
     public void setChairperson(String name){

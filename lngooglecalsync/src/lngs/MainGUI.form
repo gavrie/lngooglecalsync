@@ -38,11 +38,6 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="jTabbedPane1" min="-2" pref="501" max="-2" attributes="1"/>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="jLabel16" alignment="0" min="-2" pref="416" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="1">
                       <EmptySpace min="10" pref="10" max="10" attributes="0"/>
                       <Component id="jButton_Cancel" min="-2" max="-2" attributes="0"/>
@@ -51,6 +46,13 @@
                       <EmptySpace max="32767" attributes="0"/>
                       <Component id="jButton_Help" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="23" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="jTabbedPane1" alignment="0" min="-2" pref="501" max="-2" attributes="1"/>
+                          <Component id="jLabel16" alignment="0" min="-2" pref="416" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
           </Group>
@@ -62,7 +64,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jLabel16" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
-              <Component id="jTabbedPane1" pref="475" max="32767" attributes="0"/>
+              <Component id="jTabbedPane1" max="32767" attributes="0"/>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jButton_Cancel" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -90,6 +92,9 @@
           <Dimension value="[105, 88]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jTabbedPane1StateChanged"/>
+      </Events>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
       <SubComponents>
@@ -205,8 +210,12 @@
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <EmptySpace min="10" pref="10" max="10" attributes="0"/>
+                                  <Component id="jLabel11" alignment="0" min="-2" pref="105" max="-2" attributes="1"/>
+                                  <Component id="jLabel24" alignment="0" min="-2" pref="120" max="-2" attributes="1"/>
+                                  <Component id="jLabel17" alignment="0" min="-2" pref="76" max="-2" attributes="1"/>
+                                  <Component id="jLabel21" alignment="0" min="-2" pref="120" max="-2" attributes="1"/>
+                                  <Group type="102" attributes="0">
+                                      <EmptySpace min="10" pref="10" max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="0" attributes="0">
                                           <Component id="jCheckBox_SyncLocationAndRoom" alignment="0" min="-2" pref="140" max="-2" attributes="1"/>
                                           <Component id="jCheckBox_SyncDescription" alignment="0" min="-2" pref="140" max="-2" attributes="1"/>
@@ -217,15 +226,6 @@
                                               <EmptySpace max="-2" attributes="0"/>
                                               <Component id="jTextField_SyncAllSubjectsToThisValue" min="-2" pref="264" max="-2" attributes="1"/>
                                           </Group>
-                                      </Group>
-                                  </Group>
-                                  <Component id="jLabel11" alignment="0" min="-2" pref="105" max="-2" attributes="1"/>
-                                  <Component id="jLabel24" alignment="0" min="-2" pref="120" max="-2" attributes="1"/>
-                                  <Component id="jLabel17" alignment="0" min="-2" pref="76" max="-2" attributes="1"/>
-                                  <Component id="jLabel21" alignment="0" min="-2" pref="120" max="-2" attributes="1"/>
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <EmptySpace min="10" pref="10" max="10" attributes="0"/>
-                                      <Group type="103" groupAlignment="0" attributes="0">
                                           <Group type="103" groupAlignment="1" attributes="0">
                                               <Group type="102" alignment="1" attributes="0">
                                                   <Group type="103" groupAlignment="1" attributes="0">
@@ -537,54 +537,21 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jLabel6" alignment="0" min="-2" pref="120" max="-2" attributes="1"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="10" pref="10" max="10" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <EmptySpace min="10" pref="10" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="103" alignment="0" groupAlignment="0" max="-2" attributes="0">
-                                      <Component id="jLabel15" linkSize="3" alignment="0" min="-2" pref="69" max="-2" attributes="1"/>
-                                      <Component id="jLabel12" linkSize="3" alignment="0" min="-2" pref="69" max="-2" attributes="1"/>
-                                      <Component id="jLabel14" linkSize="3" alignment="0" min="-2" pref="69" max="-2" attributes="1"/>
-                                      <Group type="102" alignment="1" attributes="0">
-                                          <EmptySpace min="-2" pref="70" max="-2" attributes="0"/>
-                                          <Group type="103" groupAlignment="1" attributes="0">
-                                              <Component id="jTextField_LotusNotesUsername" alignment="0" pref="388" max="32767" attributes="1"/>
-                                              <Component id="jPasswordField_LotusNotesPassword" linkSize="4" alignment="0" max="32767" attributes="1"/>
-                                              <Component id="jTextField_GoogleUsername" linkSize="5" alignment="0" pref="388" max="32767" attributes="1"/>
-                                          </Group>
-                                          <EmptySpace min="-2" pref="473" max="-2" attributes="0"/>
-                                      </Group>
+                                  <Component id="jLabel15" linkSize="3" alignment="0" min="-2" pref="69" max="-2" attributes="1"/>
+                                  <Component id="jLabel14" linkSize="3" alignment="0" min="-2" pref="69" max="-2" attributes="1"/>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <EmptySpace min="-2" pref="70" max="-2" attributes="0"/>
+                                      <Component id="jTextField_GoogleUsername" linkSize="5" min="-2" pref="388" max="-2" attributes="1"/>
                                   </Group>
-                                  <Component id="jLabel13" linkSize="3" alignment="0" min="-2" pref="62" max="-2" attributes="1"/>
-                              </Group>
-                          </Group>
-                          <Component id="jLabel5" alignment="0" min="-2" pref="76" max="-2" attributes="1"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="10" pref="10" max="10" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="jLabel3" linkSize="3" alignment="0" min="-2" pref="76" max="-2" attributes="1"/>
                                   <Component id="jLabel4" alignment="0" min="-2" pref="68" max="-2" attributes="1"/>
                                   <Group type="102" alignment="0" attributes="0">
                                       <EmptySpace min="-2" pref="70" max="-2" attributes="0"/>
                                       <Component id="jPasswordField_GooglePassword" linkSize="5" min="-2" pref="329" max="-2" attributes="1"/>
                                   </Group>
-                              </Group>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="-2" pref="80" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Group type="102" alignment="1" attributes="1">
-                                      <Component id="jTextField_LotusNotesServer" max="32767" attributes="1"/>
-                                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                      <Component id="jCheckBox_LotusNotesServerIsLocal" min="-2" pref="92" max="-2" attributes="1"/>
-                                  </Group>
-                                  <Component id="jTextField_LotusNotesMailFile" linkSize="4" alignment="0" min="-2" pref="388" max="-2" attributes="1"/>
-                              </Group>
-                          </Group>
-                          <Component id="jLabel9" alignment="0" min="-2" pref="117" max="-2" attributes="1"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="10" pref="10" max="10" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="jCheckBox_enableProxy" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Group type="102" alignment="0" attributes="0">
                                       <EmptySpace min="21" pref="21" max="21" attributes="0"/>
@@ -594,23 +561,20 @@
                                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
                                               <Component id="jTextField_proxyIP" min="-2" pref="143" max="-2" attributes="0"/>
                                           </Group>
-                                          <Group type="103" groupAlignment="1" attributes="0">
-                                              <Group type="102" alignment="0" attributes="0">
-                                                  <Component id="jLabel19" min="-2" max="-2" attributes="0"/>
-                                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                                  <Component id="jPasswordField_proxyPassword" min="-2" pref="143" max="-2" attributes="1"/>
+                                          <Group type="102" alignment="0" attributes="0">
+                                              <Component id="jLabel19" min="-2" max="-2" attributes="0"/>
+                                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                              <Component id="jPasswordField_proxyPassword" min="-2" pref="143" max="-2" attributes="1"/>
+                                          </Group>
+                                          <Group type="102" alignment="0" attributes="0">
+                                              <Group type="103" groupAlignment="0" attributes="0">
+                                                  <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
+                                                  <Component id="jLabel18" min="-2" max="-2" attributes="0"/>
                                               </Group>
-                                              <Group type="102" alignment="1" attributes="0">
-                                                  <Group type="103" groupAlignment="0" attributes="0">
-                                                      <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
-                                                      <Component id="jLabel18" min="-2" max="-2" attributes="0"/>
-                                                  </Group>
-                                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                                  <Group type="103" groupAlignment="0" attributes="0">
-                                                      <Component id="jTextField_proxyUsername" min="-2" pref="143" max="-2" attributes="0"/>
-                                                      <Component id="jTextField_proxyPort" min="-2" pref="40" max="-2" attributes="0"/>
-                                                  </Group>
-                                                  <EmptySpace min="-2" pref="66" max="-2" attributes="0"/>
+                                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                              <Group type="103" groupAlignment="0" attributes="0">
+                                                  <Component id="jTextField_proxyUsername" min="-2" pref="143" max="-2" attributes="0"/>
+                                                  <Component id="jTextField_proxyPort" min="-2" pref="40" max="-2" attributes="0"/>
                                               </Group>
                                           </Group>
                                       </Group>
@@ -618,15 +582,35 @@
                                   <Component id="jCheckBox_GoogleSSL" alignment="0" min="-2" pref="453" max="-2" attributes="1"/>
                               </Group>
                           </Group>
+                          <Component id="jLabel5" alignment="0" min="-2" pref="76" max="-2" attributes="1"/>
+                          <Component id="jLabel9" alignment="0" min="-2" pref="117" max="-2" attributes="1"/>
+                          <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Component id="jLabel6" min="-2" pref="120" max="-2" attributes="1"/>
+                                  <EmptySpace max="32767" attributes="0"/>
+                                  <Component id="jButton_DetectLotusSettings" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <EmptySpace min="-2" pref="80" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                      <Group type="102" alignment="1" attributes="1">
+                                          <Component id="jTextField_LotusNotesServer" max="32767" attributes="1"/>
+                                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                          <Component id="jCheckBox_LotusNotesServerIsLocal" min="-2" pref="92" max="-2" attributes="1"/>
+                                      </Group>
+                                      <Component id="jTextField_LotusNotesMailFile" linkSize="4" alignment="0" min="-2" pref="388" max="-2" attributes="1"/>
+                                  </Group>
+                              </Group>
+                              <Group type="103" alignment="1" groupAlignment="1" max="-2" attributes="0">
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <EmptySpace min="-2" pref="70" max="-2" attributes="0"/>
+                                      <Component id="jPasswordField_LotusNotesPassword" linkSize="4" pref="388" max="32767" attributes="1"/>
+                                  </Group>
+                                  <Component id="jLabel13" linkSize="3" alignment="0" min="-2" pref="62" max="-2" attributes="1"/>
+                              </Group>
+                          </Group>
                       </Group>
-                      <EmptySpace max="32767" attributes="0"/>
-                  </Group>
-                  <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="1" attributes="0">
-                          <EmptySpace pref="839" max="32767" attributes="0"/>
-                          <Component id="jPasswordField_GooglePassword1" min="-2" pref="104" max="-2" attributes="1"/>
-                          <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
-                      </Group>
+                      <EmptySpace pref="18" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -634,7 +618,10 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel6" min="-2" pref="19" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="jLabel6" alignment="3" min="-2" pref="19" max="-2" attributes="0"/>
+                          <Component id="jButton_DetectLotusSettings" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jLabel14" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -648,15 +635,10 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jLabel12" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jTextField_LotusNotesUsername" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jLabel13" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jPasswordField_LotusNotesPassword" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
                       <Component id="jLabel5" min="-2" pref="19" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
@@ -668,7 +650,7 @@
                           <Component id="jLabel4" alignment="3" min="-2" pref="21" max="-2" attributes="0"/>
                           <Component id="jPasswordField_GooglePassword" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="30" max="-2" attributes="0"/>
                       <Component id="jLabel9" min="-2" pref="19" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="jCheckBox_GoogleSSL" min="-2" max="-2" attributes="0"/>
@@ -694,14 +676,7 @@
                           <Component id="jLabel19" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jPasswordField_proxyPassword" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="31" max="32767" attributes="0"/>
-                  </Group>
-                  <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace min="-2" pref="213" max="-2" attributes="0"/>
-                          <Component id="jPasswordField_GooglePassword1" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="214" max="32767" attributes="0"/>
-                      </Group>
+                      <EmptySpace pref="33" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -754,13 +729,6 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Mail File"/>
               </Properties>
-            </Component>
-            <Component class="javax.swing.JLabel" name="jLabel12">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Username"/>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JTextField" name="jTextField_LotusNotesUsername">
             </Component>
             <Component class="javax.swing.JTextField" name="jTextField_LotusNotesMailFile">
             </Component>
@@ -855,12 +823,19 @@
                 </Property>
               </Properties>
             </Component>
-            <Component class="javax.swing.JPasswordField" name="jPasswordField_GooglePassword1">
-            </Component>
             <Component class="javax.swing.JPasswordField" name="jPasswordField_proxyPassword">
               <Properties>
                 <Property name="enabled" type="boolean" value="false"/>
               </Properties>
+            </Component>
+            <Component class="javax.swing.JButton" name="jButton_DetectLotusSettings">
+              <Properties>
+                <Property name="mnemonic" type="int" value="100"/>
+                <Property name="text" type="java.lang.String" value="Detect Lotus Settings"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton_DetectLotusSettingsActionPerformed"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>

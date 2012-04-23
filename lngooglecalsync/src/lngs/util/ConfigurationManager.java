@@ -38,28 +38,17 @@ public class ConfigurationManager {
         }
 
         // Write properties file.
-        try {
-            config.store(new FileOutputStream(configFilename), null);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        config.store(new FileOutputStream(configFilename), null);
     }
 
-    public void readConfig() {
-        try {
-            config.load(new FileInputStream(configFilename));
-            if (getConfigVersion() >= 2) {
-                // Starting with v2 of the properties file, we "encrypt" passwords but keep them plain in memory
-                config.setProperty(PROP_GOOGLE_PASSWORD, decodePassword(getGooglePassword()));
-                config.setProperty(PROP_PROXY_PASSWORD, decodePassword(getGoogleProxyPassword()));
-                config.setProperty(PROP_LOTUS_NOTES_PASSWORD, decodePassword(getLotusNotesPassword()));
-
-            }
-
-        } catch (Exception e) {
+    public void readConfig() throws Exception {
+        config.load(new FileInputStream(configFilename));
+        if (getConfigVersion() >= 2) {
+            // Starting with v2 of the properties file, we "encrypt" passwords but keep them plain in memory
+            config.setProperty(PROP_GOOGLE_PASSWORD, decodePassword(getGooglePassword()));
+            config.setProperty(PROP_PROXY_PASSWORD, decodePassword(getGoogleProxyPassword()));
+            config.setProperty(PROP_LOTUS_NOTES_PASSWORD, decodePassword(getLotusNotesPassword()));
         }
-
     }
 
     public void setConfigVersion(int value) {
@@ -162,10 +151,6 @@ public class ConfigurationManager {
         config.setProperty(PROP_SYNC_DAYS_IN_PAST, Integer.toString(value));
     }
 
-    public void setLotusNotesUsername(String LotusNotesUsername) {
-        config.setProperty(PROP_LOTUS_NOTES_USERNAME, LotusNotesUsername);
-    }
-
     public void setLotusNotesPassword(String value) {
         config.setProperty(PROP_LOTUS_NOTES_PASSWORD, value);
     }
@@ -243,10 +228,6 @@ public class ConfigurationManager {
             value = "Lotus Notes";
         
         return value;
-    }
-
-    public String getLotusNotesUsername() {
-        return getStringProperty(PROP_LOTUS_NOTES_USERNAME);
     }
 
     public String getLotusNotesPassword() throws Exception {
@@ -369,12 +350,8 @@ public class ConfigurationManager {
     }
 
     protected String decodePassword(String encodedPassword ) throws Exception {
-        try {
-            byte[] data = Base64.decode(encodedPassword);
-            return new String(data);
-        } catch (Exception ex) {
-            throw ex;
-        }
+        byte[] data = Base64.decode(encodedPassword);
+        return new String(data);
     }
 
 
@@ -390,7 +367,6 @@ public class ConfigurationManager {
     protected static final String PROP_LOTUS_NOTES_SERVER_IS_LOCAL = "LotusNotesServerIsLocal";
     protected static final String PROP_LOTUS_NOTES_MAIL_FILE = "LotusNotesMailFile";
     protected static final String PROP_LOTUS_NOTES_PASSWORD = "LotusNotesPassword";
-    protected static final String PROP_LOTUS_NOTES_USERNAME = "LotusNotesUsername";
 
     protected static final String PROP_DIAGNOSTIC_MODE = "DiagnosticMode";
     protected static final String PROP_SYNC_ON_STARTUP = "SyncOnStartup";

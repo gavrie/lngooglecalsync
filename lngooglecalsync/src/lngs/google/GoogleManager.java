@@ -48,6 +48,11 @@ public class GoogleManager {
             privateCalendarFeedUrl = new URL(protocol + "//www.google.com/calendar/feeds/" + googleUsername + "/private/full");
 
             service = new CalendarService("LotusNotes-Calendar-Sync");
+            
+            // I think (but I'm not positive) that the default for these two timeout values is 20000 msecs.
+            // Increase them because some users have encountered timeout problems.
+            service.setConnectTimeout(30000);
+            service.setReadTimeout(30000);
 
             if (useSSL) {
                 service.useSsl();
@@ -70,7 +75,14 @@ public class GoogleManager {
                     Thread.sleep(retryDelayMsecs);
                     doRetry = true;
 
-                    statusMessageCallback.statusAppendLineDiag("Retry #" + retryCount + ". Encountered " + ex.toString());
+                    statusMessageCallback.statusAppendLineDiag("User Credentials Retry #" + retryCount + ". Encountered " + ex.toString());
+                    
+                    if (retryCount == 1) {
+                        // Write out the stack trace
+                        StringWriter sw = new StringWriter();
+                        ex.printStackTrace(new PrintWriter(sw));
+                        statusMessageCallback.statusAppendLineDiag(sw.toString());                        
+                    }                    
                 }            
             } while (doRetry);
 
@@ -134,8 +146,15 @@ public class GoogleManager {
                         throw ex;
                     Thread.sleep(retryDelayMsecs);
 
-                    statusMessageCallback.statusAppendLineDiag("Retry #" + retryCount + ". Encountered " + ex.toString());
+                    statusMessageCallback.statusAppendLineDiag("Get Calendar Retry #" + retryCount + ". Encountered " + ex.toString());
 
+                    if (retryCount == 1) {
+                        // Write out the stack trace
+                        StringWriter sw = new StringWriter();
+                        ex.printStackTrace(new PrintWriter(sw));
+                        statusMessageCallback.statusAppendLineDiag(sw.toString());                        
+                    }
+                    
                     // Get our calendar list again, reset our loop counter, and go to the top of the loop
                     calendars = getCalendarList();
                     i = 0;
@@ -279,6 +298,15 @@ public class GoogleManager {
                     if (++retryCount > maxRetryCount)
                         throw ex;
                     Thread.sleep(retryDelayMsecs);
+                    
+                    statusMessageCallback.statusAppendLineDiag("Get Feed for Delete Retry #" + retryCount + ". Encountered " + ex.toString());
+                    
+                    if (retryCount == 1) {
+                        // Write out the stack trace
+                        StringWriter sw = new StringWriter();
+                        ex.printStackTrace(new PrintWriter(sw));
+                        statusMessageCallback.statusAppendLineDiag(sw.toString());                        
+                    }                    
                 }
             } while (feed == null);
 
@@ -287,6 +315,7 @@ public class GoogleManager {
 
             // Send the batch request with retries
             CalendarEventFeed batchResponse = null;
+            retryCount = 0;
             do {
                 try {
                     batchResponse = service.batch(new URL(batchLink.getHref()), batchRequest);
@@ -296,6 +325,15 @@ public class GoogleManager {
                     if (++retryCount > maxRetryCount)
                         throw ex;
                     Thread.sleep(retryDelayMsecs);
+
+                    statusMessageCallback.statusAppendLineDiag("Get Batch Response for Delete Retry #" + retryCount + ". Encountered " + ex.toString());
+                    
+                    if (retryCount == 1) {
+                        // Write out the stack trace
+                        StringWriter sw = new StringWriter();
+                        ex.printStackTrace(new PrintWriter(sw));
+                        statusMessageCallback.statusAppendLineDiag(sw.toString());                        
+                    }                    
                 }
             } while (batchResponse == null);
 
@@ -352,7 +390,7 @@ public class GoogleManager {
             CalendarQuery myQuery = new CalendarQuery(feedUrl);
 
             myQuery.setMinimumStartTime(new com.google.gdata.data.DateTime(minStartDate.getTime()));
-            // Make the end time far into the future so we delete everything
+            // Make the end time far into the future so we delete everything we aren't syncing
             myQuery.setMaximumStartTime(com.google.gdata.data.DateTime.parseDateTime("2099-12-31T23:59:59"));
 
             // Set the maximum number of results to return for the query.
@@ -381,7 +419,14 @@ public class GoogleManager {
                     }
                     Thread.sleep(retryDelayMsecs);
 
-                    statusMessageCallback.statusAppendLineDiag("Retry #" + retryCount + ". Encountered " + ex.toString());
+                    statusMessageCallback.statusAppendLineDiag("Query Retry #" + retryCount + ". Encountered " + ex.toString());
+                    
+                    if (retryCount == 1) {
+                        // Write out the stack trace
+                        StringWriter sw = new StringWriter();
+                        ex.printStackTrace(new PrintWriter(sw));
+                        statusMessageCallback.statusAppendLineDiag(sw.toString());                        
+                    }
                     
                     continue;
                 }
@@ -436,8 +481,10 @@ public class GoogleManager {
             }
 
             if (calendarEntries == null)
-                googleInRangeEntriesWriter.write("The calendar entries list is null.\n");
+                googleInRangeEntriesWriter.write("The calendar entries list is empty.\n");
             else
+                googleInRangeEntriesWriter.write("Total entries: " + calendarEntries.size() + "\n\n");                
+            
                 for (CalendarEventEntry calEntry : calendarEntries) {
                     googleInRangeEntriesWriter.write("=== Calendar Entry ===\n");
 
@@ -543,9 +590,6 @@ public class GoogleManager {
 
         String syncUID = lotusEntry.getSyncUID();
 
-if (lotusEntry.getSubject().equals("Test2")) {
-    lotusEntry.getAlarm();
-}
         // The Google IcalUID has the format: GoogleUID:SyncUID. Strip off the 
         // "GoogleUID:" part and do a compare of the SyncUID.
         // The SyncUID contains several pieces of info, including the Lotus modified
@@ -564,7 +608,6 @@ if (lotusEntry.getSubject().equals("Test2")) {
                 lotusSubject = syncAllSubjectsToThisValue;
             }
             if (!googleEntry.getTitle().getPlainText().equals(lotusSubject)) {
-statusMessageCallback.statusAppendLineDiag("Entry has changed: subject. Title: " + lotusEntry.getSubject());
                 return true;
             }
 
@@ -575,7 +618,6 @@ statusMessageCallback.statusAppendLineDiag("Entry has changed: subject. Title: "
                 // If true, the Google entry doesn't contain location info, so
                 // the entries don't match.
                 if (whereList.size() > 0 && whereList.get(0).getValueString() == null) {
-statusMessageCallback.statusAppendLineDiag("Entry has changed: location/where 1. Title: " + lotusEntry.getSubject());
                     return true;
                 }
             }
@@ -583,7 +625,6 @@ statusMessageCallback.statusAppendLineDiag("Entry has changed: location/where 1.
                 // If true, the Google entry has location info (which we don't want), so
                 // the entries don't match.
                 if (whereList.size() > 0 && whereList.get(0).getValueString() != null) {
-statusMessageCallback.statusAppendLineDiag("Entry has changed: location/where 2. Title: " + lotusEntry.getSubject());
                     return true;
                 }
             }
@@ -592,7 +633,6 @@ statusMessageCallback.statusAppendLineDiag("Entry has changed: location/where 2.
                 // We are syncing alarms, so make sure the Google entry has an alarm.
                 // Note: If there is an alarm set, we'll assume the alarm offset is correct.
                 if (googleEntry.getReminder().size() == 0) {
-statusMessageCallback.statusAppendLineDiag("Entry has changed: alarm 1. Title: " + lotusEntry.getSubject());
                     return true;
                 }
             }
@@ -600,14 +640,12 @@ statusMessageCallback.statusAppendLineDiag("Entry has changed: alarm 1. Title: "
                 // We aren't syncing alarms, so make sure the Google entry doesn't
                 // have an alarm specified
                 if (googleEntry.getReminder().size() > 0) {
-statusMessageCallback.statusAppendLineDiag("Entry has changed: alarm 2. Title: " + lotusEntry.getSubject());
                     return true;
                 }
             }
 
             // Compare the Description field of Google entry to what we would build it as
             if (! googleEntry.getPlainTextContent().equals(createDescriptionText(lotusEntry))) {
-statusMessageCallback.statusAppendLineDiag("Entry has changed: description. Title: " + lotusEntry.getSubject());
                 return true;
             }
 
@@ -791,7 +829,8 @@ statusMessageCallback.statusAppendLineDiag("Entry has changed: description. Titl
                     createdCount++;
                     statusMessageCallback.statusAppendLineDiag("Create #" + createdCount +
                             ". Subject: " + event.getTitle().getPlainText() +
-                            "  Start Date: " + event.getTimes().get(0).getStartTime().toString());
+                            "  Start Date: " + event.getTimes().get(0).getStartTime().toString() +
+                            "  Type: " + lotusEntry.getAppointmentType());
 
                     break;
                 } catch (Exception ex) {
@@ -864,7 +903,14 @@ statusMessageCallback.statusAppendLineDiag("Entry has changed: description. Titl
                 Thread.sleep(retryDelayMsecs);
                 doRetry = true;
 
-                statusMessageCallback.statusAppendLineDiag("Retry #" + retryCount + ". Encountered " + ex.toString());
+                statusMessageCallback.statusAppendLineDiag("Get Time Zone Retry #" + retryCount + ". Encountered " + ex.toString());
+                
+                if (retryCount == 1) {
+                    // Write out the stack trace
+                    StringWriter sw = new StringWriter();
+                    ex.printStackTrace(new PrintWriter(sw));
+                    statusMessageCallback.statusAppendLineDiag(sw.toString());                        
+                }                    
             }            
         } while (doRetry);
 
@@ -962,7 +1008,7 @@ statusMessageCallback.statusAppendLineDiag("Entry has changed: description. Titl
     protected Date maxEndDate = null;
 
     protected final int maxRetryCount = 10;
-    protected final int retryDelayMsecs = 300;
+    protected final int retryDelayMsecs = 600;
 
     // The maximum number of chars allowed in a calendar description. Google has some
     // limit around 8100 chars. Lotus has a limit greater than that, so choose 8000.

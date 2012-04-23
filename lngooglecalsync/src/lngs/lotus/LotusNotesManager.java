@@ -1,12 +1,12 @@
 package lngs.lotus;
 
 import lngs.util.StatusMessageCallback;
-
 import lotus.domino.*;
 import java.io.*;
 import java.util.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import javax.swing.text.AbstractDocument;
 
 
 public class LotusNotesManager {
@@ -32,9 +32,8 @@ public class LotusNotesManager {
         this.requiresAuth = requiresAuth;
     }
 
-    public void setCredentials(String username, String password) {
+    public void setPassword(String password) {
         setRequiresAuth(true);
-        this.username = username;
         this.password = password;
     }
 
@@ -43,11 +42,11 @@ public class LotusNotesManager {
     }
 
     public void setMinStartDate(Date minStartDate) {
-        this.minStartDate = minStartDate;
+        this.startDate = minStartDate;
     }
 
     public void setMaxEndDate(Date maxEndDate) {
-        this.maxEndDate = maxEndDate;
+        this.endDate = maxEndDate;
     }
 
     public void setStatusMessageCallback(StatusMessageCallback value) {
@@ -72,17 +71,7 @@ public class LotusNotesManager {
 
         statusMessageCallback.statusAppendStart("Getting Lotus Notes calendar entries");
 
-        try {
-            // Some users, especially on OS X, have trouble locating Notes.jar (which
-            // needs to be in the classpath) and the supporting dll/so/dylib files (which
-            // need to be in the path/ld_library_path).  Try to load one of the Lotus
-            // classes to make sure we can find Notes.jar.
-            // The next try/catch block (with the sinitThread() call) will check if
-            // the supporing libs can be found.
-            ClassLoader.getSystemClassLoader().loadClass("lotus.domino.NotesThread");
-        } catch (Exception ex) {
-            throw new Exception("The Lotus Notes Java interface file (Notes.jar) could not be found.\nMake sure Notes.jar is in your classpath.", ex);
-        }
+        loadNotesThreadClass();
 
         try {
             // Make sure your Windows PATH statement includes the location
@@ -98,25 +87,18 @@ public class LotusNotesManager {
             // Note: We cast null to a String to avoid overload conflicts
             Session session = NotesFactory.createSession((String)null, (String)null, password);
             notesVersion = session.getNotesVersion();
-
+                    
             String dominoServerTemp = server;
             if (server.equals(""))
                 dominoServerTemp = null;
             Database db = session.getDatabase(dominoServerTemp, mailfile, false);
             if (db == null)
                 throw new Exception("Couldn't create Lotus Notes Database object.");
+                       
+            String strDateFormat = getLotusServerDateFormat(session);
+            DateFormat dateFormat = new SimpleDateFormat(strDateFormat);
+            statusMessageCallback.statusAppendLineDiag("Server Date Format: " + strDateFormat);       
             
-            // Get our start and end query dates in Lotus Notes format. We will query
-            // using the localized format for the dates (which is what Lotus expects).
-            // E.g. in England the date may be 31/1/2011, but in the US it is 1/31/2011.
-            lotus.domino.DateTime minStartDateLN = session.createDateTime(minStartDate);
-            lotus.domino.DateTime maxEndDateLN = session.createDateTime(maxEndDate);
-//!@! Get dates in a generic format that should work for all locales
-            DateFormat dfStart = new SimpleDateFormat("yyyy/MM/dd 00:00:00");
-            String strStartDate = dfStart.format(minStartDateLN.toJavaDate());
-            DateFormat dfEnd = new SimpleDateFormat("yyyy/MM/dd 12:59:59");
-            String strEndDate = dfEnd.format(maxEndDateLN.toJavaDate());
-
             // Query Lotus Notes to get calendar entries in our date range.
             // To understand this SELECT, go to http://publib.boulder.ibm.com/infocenter/domhelp/v8r0/index.jsp
             // and search for the various keywords. Here is an overview:
@@ -125,168 +107,31 @@ public class LotusNotesManager {
             //   The operator *= is a permuted equal operator. It compares all entries on
             //   the left side to all entries on the right side. If there is at least one
             //   match, then true is returned.
-//!@!            String calendarQuery = "SELECT (@IsAvailable(CalendarDateTime) & (@Explode(CalendarDateTime) *= @Explode(@TextToTime(\"" + minStartDateLN.getLocalTime() + "-" + maxEndDateLN.getLocalTime() + "\"))))";
-            String calendarQuery = "SELECT (@IsAvailable(CalendarDateTime) & (@Explode(CalendarDateTime) *= @Explode(@TextToTime(\"" + strStartDate + "-" + strEndDate + "\"))))";
+            String calendarQuery = "SELECT (@IsAvailable(CalendarDateTime) & (@Explode(CalendarDateTime) *= @Explode(@TextToTime(\"" +
+                    dateFormat.format(startDate) + " - " + dateFormat.format(endDate) + "\"))))";
+
+            statusMessageCallback.statusAppendLineDiag("Calendar query: " + calendarQuery);
+
             DocumentCollection queryResults = db.search(calendarQuery);
+            
+            if (queryResults == null) {
+                statusMessageCallback.statusAppendLineDiag("Query results are null");
+                return null;
+            }
+            else
+                statusMessageCallback.statusAppendLineDiag("Number of query results: " + queryResults.getCount());
 
-            boolean addDoc;
-            Document doc;
-            doc = queryResults.getFirstDocument();
-            // Loop through all entries returned
-            while (doc != null)
-            {
-                Item lnItem;
-                addDoc = true;
-
-                // If we are in diagnostic mode, write the entry to a text file
-                if (diagnosticMode) {
-                    writeEntryToFile(doc);
+            if (diagnosticMode) {
+                // Open the output file if it is not open
+                if (lnFoundEntriesWriter == null) {
+                    lnFoundEntriesFile = new File(lnFoundEntriesFullFilename);
+                    lnFoundEntriesWriter = new BufferedWriter(new FileWriter(lnFoundEntriesFile));
+                    lnFoundEntriesWriter.write("Total entries: " + queryResults.getCount() + "\n\n");
                 }
-
-                cal = new LotusNotesCalendarEntry();
-
-                lnItem = doc.getFirstItem("Subject");
-                if (!isItemEmpty(lnItem))
-                    cal.setSubject(lnItem.getText());
-                else
-                    cal.setSubject("<no subject>");
-
-                lnItem = doc.getFirstItem("Body");
-                if (!isItemEmpty(lnItem))
-                    cal.setBody(lnItem.getText());
-
-                // Get the type of Lotus calendar entry
-                lnItem = doc.getFirstItem("Form");
-                if (!isItemEmpty(lnItem))
-                    cal.setEntryType(lnItem.getText());
-                else
-                    // Assume we have an appointment
-                    cal.setEntryType(LotusNotesCalendarEntry.EntryType.APPOINTMENT);
-
-                if (cal.getEntryType() == LotusNotesCalendarEntry.EntryType.APPOINTMENT)
-                {
-                    lnItem = doc.getFirstItem("AppointmentType");
-                    if (!isItemEmpty(lnItem))
-                        cal.setAppointmentType(lnItem.getText());
-                }
-
-                lnItem = doc.getFirstItem("Room");
-                if (!isItemEmpty(lnItem))
-                    cal.setRoom(lnItem.getText());
-                lnItem = doc.getFirstItem("Location");
-                if (!isItemEmpty(lnItem))
-                    cal.setLocation(lnItem.getText());
-
-                lnItem = doc.getFirstItem("$Alarm");
-                if (!isItemEmpty(lnItem)) {
-                    cal.setAlarm(true);
-                    lnItem = doc.getFirstItem("$AlarmOffset");
-                    if (!isItemEmpty(lnItem))
-                        cal.setAlarmOffsetMins(Integer.parseInt(lnItem.getText()));
-                }
-
-                // When the Mark Private checkbox is checked, OrgConfidential is set to 1
-                lnItem = doc.getFirstItem("OrgConfidential");
-                if (!isItemEmpty(lnItem)) {
-                    if (lnItem.getText().equals("1"))
-                        cal.setPrivate(true);
-                }
-
-                //Get attendee info
-                lnItem = doc.getFirstItem("REQUIREDATTENDEES");
-                if (!isItemEmpty(lnItem)){
-                	cal.setRequiredAttendees(lnItem.getText());
-                }
-                lnItem = doc.getFirstItem("OPTIONALATTENDEES");
-                if (!isItemEmpty(lnItem)){
-                	cal.setOptionalAttendees(lnItem.getText());
-                }
-                lnItem = doc.getFirstItem("CHAIR");
-                if (!isItemEmpty(lnItem)){
-                	cal.setChairperson(lnItem.getText());
-                }
-
-                lnItem = doc.getFirstItem("APPTUNID");
-                if (!isItemEmpty(lnItem)){
-                    // If the APPTUNID contains a URL (http or https), then the entry
-                    // isn't a standard Lotus Notes item. It is a link to an external calendar.
-                    // In this case, we want to ignore the entry.
-                    if (lnItem.getText().matches("(?i).*https?:.*")) {
-                        addDoc = false;
-                    }
-                }
-
-                cal.setModifiedDateTime(doc.getLastModified().toJavaDate());
-
-                lnItem = doc.getFirstItem("OrgRepeat");
-
-                if (addDoc) {
-                    // If true, this is a repeating calendar entry
-                    if (!isItemEmpty(lnItem))
-                    {
-                        // Handle Lotus Notes repeating entries by creating multiple Google
-                        // entries
-
-                        Vector startDates = null;
-                        Vector endDates = null;
-
-                        lnItem = doc.getFirstItem("StartDateTime");
-                        if (!isItemEmpty(lnItem))
-                            startDates = lnItem.getValueDateTimeArray();
-
-                        lnItem = doc.getFirstItem("EndDateTime");
-                        if (!isItemEmpty(lnItem))
-                            endDates = lnItem.getValueDateTimeArray();
-
-                        if (startDates != null)
-                        {
-                            for (int i = 0 ; i < startDates.size() ; i++) {
-                                DateTime notesDate = (DateTime)startDates.get(i);
-                                Date startDate = notesDate.toJavaDate();
-                                // Only add the entry if it is within our sync date range
-                                if (isDateInRange(startDate))
-                                {
-                                    // We are creating multiple entries from one repeating entry.
-                                    // We use the same Lotus UID for all entries because we will
-                                    // prepend another GUID before inserting into Google.
-                                    cal.setUID(doc.getUniversalID());
-
-                                    cal.setStartDateTime(startDate);
-
-                                    if (endDates != null) {
-                                        notesDate = (DateTime)endDates.get(i);
-                                        cal.setEndDateTime(notesDate.toJavaDate());
-                                    }
-
-                                    calendarEntries.add(cal.clone());
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        cal.setUID(doc.getUniversalID());
-
-                        lnItem = doc.getFirstItem("StartDateTime");
-                        if (!isItemEmpty(lnItem))
-                            cal.setStartDateTime(lnItem.getDateTimeValue().toJavaDate());
-
-                        // For To Do tasks, the EndDateTime doesn't exist, but there is an EndDate value
-                        lnItem = doc.getFirstItem("EndDateTime");
-                        if (isItemEmpty(lnItem))
-                            lnItem = doc.getFirstItem("EndDate");
-                        if (!isItemEmpty(lnItem))
-                            cal.setEndDateTime(lnItem.getDateTimeValue().toJavaDate());
-
-                        // Only add the entry if it is within our sync date range
-                        if (isDateInRange(cal.getStartDateTime()))
-                            calendarEntries.add(cal);
-                    }
-                }
-
-                doc = queryResults.getNextDocument();
             }
 
+            calendarEntries = getCalendarEntryList(queryResults);
+            
             return calendarEntries;
         } catch (Exception ex) {
             String exMsg = "There was a problem reading Lotus Notes calendar entries.";
@@ -324,12 +169,275 @@ public class LotusNotesManager {
 
 
     /**
+     * Manually load the Lotus Notes thread class to see if it can be found.
+     */
+    protected void loadNotesThreadClass() throws Exception {
+        try {
+            // Some users, especially on OS X, have trouble locating Notes.jar (which
+            // needs to be in the classpath) and the supporting dll/so/dylib files (which
+            // need to be in the path/ld_library_path).  Try to load one of the Lotus
+            // classes to make sure we can find Notes.jar.
+            // The next try/catch block (with the sinitThread() call) will check if
+            // the supporing libs can be found.
+            ClassLoader.getSystemClassLoader().loadClass("lotus.domino.NotesThread");
+        } catch (Exception ex) {
+            throw new Exception("The Lotus Notes Java interface file (Notes.jar) could not be found.\nMake sure Notes.jar is in your classpath.", ex);
+        }
+    }
+
+    /**
+     * Return the date format used on the Domino server.
+     */
+    protected String getLotusServerDateFormat(Session session) throws NotesException {
+        // Get our start and end query dates in Lotus Notes format. We will query
+        // using the localized format for the dates (which is what Lotus expects).
+        // E.g. in England the date may be 31/1/2011, but in the US it is 1/31/2011.
+        String strDateFormat;
+        // Get the date separator used on the Domino server, e.g. / or -
+        String dateSep = session.getInternational().getDateSep();
+
+        // Determine if the server date format is DMY, YMD, or MDY
+        if (session.getInternational().isDateDMY()) {
+            strDateFormat = "dd" + dateSep + "MM" + dateSep + "yyyy";                
+        }
+        else if (session.getInternational().isDateYMD()) {
+            strDateFormat = "yyyy" + dateSep + "MM" + dateSep + "dd";
+        }
+        else {
+            strDateFormat = "MM" + dateSep + "dd" + dateSep + "yyyy";
+        }
+        
+        return strDateFormat;
+    }
+    
+    
+    /**
+     * Process a list of Lotus Notes entries returned from a query.
+     * Return a list of LotusNotesCalendarEntry objects.
+     */
+    protected ArrayList<LotusNotesCalendarEntry> getCalendarEntryList(DocumentCollection queryResults) throws Exception {
+        boolean addDoc;
+        ArrayList<LotusNotesCalendarEntry> calendarEntries = new ArrayList<LotusNotesCalendarEntry>();
+        LotusNotesCalendarEntry cal;
+
+        Document doc;
+        doc = queryResults.getFirstDocument();
+        // Loop through all entries returned
+        while (doc != null)
+        {
+            Item lnItem;
+            addDoc = true;
+
+            // If we are in diagnostic mode, write the entry to a text file
+            if (diagnosticMode) {
+                writeEntryToFile(doc);
+            }
+
+            cal = new LotusNotesCalendarEntry();
+
+            lnItem = doc.getFirstItem("Subject");
+            if (!isItemEmpty(lnItem))
+                cal.setSubject(lnItem.getText());
+            else
+                cal.setSubject("<no subject>");
+
+            lnItem = doc.getFirstItem("Body");
+            if (!isItemEmpty(lnItem))
+                cal.setBody(lnItem.getText());
+
+            // Get the type of Lotus calendar entry
+            lnItem = doc.getFirstItem("Form");
+            if (!isItemEmpty(lnItem))
+                cal.setEntryType(lnItem.getText());
+            else
+                // Assume we have an appointment
+                cal.setEntryType(LotusNotesCalendarEntry.EntryType.APPOINTMENT);
+
+            if (cal.getEntryType() == LotusNotesCalendarEntry.EntryType.APPOINTMENT)
+            {
+                lnItem = doc.getFirstItem("AppointmentType");
+                if (!isItemEmpty(lnItem))
+                    cal.setAppointmentType(lnItem.getText());
+            }
+
+            lnItem = doc.getFirstItem("Room");
+            if (!isItemEmpty(lnItem))
+                cal.setRoom(lnItem.getText());
+            lnItem = doc.getFirstItem("Location");
+            if (!isItemEmpty(lnItem))
+                cal.setLocation(lnItem.getText());
+
+            lnItem = doc.getFirstItem("$Alarm");
+            if (!isItemEmpty(lnItem)) {
+                cal.setAlarm(true);
+                lnItem = doc.getFirstItem("$AlarmOffset");
+                if (!isItemEmpty(lnItem))
+                    cal.setAlarmOffsetMins(Integer.parseInt(lnItem.getText()));
+            }
+
+            // When the Mark Private checkbox is checked, OrgConfidential is set to 1
+            lnItem = doc.getFirstItem("OrgConfidential");
+            if (!isItemEmpty(lnItem)) {
+                if (lnItem.getText().equals("1"))
+                    cal.setPrivate(true);
+            }
+
+            //Get attendee info
+            lnItem = doc.getFirstItem("REQUIREDATTENDEES");
+            if (!isItemEmpty(lnItem)){
+                cal.setRequiredAttendees(lnItem.getText());
+            }
+            lnItem = doc.getFirstItem("OPTIONALATTENDEES");
+            if (!isItemEmpty(lnItem)){
+                cal.setOptionalAttendees(lnItem.getText());
+            }
+            lnItem = doc.getFirstItem("CHAIR");
+            if (!isItemEmpty(lnItem)){
+                cal.setChairperson(lnItem.getText());
+            }
+
+            lnItem = doc.getFirstItem("APPTUNID");
+            if (!isItemEmpty(lnItem)){
+                // If the APPTUNID contains a URL (http or https), then the entry
+                // isn't a standard Lotus Notes item. It is a link to an external calendar.
+                // In this case, we want to ignore the entry.
+                if (lnItem.getText().matches("(?i).*(https?|Notes):.*")) {
+                    addDoc = false;
+                }
+            }
+
+            cal.setModifiedDateTime(doc.getLastModified().toJavaDate());
+
+            lnItem = doc.getFirstItem("OrgRepeat");
+
+            if (addDoc) {
+                // If true, this is a repeating calendar entry
+                if (!isItemEmpty(lnItem))
+                {
+                    // Handle Lotus Notes repeating entries by creating multiple Google
+                    // entries
+
+                    Vector startDates = null;
+                    Vector endDates = null;
+
+                    lnItem = doc.getFirstItem("StartDateTime");
+                    if (!isItemEmpty(lnItem))
+                        startDates = lnItem.getValueDateTimeArray();
+
+                    lnItem = doc.getFirstItem("EndDateTime");
+                    if (!isItemEmpty(lnItem))
+                        endDates = lnItem.getValueDateTimeArray();
+
+                    if (startDates != null)
+                    {
+                        for (int i = 0; i < startDates.size(); i++) {
+                            if (startDates.get(i) instanceof DateTime) {
+                                DateTime notesDate = (DateTime)startDates.get(i);
+                                Date javaDate = notesDate.toJavaDate();
+
+                                // Only add the entry if it is within our sync date range
+                                if (isDateInRange(javaDate))
+                                {
+                                    // We are creating multiple entries from one repeating entry.
+                                    // We use the same Lotus UID for all entries because we will
+                                    // prepend another GUID before inserting into Google.
+                                    cal.setUID(doc.getUniversalID());
+
+                                    cal.setStartDateTime(javaDate);
+
+                                    if (endDates != null) {
+                                        notesDate = (DateTime)endDates.get(i);
+                                        cal.setEndDateTime(notesDate.toJavaDate());
+                                    }
+
+                                    calendarEntries.add(cal.clone());
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    cal.setUID(doc.getUniversalID());
+
+                    lnItem = doc.getFirstItem("StartDateTime");
+                    if (!isItemEmpty(lnItem))
+                        cal.setStartDateTime(lnItem.getDateTimeValue().toJavaDate());
+
+                    // For To Do tasks, the EndDateTime doesn't exist, but there is an EndDate value
+                    lnItem = doc.getFirstItem("EndDateTime");
+                    if (isItemEmpty(lnItem))
+                        lnItem = doc.getFirstItem("EndDate");
+                    if (!isItemEmpty(lnItem))
+                        cal.setEndDateTime(lnItem.getDateTimeValue().toJavaDate());
+
+                    // Only add the entry if it is within our sync date range
+                    if (isDateInRange(cal.getStartDateTime()))
+                        calendarEntries.add(cal);
+                }
+            }
+
+            doc = queryResults.getNextDocument();
+        }
+
+        return calendarEntries;
+    }
+    
+    
+    /**
+     * Try to detect some Lotus Notes settings and return them.
+     */
+    public LotusNotesSettings detectLotusSettings(String lnPassword) throws Exception {
+        boolean wasNotesThreadInitialized = false;
+        String s = "";
+        LotusNotesSettings lns = new LotusNotesSettings();
+    
+        try {
+            NotesThread.sinitThread();
+            wasNotesThreadInitialized = true;
+
+            Session session = NotesFactory.createSession((String)null, (String)null, lnPassword);
+            
+            lns.setMailFile(session.getEnvironmentString("MailFile", true));
+            
+            // The mail server will probably have the format "CN=MY-LN-SERVER/OU=SRV/O=AcmeCo".
+            // Get only the value after "CN=" and before the first "/".
+            String mailServer = session.getEnvironmentString("MailServer", true);
+            int i = mailServer.indexOf("/");
+            if (i > 0 && mailServer.substring(0, 3).equals("CN=")) {
+                mailServer = mailServer.substring(3, i);
+            }
+            lns.setServerName(mailServer);
+    
+            lns.hasLocalServer = true;
+            // Try to connect to the local Domino server.
+            Database db = session.getDatabase(null, lns.getMailFile(), false);
+            if (db == null)
+                lns.hasLocalServer = false;
+        } catch (Exception ex) {
+            throw ex;
+        } finally {
+            // If true, the NotesThread failed to init. The LN dlls probably weren't found.
+            // NOTE: Make sure this check is the first line in the finally block. When the
+            // init fails, some of the finally block may get skipped.
+            if (!wasNotesThreadInitialized) {
+                throw new Exception("There was a problem initializing the Lotus Notes thread.\nMake sure the Lotus dll/so/dylib directory is in your path.\nAlso look at the Troubleshooting section of the Help file.");
+            }
+
+            NotesThread.stermThread();
+        }
+
+        return lns;
+    }
+
+
+    /**
      * Determine if the calendar entry date is in the range of dates to be processed.
      * @param entryDate - The calendar date to inspect.
      * @return True if the date is in the range, false otherwise.
      */
     public boolean isDateInRange(Date entryDate) {
-        if (entryDate != null && entryDate.compareTo(minStartDate) >= 0 && entryDate.compareTo(maxEndDate) <= 0)
+        if (entryDate != null && entryDate.compareTo(startDate) >= 0 && entryDate.compareTo(endDate) <= 0)
             return true;
 
         return false;
@@ -341,12 +449,6 @@ public class LotusNotesManager {
      * @param doc - The Document to process.
      */
     public void writeEntryToFile(lotus.domino.Document doc) throws IOException, NotesException {
-        // Open the output file if it is not open
-        if (lnFoundEntriesWriter == null) {
-            lnFoundEntriesFile = new File(lnFoundEntriesFullFilename);
-            lnFoundEntriesWriter = new BufferedWriter(new FileWriter(lnFoundEntriesFile));
-        }
-
         // Add the items to a list so we can sort them later
         List<String> itemsAndValues = new ArrayList<String>();
 
@@ -365,8 +467,8 @@ public class LotusNotesManager {
             return;
         }
 
-        itemsAndValues.add("  LastModified: " + doc.getLastModified() + "\n");
-        itemsAndValues.add("  UniversalID: " + doc.getUniversalID() + "\n");
+        itemsAndValues.add("  LastModified (from getLastModified()): " + doc.getLastModified() + "\n");
+        itemsAndValues.add("  UniversalID (from getUniversalID()): " + doc.getUniversalID() + "\n");
 
         String itemName;
 
@@ -402,6 +504,8 @@ public class LotusNotesManager {
             if (calendarEntries == null)
                 lnInRangeEntriesWriter.write("The calendar entries list is null.\n");
             else
+                lnInRangeEntriesWriter.write("Total entries: " + calendarEntries.size() + "\n\n");
+                
                 for (LotusNotesCalendarEntry entry : calendarEntries) {
                     lnInRangeEntriesWriter.write("=== " + entry.getSubject() + "\n");
                     lnInRangeEntriesWriter.write("  UID: " + entry.getUID() + "\n");
@@ -452,7 +556,7 @@ public class LotusNotesManager {
     protected StatusMessageCallback statusMessageCallback = null;
 
     String calendarViewName = "Google Calendar Sync";
-    String username, password;
+    String password;
     String server, mailfile;
     boolean requiresAuth;
     boolean diagnosticMode = false;
@@ -460,9 +564,9 @@ public class LotusNotesManager {
 
     // Our min and max dates for entries we will process.
     // If the calendar entry is outside this range, it is ignored.
-    Date minStartDate = null;
-    Date maxEndDate = null;
-
+    Date startDate = null;
+    Date endDate = null;
+    
     // These items are used when diagnosticMode = true
     File lnFoundEntriesFile = null;
     BufferedWriter lnFoundEntriesWriter = null;
@@ -473,4 +577,27 @@ public class LotusNotesManager {
     BufferedWriter lnInRangeEntriesWriter = null;
     final String lnInRangeEntriesFilename = "LotusNotesInRangeEntries.txt";
     String lnInRangeEntriesFullFilename;
+    
+    public class LotusNotesSettings {
+        private String mailFile;
+        private String serverName;
+        public boolean hasLocalServer;
+
+        public String getMailFile() {
+            return mailFile;
+        }
+
+        public void setMailFile(String mailFile) {
+            this.mailFile = mailFile;
+        }
+
+        public String getServerName() {
+            return serverName;
+        }
+
+        public void setServerName(String serverName) {
+            this.serverName = serverName;
+        }
+    }
 }
+
