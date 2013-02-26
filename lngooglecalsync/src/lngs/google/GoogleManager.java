@@ -760,7 +760,9 @@ public class GoogleManager {
                 String whereStr = lotusEntry.getGoogleWhereString();
                 if (whereStr != null) {
                     Where location = new Where();
-                    location.setValueString(whereStr);
+                    // Remove all control characters from the Where string. If present, such
+                    // characters will cause the GCal create to fail.
+                    location.setValueString(whereStr.replaceAll("\\p{Cntrl}", ""));
                     event.addLocation(location);
                 }
             }

@@ -8,8 +8,8 @@ import java.text.ParseException;
 public class LotusNotesCalendarEntry {
 
     public LotusNotesCalendarEntry() {
-        entryType = EntryType.NONE;
-        appointmentType = AppointmentType.APPOINTMENT.NONE;
+        entryType = EntryType.APPOINTMENT;
+        appointmentType = AppointmentType.APPOINTMENT;
     }
 
     /**

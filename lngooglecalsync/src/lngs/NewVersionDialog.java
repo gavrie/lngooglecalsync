@@ -53,7 +53,7 @@ public class NewVersionDialog extends javax.swing.JDialog {
 
         jTextPane_Changes.setEditable(false);
         jTextPane_Changes.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jTextPane_Changes.setText("o Fix: The date format used on the Lotus Notes server was sometimes different than the local client format (e.g. m/d/y vs d/m/y). This has been a recurring problem, that is hopefully fixed permanently.\no Enhancement: If the sync fails, a tooltip message will popup on the tray icon.\no Enhancement: On the Connection Settings tab there is now a \"Detect Lotus Settings\" button which will help new users determine their correct Lotus Notes values.\no Enhancement: The Lotus Notes Username field has been removed because it was never used.\no Enhancement: Unknown Lotus Notes appointment types are now created as standard Google calendar appointments (instead of generating an error).\no Enhancement: Settings are now saved whenever a tab is changed (not just when the application exits).\no Enhancement: Version 1.9 of the LNConnectivityTest app has been put in svn. Several minor enhancements were made.\no Quote: You see things; and you say: \"Why?\" But I dream things that never were; and I say: \"Why not?\" - George Bernard Shaw");
+        jTextPane_Changes.setText("o Fix: Non-printing control characters are now removed from the Lotus location/room string before creating the GCal entry. When such characters were present, the GCal create would fail. Thanks to Bruno Portaluri.\no Fix: Rare instances where reminder minute offsets could be floating-point values with a locale decimal point of \",\" are now handled. Thanks to Per B.\no Fix: The lngsync.sh script now puts quotes around the CLASSPATH (so paths with spaces in them don't cause problems).\no Fix: Some GUI fields were truncated when viewed in Linux and OS X. This is now fixed.\no Enhancement: A Detect Proxy Settings button has been added to the Connections tab.\no Enhancement: After each sync, all output is now written to lngsync.log. This log can then be emailed to help diagnose problems.\no Enhancement: If the type of a Lotus entry can't be determined, it is now assumed to be a meeting. This solved a problem for a least one user.\no Enhancement: Sometimes lngsync.vbs wouldn't auto-detect the locations of files correctly. The script now has variables named lotusPath, lotusIniPath,  javaPath, and useLotusJava at the top of the script so users can easily customize the locations of files. Thanks to axeldoerr for some of the changes.\no Enhancement: The lngsync.vbs now defaults to useLotusJava=1 because this should be the best choice for most users.\no Enhancement: The lngsync.sh script was enhanced to work with both Lotus Notes v8 and v9. Thanks to Michael Steiner.\no Enhancement: The lngsync.sh script was enhanced to work with OS X versions 10.8 and greater. This was done because starting with OS X 10.8, the location of Lotus Notes changed from \"Notes.app\" to \"Lotus Notes.app\". Thanks to Ray Wilson.\no Enhancement: Added information in the Help file about proxy servers that user NTLM authentication. Thanks to elysiummtl.\no Quote: Religion without science is superstition. Science without religion is materialism. - Bahá'u'lláh ");
         jScrollPane2.setViewportView(jTextPane_Changes);
 
         jLabel_Heading1.setText("This version is being run for the first time in GUI mode.");
@@ -86,7 +86,8 @@ public class NewVersionDialog extends javax.swing.JDialog {
             }
         });
 
-        jLabel_Heading2.setText("To upgrade, unzip the new files and copy your old lngsync.config file into the new-version directory.");
+        jLabel_Heading2.setText("<html>To upgrade, unzip the new files and copy your old lngsync.config file into the new-version directory.<br>If you modified the old lngsync.vbs or lngsync.sh files, then merge those changes into the new vbs/sh files.</html>");
+        jLabel_Heading2.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -100,14 +101,14 @@ public class NewVersionDialog extends javax.swing.JDialog {
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel_Heading2)
                                     .addGroup(layout.createSequentialGroup()
                                         .addComponent(jLabel_Heading1)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(jLabel_Heading3)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jLabel_HelpFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(0, 173, Short.MAX_VALUE))))
+                                        .addComponent(jLabel_HelpFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(jLabel_Heading2, javax.swing.GroupLayout.PREFERRED_SIZE, 666, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(0, 59, Short.MAX_VALUE))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(330, 330, 330)
                         .addComponent(jButton_OK)
@@ -125,9 +126,9 @@ public class NewVersionDialog extends javax.swing.JDialog {
                     .addComponent(jLabel_Heading3)
                     .addComponent(jLabel_HelpFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel_Heading2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
+                .addComponent(jLabel_Heading2, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton_OK)

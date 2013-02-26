@@ -32,7 +32,6 @@
                           <Component id="jScrollPane2" pref="0" max="32767" attributes="0"/>
                           <Group type="102" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="jLabel_Heading2" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Group type="102" attributes="0">
                                       <Component id="jLabel_Heading1" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
@@ -40,12 +39,13 @@
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="jLabel_HelpFile" min="-2" max="-2" attributes="0"/>
                                   </Group>
+                                  <Component id="jLabel_Heading2" min="-2" pref="666" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace min="0" pref="173" max="32767" attributes="0"/>
+                              <EmptySpace min="0" pref="59" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
+                  <Group type="102" attributes="0">
                       <EmptySpace min="-2" pref="330" max="-2" attributes="0"/>
                       <Component id="jButton_OK" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="55" max="-2" attributes="0"/>
@@ -66,10 +66,10 @@
                   <Component id="jLabel_Heading3" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel_HelpFile" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="1"/>
-              <Component id="jLabel_Heading2" min="-2" max="-2" attributes="0"/>
-              <EmptySpace type="unrelated" max="-2" attributes="0"/>
-              <Component id="jScrollPane2" pref="217" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jLabel_Heading2" pref="35" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jScrollPane2" min="-2" pref="242" max="-2" attributes="0"/>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jButton_OK" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -104,7 +104,7 @@
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Tahoma" size="12" style="0"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="o Fix: The date format used on the Lotus Notes server was sometimes different than the local client format (e.g. m/d/y vs d/m/y). This has been a recurring problem, that is hopefully fixed permanently.&#xa;o Enhancement: If the sync fails, a tooltip message will popup on the tray icon.&#xa;o Enhancement: On the Connection Settings tab there is now a &quot;Detect Lotus Settings&quot; button which will help new users determine their correct Lotus Notes values.&#xa;o Enhancement: The Lotus Notes Username field has been removed because it was never used.&#xa;o Enhancement: Unknown Lotus Notes appointment types are now created as standard Google calendar appointments (instead of generating an error).&#xa;o Enhancement: Settings are now saved whenever a tab is changed (not just when the application exits).&#xa;o Enhancement: Version 1.9 of the LNConnectivityTest app has been put in svn. Several minor enhancements were made.&#xa;o Quote: You see things; and you say: &quot;Why?&quot; But I dream things that never were; and I say: &quot;Why not?&quot; - George Bernard Shaw"/>
+            <Property name="text" type="java.lang.String" value="o Fix: Non-printing control characters are now removed from the Lotus location/room string before creating the GCal entry. When such characters were present, the GCal create would fail. Thanks to Bruno Portaluri.&#xa;o Fix: Rare instances where reminder minute offsets could be floating-point values with a locale decimal point of &quot;,&quot; are now handled. Thanks to Per B.&#xa;o Fix: The lngsync.sh script now puts quotes around the CLASSPATH (so paths with spaces in them don&apos;t cause problems).&#xa;o Fix: Some GUI fields were truncated when viewed in Linux and OS X. This is now fixed.&#xa;o Enhancement: A Detect Proxy Settings button has been added to the Connections tab.&#xa;o Enhancement: After each sync, all output is now written to lngsync.log. This log can then be emailed to help diagnose problems.&#xa;o Enhancement: If the type of a Lotus entry can&apos;t be determined, it is now assumed to be a meeting. This solved a problem for a least one user.&#xa;o Enhancement: Sometimes lngsync.vbs wouldn&apos;t auto-detect the locations of files correctly. The script now has variables named lotusPath, lotusIniPath,  javaPath, and useLotusJava at the top of the script so users can easily customize the locations of files. Thanks to axeldoerr for some of the changes.&#xa;o Enhancement: The lngsync.vbs now defaults to useLotusJava=1 because this should be the best choice for most users.&#xa;o Enhancement: The lngsync.sh script was enhanced to work with both Lotus Notes v8 and v9. Thanks to Michael Steiner.&#xa;o Enhancement: The lngsync.sh script was enhanced to work with OS X versions 10.8 and greater. This was done because starting with OS X 10.8, the location of Lotus Notes changed from &quot;Notes.app&quot; to &quot;Lotus Notes.app&quot;. Thanks to Ray Wilson.&#xa;o Enhancement: Added information in the Help file about proxy servers that user NTLM authentication. Thanks to elysiummtl.&#xa;o Quote: Religion without science is superstition. Science without religion is materialism. - Bah&#xe1;&apos;u&apos;ll&#xe1;h "/>
           </Properties>
         </Component>
       </SubComponents>
@@ -141,7 +141,8 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel_Heading2">
       <Properties>
-        <Property name="text" type="java.lang.String" value="To upgrade, unzip the new files and copy your old lngsync.config file into the new-version directory."/>
+        <Property name="text" type="java.lang.String" value="&lt;html&gt;To upgrade, unzip the new files and copy your old lngsync.config file into the new-version directory.&lt;br&gt;If you modified the old lngsync.vbs or lngsync.sh files, then merge those changes into the new vbs/sh files.&lt;/html&gt;"/>
+        <Property name="verticalTextPosition" type="int" value="1"/>
       </Properties>
     </Component>
   </SubComponents>
