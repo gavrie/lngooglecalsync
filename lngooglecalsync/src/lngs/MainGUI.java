@@ -257,6 +257,7 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
             statusAppendLineDiag("Local Server: " + jCheckBox_LotusNotesServerIsLocal.isSelected());
             statusAppendLineDiag("Destination Calendar: " + jTextField_DestinationCalendarName.getText());
             statusAppendLineDiag("Local Date Format: " + ((SimpleDateFormat)dfShort).toLocalizedPattern());
+            statusAppendLineDiag("Server Date Format: " + jTextField_LotusNotesServerDateFormat.getText());
             statusAppendLineDiag("Use Proxy: " + jCheckBox_enableProxy.isSelected());
             statusAppendLineDiag("Use SSL: " + jCheckBox_GoogleSSL.isSelected());
             statusAppendLineDiag("Sync All Subjects To Value: " + jCheckBox_SyncAllSubjectsToValue.isSelected());
@@ -280,6 +281,7 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
             if (jCheckBox_LotusNotesServerIsLocal.isSelected())
                 lnServer = "";
             lotusNotesMgr.setServer(lnServer);
+            lotusNotesMgr.setServerDateFormat(jTextField_LotusNotesServerDateFormat.getText());
             lotusNotesMgr.setMailFile(jTextField_LotusNotesMailFile.getText());
             lotusNotesMgr.setMinStartDate(startDate);
             lotusNotesMgr.setMaxEndDate(endDate);
@@ -542,6 +544,8 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
         jPasswordField_proxyPassword = new javax.swing.JPasswordField();
         jButton_DetectLotusSettings = new javax.swing.JButton();
         jButton_DetectProxySettings = new javax.swing.JButton();
+        jLabel25 = new javax.swing.JLabel();
+        jTextField_LotusNotesServerDateFormat = new javax.swing.JTextField();
         jLabel16 = new javax.swing.JLabel();
         jButton_Help = new javax.swing.JButton();
         jButton_Minimize = new javax.swing.JButton();
@@ -618,7 +622,7 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
                     .add(jLabel10, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(jLabel_NextSyncTime, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .add(18, 18, 18)
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 387, Short.MAX_VALUE)
+                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 408, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -780,10 +784,10 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
                                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                     .add(jTextField_SyncDaysInFuture, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 39, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                     .add(jTextField_SyncDaysInPast, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 39, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                            .add(jLabel11, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 105, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jLabel24, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 120, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel21, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 120, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .add(28, 28, 28))))
+                            .add(jLabel21, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 120, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jLabel11, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 105, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(347, Short.MAX_VALUE))))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -795,7 +799,7 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
                     .add(jTextField_DestinationCalendarName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel20, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .add(3, 3, 3)
-                .add(jCheckBox_DiagnosticMode, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
+                .add(jCheckBox_DiagnosticMode, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(jLabel24, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -817,7 +821,7 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(jLabel17, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jCheckBox_SyncLocationAndRoom, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(jCheckBox_SyncLocationAndRoom, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jCheckBox_SyncDescription, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -916,6 +920,16 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
             }
         });
 
+        jLabel25.setText("Server Date Format");
+
+        jTextField_LotusNotesServerDateFormat.setText("Detect");
+        jTextField_LotusNotesServerDateFormat.setToolTipText("Generally you should leave this as \"Detect\". See Help for more information.");
+        jTextField_LotusNotesServerDateFormat.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                jTextField_LotusNotesServerDateFormatFocusLost(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -924,77 +938,81 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
                 .addContainerGap()
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel1Layout.createSequentialGroup()
-                        .add(10, 10, 10)
+                        .add(jLabel5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 237, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())
+                    .add(jPanel1Layout.createSequentialGroup()
                         .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jPanel1Layout.createSequentialGroup()
-                                .add(jLabel13, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 62, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .add(18, 18, 18)
-                                .add(jPasswordField_LotusNotesPassword))
+                                .add(jLabel9, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 236, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(0, 0, Short.MAX_VALUE))
                             .add(jPanel1Layout.createSequentialGroup()
-                                .add(jLabel14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 69, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .add(18, 18, 18)
-                                .add(jTextField_LotusNotesServer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 273, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jCheckBox_LotusNotesServerIsLocal, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .add(jPanel1Layout.createSequentialGroup()
-                                .add(jCheckBox_enableProxy)
+                                .add(jLabel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 178, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .add(jButton_DetectProxySettings))
+                                .add(jButton_DetectLotusSettings))
                             .add(jPanel1Layout.createSequentialGroup()
-                                .add(21, 21, 21)
+                                .add(10, 10, 10)
                                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                     .add(jPanel1Layout.createSequentialGroup()
-                                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                            .add(jLabel7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                            .add(jLabel18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 126, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                            .add(jLabel19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 130, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
+                                        .add(jCheckBox_enableProxy)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .add(jButton_DetectProxySettings))
                                     .add(jPanel1Layout.createSequentialGroup()
-                                        .add(jLabel8, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .add(37, 37, 37)))
-                                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(jPanel1Layout.createSequentialGroup()
+                                        .add(21, 21, 21)
                                         .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                            .add(jPasswordField_proxyPassword)
                                             .add(jPanel1Layout.createSequentialGroup()
-                                                .add(jTextField_proxyPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 63, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                                .add(0, 0, Short.MAX_VALUE))
-                                            .add(jTextField_proxyUsername))
-                                        .add(171, 171, 171))
+                                                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                                    .add(jLabel7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                    .add(jLabel18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 126, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                    .add(jLabel19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 130, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
+                                            .add(jPanel1Layout.createSequentialGroup()
+                                                .add(jLabel8, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .add(37, 37, 37)))
+                                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                            .add(jPanel1Layout.createSequentialGroup()
+                                                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                                    .add(jPasswordField_proxyPassword)
+                                                    .add(jPanel1Layout.createSequentialGroup()
+                                                        .add(jTextField_proxyPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 63, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                        .add(0, 0, Short.MAX_VALUE))
+                                                    .add(jTextField_proxyUsername))
+                                                .add(171, 171, 171))
+                                            .add(jPanel1Layout.createSequentialGroup()
+                                                .add(jTextField_proxyIP, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 168, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                .add(152, 152, 152))))
                                     .add(jPanel1Layout.createSequentialGroup()
-                                        .add(jTextField_proxyIP, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 168, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .add(152, 152, 152))))
-                            .add(jPanel1Layout.createSequentialGroup()
-                                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                                    .add(jLabel4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .add(jLabel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                                    .add(jTextField_GoogleUsername, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
-                                    .add(jPasswordField_GooglePassword)))
-                            .add(jPanel1Layout.createSequentialGroup()
-                                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(jCheckBox_GoogleSSL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 453, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                                            .add(jLabel4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .add(jLabel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                                            .add(jPasswordField_GooglePassword)
+                                            .add(jTextField_GoogleUsername, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)))
                                     .add(jPanel1Layout.createSequentialGroup()
-                                        .add(jLabel15, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 69, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .add(18, 18, 18)
-                                        .add(jTextField_LotusNotesMailFile, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 388, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                                .add(0, 0, Short.MAX_VALUE))))
-                    .add(jPanel1Layout.createSequentialGroup()
-                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jLabel5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 237, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel9, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 236, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .add(0, 0, Short.MAX_VALUE))
-                    .add(jPanel1Layout.createSequentialGroup()
-                        .add(jLabel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 178, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(jButton_DetectLotusSettings)))
-                .add(31, 31, 31))
+                                        .add(jCheckBox_GoogleSSL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 453, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                        .add(0, 0, Short.MAX_VALUE))
+                                    .add(jPanel1Layout.createSequentialGroup()
+                                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                            .add(jLabel14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 69, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                            .add(jLabel25, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 120, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                            .add(jLabel15, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 69, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                            .add(jLabel13, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 62, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                            .add(jPasswordField_LotusNotesPassword)
+                                            .add(jPanel1Layout.createSequentialGroup()
+                                                .add(jTextField_LotusNotesServer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 251, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(jCheckBox_LotusNotesServerIsLocal, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE))
+                                            .add(jPanel1Layout.createSequentialGroup()
+                                                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                                    .add(jTextField_LotusNotesMailFile, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 351, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                    .add(jTextField_LotusNotesServerDateFormat, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 102, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                                .add(0, 0, Short.MAX_VALUE)))))))
+                        .add(31, 31, 31))))
         );
 
         jPanel1Layout.linkSize(new java.awt.Component[] {jLabel13, jLabel14, jLabel15}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
-        jPanel1Layout.linkSize(new java.awt.Component[] {jPasswordField_LotusNotesPassword, jTextField_LotusNotesMailFile}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
 
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -1008,15 +1026,19 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
                     .add(jLabel14)
                     .add(jTextField_LotusNotesServer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jCheckBox_LotusNotesServerIsLocal, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .add(7, 7, 7)
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel25)
+                    .add(jTextField_LotusNotesServerDateFormat, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel15)
-                    .add(jTextField_LotusNotesMailFile, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(jTextField_LotusNotesMailFile, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel15))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel13)
                     .add(jPasswordField_LotusNotesPassword, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(26, 26, 26)
+                .add(18, 18, 18)
                 .add(jLabel5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .add(1, 1, 1)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
@@ -1026,7 +1048,7 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(jPasswordField_GooglePassword))
-                .add(34, 34, 34)
+                .add(33, 33, 33)
                 .add(jLabel9, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(jCheckBox_GoogleSSL)
@@ -1216,9 +1238,6 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
             LotusNotesManager lotusNotesMgr = new LotusNotesManager();
             //lotusNotesMgr.setStatusMessageCallback(this);
 
-// TODO:             
-// Parse Server Name so it doesn't contain "=" signs and stuff.  
-// Update Help file to show and describe "Detect Lotus Settings" button.
             String mailFile = "";
             String dominoServer = "";
             boolean localServer = false;
@@ -1299,6 +1318,10 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
         }        
     }//GEN-LAST:event_jButton_DetectProxySettingsActionPerformed
 
+    private void jTextField_LotusNotesServerDateFormatFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextField_LotusNotesServerDateFormatFocusLost
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField_LotusNotesServerDateFormatFocusLost
+
 
     // Validate our configuration settings
     private void validateSettings() {
@@ -1363,6 +1386,7 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
     @SuppressWarnings("static-access")
     private void saveSettings() throws Exception {
         config.setLotusNotesServer(jTextField_LotusNotesServer.getText());
+        config.setLotusNotesServerDateFormat(jTextField_LotusNotesServerDateFormat.getText());
         config.setLotusNotesServerIsLocal(jCheckBox_LotusNotesServerIsLocal.isSelected());
         config.setLotusNotesMailFile(jTextField_LotusNotesMailFile.getText());
         config.setLotusNotesPassword(new String(jPasswordField_LotusNotesPassword.getPassword()));
@@ -1398,6 +1422,7 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
     private void loadSettings() {
         try {
             jTextField_LotusNotesServer.setText(config.getLotusNotesServer());
+            jTextField_LotusNotesServerDateFormat.setText(config.getLotusNotesServerDateFormat());
             jCheckBox_LotusNotesServerIsLocal.setSelected(config.getLotusNotesServerIsLocal());
             // Call the state changed event because it doesn't always get fired by the above setSelected() call
             jCheckBox_LotusNotesServerIsLocalItemStateChanged(null);
@@ -1594,7 +1619,7 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
     private boolean isUrlValid = false;
     long statusStartTime = 0;
     String statusStartMsg;
-    final String appVersion = "2.3";
+    final String appVersion = "2.4";
     private boolean isSilentMode = false;
     private boolean saveSettingsOnExit = true;
     private String helpFilename = "(unknown)";
@@ -1645,6 +1670,7 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
     private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
+    private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -1666,6 +1692,7 @@ public class MainGUI extends javax.swing.JFrame implements StatusMessageCallback
     private javax.swing.JTextField jTextField_GoogleUsername;
     private javax.swing.JTextField jTextField_LotusNotesMailFile;
     private javax.swing.JTextField jTextField_LotusNotesServer;
+    private javax.swing.JTextField jTextField_LotusNotesServerDateFormat;
     private javax.swing.JTextField jTextField_SyncAllSubjectsToThisValue;
     private javax.swing.JFormattedTextField jTextField_SyncDaysInFuture;
     private javax.swing.JFormattedTextField jTextField_SyncDaysInPast;

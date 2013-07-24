@@ -12,6 +12,9 @@
 # is in the path.
 # The default locations for Notes.jar and the library files are hard-coded below.
 
+# The full path where java is located, e.g. "/myjava/java". Set to "" for auto-detect.
+JAVA_PATH=""
+
 OS_TYPE=`uname`
 
 # Configure for Linux
@@ -35,22 +38,23 @@ if [ "$OS_TYPE" = "Darwin" ]; then
 
 	# Create an array from the version string where
 	#    [0]=Major Verion, [1]=Minor Version, [2]=Fix Level
-	OS_VER_NUMS=(`echo $OS_VER | tr '.' ' '`)
+	OS_VER_NUMS=`echo $OS_VER | tr '.' ' '`
 
 	# These are the values we "test" against; they could be hard coded just as easily
 	vMAJOR="10"
 	vMINOR="8"
 
 	# If true, OS X is older than 10.8, in which case we look for both 'Lotus Notes.app' and 'Notes.app'
-	if [[ "${OS_VER_NUMS[0]}" -lt "$vMAJOR"  || ( "${OS_VER_NUMS[0]}" -le "$vMAJOR"  &&  "${OS_VER_NUMS[1]}" -lt "$vMINOR" )]]; then
+	if [ "${OS_VER_NUMS[0]}" -lt "$vMAJOR"  || [ "${OS_VER_NUMS[0]}" -le "$vMAJOR"  &&  "${OS_VER_NUMS[1]}" -lt "$vMINOR" ]];	then
 		if [ -d "/Applications/Notes.app/Contents/MacOS" ]; then
-			echo ----" 'Lotus Notes.app' exists "-
 			export NOTES_PATH=/Applications/Notes.app/Contents/MacOS
+		elif [ -d "/Applications/IBM Notes.app/Contents/MacOS" ]; then
+			export NOTES_PATH=/Applications/IBM\ Notes.app/Contents/MacOS			
 		elif [ -d "/Applications/Lotus Notes.app/Contents/MacOS" ]; then
 			export NOTES_PATH=/Applications/Lotus\ Notes.app/Contents/MacOS
 		else
 			echo "The OS X version was found to be older then v10.8."
-			echo "Lotus Notes could NOT be found as 'Notes.app' or 'Lotus Notes.app'. Exiting."
+			echo "Lotus Notes could NOT be found as 'Notes.app', 'IBM Notes.app', or 'Lotus Notes.app'. Exiting."
 			exit 1
 		fi
 
@@ -58,9 +62,11 @@ if [ "$OS_TYPE" = "Darwin" ]; then
 	elif [ "${OS_VER_NUMS[0]}" = "$vMAJOR" ] && [ "${OS_VER_NUMS[1]}" -ge "$vMINOR" ]; then
 		if [ -d "/Applications/Lotus Notes.app/Contents/MacOS" ]; then
 			export NOTES_PATH=/Applications/Lotus\ Notes.app/Contents/MacOS
+		elif [ -d "/Applications/IBM Notes.app/Contents/MacOS" ]; then
+			export NOTES_PATH=/Applications/IBM\ Notes.app/Contents/MacOS			
 		else
 			echo "The OS X version was found to be v10.8 or newer."
-			echo "Lotus Notes could NOT be found as 'Lotus Notes.app'. Exiting."
+			echo "Lotus Notes could NOT be found as 'IBM Notes.app' or 'Lotus Notes.app'. Exiting."
 			exit 1
 		fi
 	fi
@@ -74,20 +80,30 @@ cd "$SCRIPT_PATH"
 
 # Make silent mode work for cronjobs with ugly X11 hack
 if [ -z "$DISPLAY" ]; then
-       # try with default ...
-       export DISPLAY=:0.0
-       # ... but test
-       xset -q 1> /dev/null 2>1
-       if [ $? != 0 ]; then
-               echo The DISPLAY environment varialbe was not set, and the attempt to manually set did not work.
-               echo The application may not startup properly.
-       fi
+	# try with default ...
+	export DISPLAY=:0.0
+	# ... but test
+	xset -q 1> /dev/null 2>1
+	if [ $? != 0 ]; then
+		echo The DISPLAY environment variable was not set, and the attempt to manually set did not work.
+		echo The application may not startup properly.
+	fi
 fi
 
 export PATH=$PATH:"$NOTES_PATH"
-export MY_CLASSPATH="$NOTES_PATH/jvm/lib/ext/Notes.jar":./lngsync.jar
+export MY_CLASSPATH="$NOTES_PATH/jvm/lib/ext/Notes.jar":./lngsync.jar:$(printf "%s\n"  ./lib/*.jar | tr "\n" ":")
 
-JAVA_COMMAND="java -d32"
+if [ -z "$JAVA_PATH" ]; then
+	# If the default Lotus Notes Java exists, use it
+	if [ -e "$NOTES_PATH/jvm/bin/java" ]; then
+		JAVA_PATH="$NOTES_PATH/jvm/bin/java"
+	else
+		# Let the OS find Java via the PATH
+		JAVA_PATH="java"
+	fi
+fi
+
+JAVA_COMMAND="$JAVA_PATH -d32 "
 
 
 if [ -n $1 ] && [ "$1" = "-silent" ]; then

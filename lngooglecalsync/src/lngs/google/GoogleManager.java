@@ -567,6 +567,7 @@ public class GoogleManager {
                     // The Google entry was NOT created by LNGS, so we want to remove it from
                     // our processing list (i.e. we will leave it alone).
                     googleCalEntries.remove(j--);
+//statusMessageCallback.statusAppendLineDiag("!@! Google entry NOT created by LNGS: " + googleCalEntries.get(j).getTitle().getPlainText());
                 }
                 else if ( ! hasEntryChanged(lotusEntry, googleCalEntries.get(j))) {
                     // The Lotus and Google entries are identical, so remove them from out lists.
@@ -574,6 +575,9 @@ public class GoogleManager {
                     lotusCalEntries.remove(i--);
                     googleCalEntries.remove(j--);
                     break;
+                }
+                else {
+//statusMessageCallback.statusAppendLineDiag("!@! Lotus entry needs created in GCal: " + lotusEntry.getSubject());
                 }
             }
         }
@@ -601,13 +605,12 @@ public class GoogleManager {
             // option enabled, but then "sync alarms" is turned off. When the
             // second sync happens, we want to delete all the Google entries created
             // the first time (with alarms) and re-create them without alarms.
+//statusMessageCallback.statusAppendLineDiag("!@! UIDs match. LN: " + lotusEntry.getSubject() + "  |  Gcal: " + googleEntry.getTitle().getPlainText());
 
             // Compare the title/subject
-            String lotusSubject = lotusEntry.getSubject().trim().replace("\r", "");
-            if (syncAllSubjectsToValue) {
-                lotusSubject = syncAllSubjectsToThisValue;
-            }
+            String lotusSubject = createSubjectText(lotusEntry);
             if (!googleEntry.getTitle().getPlainText().equals(lotusSubject)) {
+//statusMessageCallback.statusAppendLineDiag("!@! Subjects differ");
                 return true;
             }
 
@@ -617,14 +620,16 @@ public class GoogleManager {
             if (syncWhere && lotusEntry.getGoogleWhereString() != null) {
                 // If true, the Google entry doesn't contain location info, so
                 // the entries don't match.
-                if (whereList.size() > 0 && whereList.get(0).getValueString() == null) {
+                if (whereList.size() > 0 && (whereList.get(0).getValueString() == null || whereList.get(0).getValueString().isEmpty())) {
+//statusMessageCallback.statusAppendLineDiag("!@! No Google loc info");
                     return true;
                 }
             }
             else {
                 // If true, the Google entry has location info (which we don't want), so
                 // the entries don't match.
-                if (whereList.size() > 0 && whereList.get(0).getValueString() != null) {
+                if (whereList.size() > 0 && (whereList.get(0).getValueString() != null && !whereList.get(0).getValueString().isEmpty())) {
+//statusMessageCallback.statusAppendLineDiag("!@! No Lotus loc info. GCal locs: " + whereList.size() + "  (0): [" + whereList.get(0).getValueString() + "]");
                     return true;
                 }
             }
@@ -633,6 +638,7 @@ public class GoogleManager {
                 // We are syncing alarms, so make sure the Google entry has an alarm.
                 // Note: If there is an alarm set, we'll assume the alarm offset is correct.
                 if (googleEntry.getReminder().size() == 0) {
+//statusMessageCallback.statusAppendLineDiag("!@! Reminder 1");
                     return true;
                 }
             }
@@ -640,12 +646,14 @@ public class GoogleManager {
                 // We aren't syncing alarms, so make sure the Google entry doesn't
                 // have an alarm specified
                 if (googleEntry.getReminder().size() > 0) {
+//statusMessageCallback.statusAppendLineDiag("!@! Reminder 2");
                     return true;
                 }
             }
 
             // Compare the Description field of Google entry to what we would build it as
             if (! googleEntry.getPlainTextContent().equals(createDescriptionText(lotusEntry))) {
+//statusMessageCallback.statusAppendLineDiag("!@! Description");
                 return true;
             }
 
@@ -736,14 +744,7 @@ public class GoogleManager {
             LotusNotesCalendarEntry lotusEntry = lotusCalEntries.get(i);
             CalendarEventEntry event = new CalendarEventEntry();
             // Set the subject/title
-            if (syncAllSubjectsToValue) {
-                // Set all subjects to a specific value (for privacy)
-                event.setTitle(new PlainTextConstruct(syncAllSubjectsToThisValue));
-            }
-            else {
-                // Set the subject to the Lotus value
-                event.setTitle(new PlainTextConstruct(lotusEntry.getSubject()));
-            }
+            event.setTitle(new PlainTextConstruct(createSubjectText(lotusEntry)));
 
             // The Google IcalUID must be unique for all eternity or we'll get a
             // VersionConflictException during the insert. So start the IcalUID string
@@ -760,7 +761,7 @@ public class GoogleManager {
                 String whereStr = lotusEntry.getGoogleWhereString();
                 if (whereStr != null) {
                     Where location = new Where();
-                    // Remove all control characters from the Where string. If present, such
+                    // Remove all control/non-printing characters from the Where string. If present, such
                     // characters will cause the GCal create to fail.
                     location.setValueString(whereStr.replaceAll("\\p{Cntrl}", ""));
                     event.addLocation(location);
@@ -850,6 +851,35 @@ public class GoogleManager {
         return createdCount;
     }
 
+    /**
+     * Build the GCal subject text from the Lotus Notes calendar entry.
+     * @param lotusEntry - The source Lotus Notes calendar entry.
+     * @return The GCal subject text.
+     */
+    protected String createSubjectText(LotusNotesCalendarEntry lotusEntry) {
+        String subjectText = "";
+        
+        if (syncAllSubjectsToValue) {
+            subjectText = syncAllSubjectsToThisValue;
+        } else {
+            // Remove carriage returns
+            subjectText = lotusEntry.getSubject().trim().replace("\r", "");            
+        }
+        
+        if (subjectText.length() > maxSubjectChars) {
+            // Truncate to a max size
+            subjectText = subjectText.substring(0, maxSubjectChars);
+        }
+        
+        return subjectText;
+    }
+    
+    /**
+     * Build the GCal description text from the Lotus Notes calendar entry. The
+     * output includes the LN description and optional info like the invitees.
+     * @param lotusEntry - The source Lotus Notes calendar entry.
+     * @return The GCal description text.
+     */
     protected String createDescriptionText(LotusNotesCalendarEntry lotusEntry) {
         StringBuffer sb = new StringBuffer();
 
@@ -880,7 +910,7 @@ public class GoogleManager {
             // Lotus ends each description line with \r\n.  Remove all
             // carriage returns (\r) because they aren't needed and they prevent the
             // Lotus description from matching the description in Google.
-            String s = lotusEntry.getBody().replaceAll("\r", "");
+            String s = lotusEntry.getBody().replace("\r", "");
             sb.append(s.trim());
         }
 
@@ -1012,6 +1042,9 @@ public class GoogleManager {
     protected final int maxRetryCount = 10;
     protected final int retryDelayMsecs = 600;
 
+    // Google has a maximum limit of around 1600 chars for subject/title lines.
+    // I don't know the Lotus limit, but 1000 should be plenty.
+    protected final int maxSubjectChars = 1000;
     // The maximum number of chars allowed in a calendar description. Google has some
     // limit around 8100 chars. Lotus has a limit greater than that, so choose 8000.
     protected final int maxDescriptionChars = 8000;

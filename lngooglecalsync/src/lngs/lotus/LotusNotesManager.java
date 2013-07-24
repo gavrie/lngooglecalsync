@@ -21,6 +21,7 @@ public class LotusNotesManager {
     boolean requiresAuth;
     boolean diagnosticMode = false;
     String notesVersion;
+    String serverDateFormat;
 
     // Our min and max dates for entries we will process.
     // If the calendar entry is outside this range, it is ignored.
@@ -78,6 +79,10 @@ public class LotusNotesManager {
         this.endDate = maxEndDate;
     }
 
+    public void setServerDateFormat(String serverDateFormat) {
+        this.serverDateFormat = serverDateFormat;
+    }
+
     public void setStatusMessageCallback(StatusMessageCallback value) {
         statusMessageCallback = value;
     }
@@ -132,11 +137,26 @@ public class LotusNotesManager {
                     "Couldn't create Lotus Notes Database object.");
             }
 
-            String strDateFormat = getLotusServerDateFormat(session);
-            DateFormat dateFormat = new SimpleDateFormat(strDateFormat);
-            statusMessageCallback.statusAppendLineDiag("Server Date Format: " +
-                strDateFormat);
+            String strDateFormat;
+            DateFormat dateFormat;
+            if (serverDateFormat.isEmpty() || serverDateFormat.equalsIgnoreCase("detect"))
+            {
+                strDateFormat = getLotusServerDateFormat(session);
+                dateFormat = new SimpleDateFormat(strDateFormat);
+                statusMessageCallback.statusAppendLineDiag("Using Detected Server Date Format: " + strDateFormat);
+            }
+            else
+            {
+                dateFormat = new SimpleDateFormat(serverDateFormat);
+                statusMessageCallback.statusAppendLineDiag("Using Explicit Server Date Format: " + serverDateFormat);                
+            }
 
+//DateFormat dfShort = DateFormat.getDateInstance(DateFormat.SHORT);
+//String strDateFormat = ((SimpleDateFormat)dfShort).toLocalizedPattern();
+//DateFormat dateFormat = dfShort;
+//statusMessageCallback.statusAppendLineDiag("Using Date Format: " + strDateFormat);
+        
+            
             // Query Lotus Notes to get calendar entries in our date range.
             // To understand this SELECT, go to http://publib.boulder.ibm.com/infocenter/domhelp/v8r0/index.jsp
             // and search for the various keywords. Here is an overview:
@@ -307,10 +327,7 @@ public class LotusNotesManager {
         while (doc != null) {
             Item lnItem;
             addDoc = true;
-
-            //dlh            
-            //            statusMessageCallback.statusAppendLineDiag("Processing entry: " + cntEntry);
-
+           
             // If we are in diagnostic mode, write the entry to a text file
             if (diagnosticMode) {
                 writeEntryToFile(doc, cntEntry);
@@ -470,10 +487,14 @@ public class LotusNotesManager {
 
                                     calendarEntries.add(cal.clone());
                                 } else {
-                                    //DateFormat dfShort = DateFormat.getDateInstance(DateFormat.SHORT);
-                                    //                                    
-                                    //statusMessageCallback.statusAppendStart("Out of date range REPEAT. Entry Start: " + dfShort.format(cal.getStartDateTime()) +
-                                    //        "  Subject: " + cal.getSubject());                                    
+                                    DateFormat dfShort = DateFormat.getDateInstance(DateFormat.SHORT);
+                                                                        
+//                                    statusMessageCallback.statusAppendStart("Out of date range REPEAT. Entry Start: " + dfShort.format(cal.getStartDateTime()) +
+//                                            "  Subject: " + cal.getSubject());                                    
+int s1 = javaDate.compareTo(startDate);
+int s2 = javaDate.compareTo(endDate);
+//statusMessageCallback.statusAppendLineDiag("!@! Out of date range. Start: " + javaDate +
+//        "  Subject: " + cal.getSubject());
                                 }
                             }
                         }
@@ -502,10 +523,11 @@ public class LotusNotesManager {
                     // Only add the entry if it is within our sync date range
                     if (isDateInRange(cal.getStartDateTime())) {
                         calendarEntries.add(cal);
+//statusMessageCallback.statusAppendLineDiag("Is in date range. Start: " + cal.getStartDateTime() +
+//                                            "  Subject: " + cal.getSubject());
                     }
 
                     //                                else {
-                    //dlh                                    
                     //DateFormat dfShort = DateFormat.getDateInstance(DateFormat.SHORT);
                     //                                    
                     //statusMessageCallback.statusAppendStart("Out of date range SINGLE. Entry Start: " + dfShort.format(cal.getStartDateTime()) +
@@ -581,10 +603,15 @@ public class LotusNotesManager {
      * @return True if the date is in the range, false otherwise.
      */
     public boolean isDateInRange(Date entryDate) {
-        if ((entryDate != null) && (entryDate.compareTo(startDate) >= 0) &&
-                (entryDate.compareTo(endDate) <= 0)) {
+        if (entryDate != null && entryDate.after(startDate) &&
+                entryDate.before(endDate)) {
             return true;
         }
+
+//        if ((entryDate != null) && (entryDate.compareTo(startDate) >= 0) &&
+//                (entryDate.compareTo(endDate) <= 0)) {
+//            return true;
+//        }
 
         return false;
     }

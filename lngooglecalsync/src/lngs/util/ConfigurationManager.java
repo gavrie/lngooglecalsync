@@ -63,6 +63,10 @@ public class ConfigurationManager {
         config.setProperty(PROP_LOTUS_NOTES_SERVER, value);
     }
 
+    public void setLotusNotesServerDateFormat(String value) {
+        config.setProperty(PROP_LOTUS_NOTES_SERVER_DATE_FORMAT, value);
+    }
+
     public void setLotusNotesServerIsLocal(boolean value) {
         setBooleanProperty(PROP_LOTUS_NOTES_SERVER_IS_LOCAL, value);
     }
@@ -179,6 +183,15 @@ public class ConfigurationManager {
 
     public String getLotusNotesServer() {
         return getStringProperty(PROP_LOTUS_NOTES_SERVER);
+    }
+
+    public String getLotusNotesServerDateFormat() {
+        String value = getStringProperty(PROP_LOTUS_NOTES_SERVER_DATE_FORMAT);
+
+        if (value.isEmpty())
+            value = "Detect";
+
+        return value;
     }
 
     public boolean getLotusNotesServerIsLocal() {
@@ -358,12 +371,13 @@ public class ConfigurationManager {
     // Version stamp for the config-file format.
     // IMPORTANT: Update this version number whenever there is a format change to the
     // config file, e.g. adding a new setting.
-    protected static final int currConfigVersion = 6;
+    protected static final int currConfigVersion = 7;
     protected static final String PROP_CONFIG_VERSION = "ConfigVersion";
 
     protected static final String PROP_APP_VERSION = "ApplicationVersion";
 
     protected static final String PROP_LOTUS_NOTES_SERVER = "LotusNotesServer";
+    protected static final String PROP_LOTUS_NOTES_SERVER_DATE_FORMAT = "LotusNotesServerDateFormat";
     protected static final String PROP_LOTUS_NOTES_SERVER_IS_LOCAL = "LotusNotesServerIsLocal";
     protected static final String PROP_LOTUS_NOTES_MAIL_FILE = "LotusNotesMailFile";
     protected static final String PROP_LOTUS_NOTES_PASSWORD = "LotusNotesPassword";
