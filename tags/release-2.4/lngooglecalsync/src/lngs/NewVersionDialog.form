@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.8" maxVersion="1.8" type="org.netbeans.modules.form.forminfo.JDialogFormInfo">
+  <Properties>
+    <Property name="defaultCloseOperation" type="int" value="2"/>
+    <Property name="title" type="java.lang.String" value="New Version Announcement"/>
+    <Property name="resizable" type="boolean" value="false"/>
+  </Properties>
+  <SyntheticProperties>
+    <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
+  </SyntheticProperties>
+  <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+  </AuxValues>
+
+  <Layout>
+    <DimensionLayout dim="0">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" attributes="0">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="jScrollPane2" pref="0" max="32767" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Group type="102" attributes="0">
+                                      <Component id="jLabel_Heading1" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="jLabel_Heading3" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="jLabel_HelpFile" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Component id="jLabel_Heading2" min="-2" pref="666" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace min="0" pref="59" max="32767" attributes="0"/>
+                          </Group>
+                      </Group>
+                  </Group>
+                  <Group type="102" attributes="0">
+                      <EmptySpace min="-2" pref="330" max="-2" attributes="0"/>
+                      <Component id="jButton_OK" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="55" max="-2" attributes="0"/>
+                      <Component id="jLabel_Donate" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                  </Group>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+    <DimensionLayout dim="1">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="jLabel_Heading1" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel_Heading3" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel_HelpFile" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jLabel_Heading2" pref="35" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jScrollPane2" min="-2" pref="242" max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="jButton_OK" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel_Donate" alignment="3" min="-2" pref="14" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+  </Layout>
+  <SubComponents>
+    <Component class="javax.swing.JButton" name="jButton_OK">
+      <Properties>
+        <Property name="mnemonic" type="int" value="79"/>
+        <Property name="text" type="java.lang.String" value="OK"/>
+        <Property name="selected" type="boolean" value="true"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton_OKActionPerformed"/>
+      </Events>
+    </Component>
+    <Container class="javax.swing.JScrollPane" name="jScrollPane2">
+      <AuxValues>
+        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+      <SubComponents>
+        <Component class="javax.swing.JTextPane" name="jTextPane_Changes">
+          <Properties>
+            <Property name="editable" type="boolean" value="false"/>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Tahoma" size="12" style="0"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="o Fix: LNGS was always deleting and recreating GCal entries because GCal changed their default value for when a calendar entry doesn&apos;t have a location. GCal previously used null; now it is &quot;&quot;. LNGS now checks for both.&#xa;o Fix: Google has a limit for the length of subject/title values, around 1600 characters. Lotus has some limit greater than Google. When the app compared a Lotus entry with a 2000 char subject to the corresponding Google entry (which had its description truncated to 1600), the app would incorrectly assume they didn&apos;t match. Now, subject values are truncated to 1000 chars before being added to Google and before the Lotus-to-Google compare is performed.&#xa;o Fix: A syntax error in the OS X sections of lnconntest.sh and lngsync.sh was fixed. Thanks to Hajo Pross.&#xa;o Enhancement: The date format used on a remote Lotus Notes server is sometimes different than the local client format (e.g. m/d/y vs d/m/y). This has been a recurring problem for a few users. A new Server Date Format field has been added to the Connection Settings tab so those users can specify the date format that works with their Lotus server.&#xa;o Enhancement: The Troubleshooting section of Help, now talks about using TCPView to identify a proxy address.&#xa;o Enhancement: The Troubleshooting section of Help, now talks about the &quot;Cannot access the calendar you requested&quot; error.&#xa;o Enhancement: The lngsync.vbs script was changed to check the JAVA_HOME path for the location of javaw.exe. Thanks to David Zeleznik.&#xa;o News: I ran a second Tough Mudder race with a group of co-workers. Fun time (but I hate the Electric Eel).&#xa;o Quote: It has been said that democracy is the worst form of government except all the others that have been tried. - Winston Churchill"/>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
+    <Component class="javax.swing.JLabel" name="jLabel_Heading1">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="This version is being run for the first time in GUI mode."/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel_HelpFile">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="&lt;HTML&gt;&lt;FONT color=\u005c&quot;#000099\u005c&quot;&gt;&lt;U&gt;Help File.&lt;/U&gt;&lt;/FONT&gt;&lt;/HTML&gt;" containsInvalidXMLChars="true"/>
+      </Properties>
+      <Events>
+        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jLabel_HelpFileMouseClicked"/>
+        <EventHandler event="mouseEntered" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jLabel_HelpFileMouseEntered"/>
+        <EventHandler event="mouseExited" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jLabel_HelpFileMouseExited"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel_Heading3">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Here are the changes from the History Log in the"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel_Donate">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="&lt;HTML&gt;&lt;FONT color=\u005c&quot;#000099\u005c&quot;&gt;&lt;U&gt;Donate $5 (PayPal)&lt;/U&gt;&lt;/FONT&gt;&lt;/HTML&gt;" containsInvalidXMLChars="true"/>
+      </Properties>
+      <Events>
+        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jLabel_DonateMouseClicked"/>
+        <EventHandler event="mouseEntered" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jLabel_DonateMouseEntered"/>
+        <EventHandler event="mouseExited" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jLabel_DonateMouseExited"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel_Heading2">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="&lt;html&gt;To upgrade, unzip the new files and copy your old lngsync.config file into the new-version directory.&lt;br&gt;If you modified the old lngsync.vbs or lngsync.sh files, then merge those changes into the new vbs/sh files.&lt;/html&gt;"/>
+        <Property name="verticalTextPosition" type="int" value="1"/>
+      </Properties>
+    </Component>
+  </SubComponents>
+</Form>
