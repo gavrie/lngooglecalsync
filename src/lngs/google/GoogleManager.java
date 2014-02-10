@@ -47,7 +47,7 @@ public class GoogleManager {
             mainCalendarFeedUrl = new URL(protocol + "//www.google.com/calendar/feeds/" + googleUsername + "/owncalendars/full");
             privateCalendarFeedUrl = new URL(protocol + "//www.google.com/calendar/feeds/" + googleUsername + "/private/full");
 
-            service = new CalendarService("MyFooBar1763");
+            service = new CalendarService("MyFooBar1763");  // updated
 
             // I think (but I'm not positive) that the default for these two timeout values is 20000 msecs.
             // Increase them because some users have encountered timeout problems.
