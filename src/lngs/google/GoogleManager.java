@@ -47,8 +47,8 @@ public class GoogleManager {
             mainCalendarFeedUrl = new URL(protocol + "//www.google.com/calendar/feeds/" + googleUsername + "/owncalendars/full");
             privateCalendarFeedUrl = new URL(protocol + "//www.google.com/calendar/feeds/" + googleUsername + "/private/full");
 
-            service = new CalendarService("LotusNotes-Calendar-Sync");
-            
+            service = new CalendarService("MyFooBar1763");
+
             // I think (but I'm not positive) that the default for these two timeout values is 20000 msecs.
             // Increase them because some users have encountered timeout problems.
             service.setConnectTimeout(30000);
